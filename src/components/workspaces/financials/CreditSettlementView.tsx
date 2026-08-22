@@ -25,24 +25,25 @@ export const CreditSettlementView: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<'all' | 'good' | 'warning' | 'blacklisted'>('all');
   const [selectedAccount, setSelectedAccount] = useState<CorporateCreditAccount | null>(null);
 
-  const filteredAccounts = creditAccounts.filter((acc) => {
+  const filteredAccounts = (creditAccounts || []).filter((acc) => {
     const matchSearch =
-      acc.companyNameFa.includes(searchQuery) ||
-      acc.companyCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      acc.nationalId.includes(searchQuery);
+      acc?.companyNameFa?.includes(searchQuery) ||
+      acc?.companyCode?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      acc?.nationalId?.includes(searchQuery);
 
+    const isBlack = acc?.isBlacklisted || acc?.status === 'blacklisted';
     const matchFilter =
       filterStatus === 'all' ||
-      (filterStatus === 'blacklisted' && acc.isBlacklisted) ||
-      (filterStatus === 'warning' && !acc.isBlacklisted && acc.overdueDays > 0) ||
-      (filterStatus === 'good' && !acc.isBlacklisted && acc.overdueDays === 0);
+      (filterStatus === 'blacklisted' && isBlack) ||
+      (filterStatus === 'warning' && !isBlack && (acc?.overdueDays ?? 0) > 0) ||
+      (filterStatus === 'good' && !isBlack && (acc?.overdueDays ?? 0) === 0);
 
     return matchSearch && matchFilter;
   });
 
-  const totalCreditLimitBillion = creditAccounts.reduce((sum, a) => sum + a.creditLimitToman, 0) / 1000000000;
-  const totalOutstandingBillion = creditAccounts.reduce((sum, a) => sum + a.currentOutstandingToman, 0) / 1000000000;
-  const blacklistedCount = creditAccounts.filter((a) => a.isBlacklisted).length;
+  const totalCreditLimitBillion = (creditAccounts || []).reduce((sum, a) => sum + (a?.creditLimitToman || 0), 0) / 1000000000;
+  const totalOutstandingBillion = (creditAccounts || []).reduce((sum, a) => sum + (a?.currentOutstandingToman || 0), 0) / 1000000000;
+  const blacklistedCount = (creditAccounts || []).filter((a) => a?.isBlacklisted || a?.status === 'blacklisted').length;
 
   return (
     <div className="space-y-6">

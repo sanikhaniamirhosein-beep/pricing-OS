@@ -33,7 +33,7 @@ export const IntelligenceHubView: React.FC<IntelligenceHubViewProps> = ({
     setLocalActiveTab(tab);
     if (onSubTabChange) onSubTabChange(tab);
   };
-  const [selectedAnomaly, setSelectedAnomaly] = useState<AnomalyItem | null>(anomalies[0] || null);
+  const [selectedAnomaly, setSelectedAnomaly] = useState<AnomalyItem | null>(anomalies?.[0] || null);
 
   return (
     <div className="space-y-6 text-xs">
@@ -193,12 +193,12 @@ export const IntelligenceHubView: React.FC<IntelligenceHubViewProps> = ({
                 ناهنجاری‌های مالی کشف‌شده پیش از تسویه بارنامه (Pre-Settlement):
               </h3>
               <span className="text-xs bg-amber-50 text-amber-900 px-3 py-1 rounded-full font-mono font-bold border border-amber-200">
-                {anomalies.filter((a) => a.status === 'open').length} مورد باز
+                {(anomalies || []).filter((a) => a?.status === 'open').length} مورد باز
               </span>
             </div>
 
             <div className="space-y-3">
-              {anomalies.map((anom) => {
+              {(anomalies || []).map((anom) => {
                 const isSelected = selectedAnomaly?.anomalyId === anom.anomalyId;
                 const isHigh = anom.severity === 'high' || anom.severity === 'critical';
 
@@ -350,7 +350,7 @@ export const IntelligenceHubView: React.FC<IntelligenceHubViewProps> = ({
       {/* Tab 4: Contract Performance */}
       {activeTab === 'contracts' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {contracts.map((cnt) => (
+          {(contracts || []).map((cnt) => (
             <div
               key={cnt.contractId}
               className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs space-y-4"

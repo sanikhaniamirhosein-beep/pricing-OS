@@ -30,24 +30,24 @@ export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'active' | 'live_map' | 'history' | 'edocs'>('active');
   const [selectedLoad, setSelectedLoad] = useState<ShipperActiveLoad>(
-    initialSelectedShipment || INITIAL_ACTIVE_LOADS[0]
+    initialSelectedShipment || INITIAL_ACTIVE_LOADS?.[0] || ({} as ShipperActiveLoad)
   );
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
   // Filter loads
-  const filteredLoads = INITIAL_ACTIVE_LOADS.filter((load) => {
+  const filteredLoads = (INITIAL_ACTIVE_LOADS || []).filter((load) => {
     const q = (searchQuery || '').toLowerCase().trim();
     const matchesSearch =
       !q ||
-      (load.billOfLadingNo || '').toLowerCase().includes(q) ||
-      (load.trackingCode || '').toLowerCase().includes(q) ||
-      (load.originCity || '').toLowerCase().includes(q) ||
-      (load.destCity || '').toLowerCase().includes(q) ||
-      (load.driverName || '').toLowerCase().includes(q);
+      (load?.billOfLadingNo || '').toLowerCase().includes(q) ||
+      (load?.trackingCode || '').toLowerCase().includes(q) ||
+      (load?.originCity || '').toLowerCase().includes(q) ||
+      (load?.destCity || '').toLowerCase().includes(q) ||
+      (load?.driverName || '').toLowerCase().includes(q);
 
     if (statusFilter === 'all') return matchesSearch;
-    return matchesSearch && load.status === statusFilter;
+    return matchesSearch && load?.status === statusFilter;
   });
 
   const getStatusBadge = (status: ShipperActiveLoad['status']) => {
@@ -89,7 +89,7 @@ export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
       <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           {[
-            { id: 'active', label: 'بارهای فعال جاری', icon: Truck, count: INITIAL_ACTIVE_LOADS.filter(l => l.status !== 'delivered').length },
+            { id: 'active', label: 'بارهای فعال جاری', icon: Truck, count: (INITIAL_ACTIVE_LOADS || []).filter(l => l?.status !== 'delivered').length },
             { id: 'live_map', label: 'نقشه رهگیری زنده GPS', icon: Navigation },
             { id: 'history', label: 'تاریخچه سفارش‌ها', icon: Calendar },
             { id: 'edocs', label: 'اسناد الکترونیکی و POD', icon: FileCheck },
@@ -208,7 +208,7 @@ export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
                         <div className="w-28 space-y-1">
                           <div className="flex justify-between text-[10px] text-slate-500 font-mono">
                             <span>{load.progressPercent}%</span>
-                            <span>{load.estimatedArrival.split(' - ')[1]}</span>
+                            <span>{load?.estimatedArrival ? (load.estimatedArrival.split(' - ')?.[1] || load.estimatedArrival) : '-'}</span>
                           </div>
                           <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
                             <div
@@ -290,18 +290,18 @@ export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
                 {/* Milestones / Checkpoints */}
                 <div className="flex justify-between items-center text-xs pt-4 text-slate-300">
                   <div className="text-right">
-                    <span className="block font-bold text-amber-400">{selectedLoad.originCity}</span>
-                    <span className="text-[10px] text-slate-400 font-mono">خروج: {selectedLoad.departureTime.split(' - ')[1]}</span>
+                    <span className="block font-bold text-amber-400">{selectedLoad?.originCity || '-'}</span>
+                    <span className="text-[10px] text-slate-400 font-mono">خروج: {selectedLoad?.departureTime ? (selectedLoad.departureTime.split(' - ')?.[1] || selectedLoad.departureTime) : '-'}</span>
                   </div>
 
                   <div className="text-center bg-slate-800/80 px-3 py-1 rounded-xl border border-slate-700">
                     <span className="text-[11px] text-slate-300 block">موقعیت فعلی:</span>
-                    <span className="font-bold text-white text-xs">{selectedLoad.currentLocation}</span>
+                    <span className="font-bold text-white text-xs">{selectedLoad?.currentLocation || '-'}</span>
                   </div>
 
                   <div className="text-left">
-                    <span className="block font-bold text-emerald-400">{selectedLoad.destCity}</span>
-                    <span className="text-[10px] text-slate-400 font-mono">تخمین رسیدن: {selectedLoad.estimatedArrival.split(' - ')[1]}</span>
+                    <span className="block font-bold text-emerald-400">{selectedLoad?.destCity || '-'}</span>
+                    <span className="text-[10px] text-slate-400 font-mono">تخمین رسیدن: {selectedLoad?.estimatedArrival ? (selectedLoad.estimatedArrival.split(' - ')?.[1] || selectedLoad.estimatedArrival) : '-'}</span>
                   </div>
                 </div>
               </div>
@@ -341,11 +341,11 @@ export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
 
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-700 flex items-center justify-center font-bold text-lg">
-                  {selectedLoad.driverName.substring(0, 1)}
+                  {selectedLoad?.driverName ? selectedLoad.driverName.substring(0, 1) : 'ر'}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-bold text-slate-900 text-sm">{selectedLoad.driverName}</div>
-                  <div className="text-slate-500 text-xs font-mono">{selectedLoad.truckPlate}</div>
+                  <div className="font-bold text-slate-900 text-sm">{selectedLoad?.driverName || '-'}</div>
+                  <div className="text-slate-500 text-xs font-mono">{selectedLoad?.truckPlate || '-'}</div>
                 </div>
               </div>
 
@@ -440,7 +440,7 @@ export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
                 <div className="flex items-center gap-4">
                   <div className="text-left font-mono">
                     <div className="font-bold text-slate-900">{(load.totalCostRials / 10).toLocaleString('fa-IR')} تومان</div>
-                    <div className="text-[10px] text-slate-400">{load.departureTime.split(' - ')[0]}</div>
+                    <div className="text-[10px] text-slate-400">{load?.departureTime ? (load.departureTime.split(' - ')?.[0] || load.departureTime) : '-'}</div>
                   </div>
                   <button
                     type="button"

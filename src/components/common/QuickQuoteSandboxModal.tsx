@@ -199,7 +199,7 @@ export const QuickQuoteSandboxModal: React.FC = () => {
               className="w-full bg-[#FAF8F5] border border-amber-200/80 rounded-xl p-2.5 text-slate-800 text-xs focus:border-amber-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 font-medium"
             >
               <option value="">(تعرفه عمومی استاندارد - بدون قرارداد اختصاصی)</option>
-              {contracts.map((cnt) => (
+              {(contracts || []).map((cnt) => (
                 <option key={cnt.contractId} value={cnt.contractId}>
                   {cnt.displayId} - {cnt.customerNameFa} ({cnt.tier})
                 </option>

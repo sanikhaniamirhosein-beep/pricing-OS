@@ -266,7 +266,7 @@ export const ShipperSettingsView: React.FC = () => {
                       <td className="p-3.5 text-center">
                         <button
                           type="button"
-                          onClick={() => setTeamMembers(teamMembers.filter((m) => m.id !== member.id))}
+                          onClick={() => setTeamMembers((prev) => (prev || []).filter((m) => m?.id !== member?.id))}
                           className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 cursor-pointer"
                         >
                           <Trash2 className="w-4 h-4" />

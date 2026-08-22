@@ -766,7 +766,7 @@ export const ShipperAuthModal: React.FC<ShipperAuthModalProps> = ({
                             <button
                               type="button"
                               onClick={() =>
-                                setCorpMembersList((prev) => prev.filter((item) => item.id !== m.id))
+                                setCorpMembersList((prev) => (prev || []).filter((item) => item.id !== m.id))
                               }
                               className="text-slate-400 hover:text-rose-600 p-1 transition-colors cursor-pointer"
                             >

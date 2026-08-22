@@ -21,16 +21,16 @@ import { LogisticsContract } from '../../../types/pricing';
 
 export const EnterprisePriceBooksView: React.FC = () => {
   const { contracts } = usePricing();
-  const [contractList, setContractList] = useState<LogisticsContract[]>(contracts);
-  const [selectedContract, setSelectedContract] = useState<LogisticsContract | null>(contracts[0] || null);
+  const [contractList, setContractList] = useState<LogisticsContract[]>(contracts || []);
+  const [selectedContract, setSelectedContract] = useState<LogisticsContract | null>(contracts?.[0] || null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddingContract, setIsAddingContract] = useState(false);
 
-  const filteredContracts = contractList.filter(
+  const filteredContracts = (contractList || []).filter(
     (c) =>
-      c.customerNameFa.includes(searchQuery) ||
-      c.customerCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.industry.includes(searchQuery)
+      c?.customerNameFa?.includes(searchQuery) ||
+      c?.customerCode?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c?.industry?.includes(searchQuery)
   );
 
   return (
@@ -48,7 +48,7 @@ export const EnterprisePriceBooksView: React.FC = () => {
                   ۲.۱ مدیریت دفترچه‌های قیمت شرکتی (Enterprise Price Books)
                 </h1>
                 <span className="bg-amber-100 text-amber-800 text-xs px-2.5 py-0.5 rounded-full font-bold">
-                  {contracts.length} قرارداد فعال
+                  {(contracts || []).length} قرارداد فعال
                 </span>
               </div>
               <p className="text-sm text-slate-500 mt-1">
@@ -231,7 +231,7 @@ export const EnterprisePriceBooksView: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 text-slate-800">
-                      {selectedContract.volumeBands.map((band, bIdx) => (
+                      {(selectedContract?.volumeBands || []).map((band, bIdx) => (
                         <tr key={bIdx} className="hover:bg-slate-50">
                           <td className="py-3 px-4 font-mono font-bold">
                             {band.minTonsPerMonth.toLocaleString('fa-IR')} تا{' '}
@@ -273,7 +273,7 @@ export const EnterprisePriceBooksView: React.FC = () => {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {Object.entries(selectedContract.negotiatedBaseOverrides).map(([corridor, rate]) => (
+                  {Object.entries(selectedContract?.negotiatedBaseOverrides || {}).map(([corridor, rate]) => (
                     <div
                       key={corridor}
                       className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between"

@@ -40,9 +40,9 @@ export const ShipperDashboardView: React.FC<ShipperDashboardViewProps> = ({
   onNavigateTab,
   onSelectShipmentToTrack,
 }) => {
-  const inTransitCount = INITIAL_ACTIVE_LOADS.filter((l) => l.status === 'in_transit').length;
-  const loadingCount = INITIAL_ACTIVE_LOADS.filter((l) => l.status === 'loading' || l.status === 'pending_driver').length;
-  const deliveredCount = INITIAL_ACTIVE_LOADS.filter((l) => l.status === 'delivered').length;
+  const inTransitCount = (INITIAL_ACTIVE_LOADS || []).filter((l) => l?.status === 'in_transit').length;
+  const loadingCount = (INITIAL_ACTIVE_LOADS || []).filter((l) => l && (l.status === 'loading' || l.status === 'pending_driver')).length;
+  const deliveredCount = (INITIAL_ACTIVE_LOADS || []).filter((l) => l?.status === 'delivered').length;
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">

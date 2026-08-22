@@ -265,14 +265,14 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
               <div className="flex gap-2">
                 <button
                   type="button"
-                  onClick={() => handleSelectSavedOrigin(INITIAL_SAVED_LOCATIONS[0])}
+                  onClick={() => INITIAL_SAVED_LOCATIONS?.[0] && handleSelectSavedOrigin(INITIAL_SAVED_LOCATIONS[0])}
                   className="text-[10px] text-amber-800 bg-amber-50 hover:bg-amber-100 px-2 py-1 rounded-md font-bold cursor-pointer"
                 >
                   انبار مبارکه (مبدأ پیش‌فرض)
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleSelectSavedDest(INITIAL_SAVED_LOCATIONS[1])}
+                  onClick={() => INITIAL_SAVED_LOCATIONS?.[1] && handleSelectSavedDest(INITIAL_SAVED_LOCATIONS[1])}
                   className="text-[10px] text-teal-800 bg-teal-50 hover:bg-teal-100 px-2 py-1 rounded-md font-bold cursor-pointer"
                 >
                   انبار شمس‌آباد (مقصد)

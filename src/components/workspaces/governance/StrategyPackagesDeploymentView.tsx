@@ -19,9 +19,9 @@ import { StrategyPackage } from '../../../types/pricing';
 
 export const StrategyPackagesDeploymentView: React.FC = () => {
   const { strategyPackages, rollbackPackage, deployPackage, triggerStepUpMFA } = usePricing();
-  const [packagesList, setPackagesList] = useState<StrategyPackage[]>(strategyPackages);
+  const [packagesList, setPackagesList] = useState<StrategyPackage[]>(strategyPackages || []);
   const [selectedPackage, setSelectedPackage] = useState<StrategyPackage | null>(
-    strategyPackages.find((p) => p.status === 'live') || strategyPackages[0]
+    strategyPackages?.find((p) => p.status === 'live') || strategyPackages?.[0] || null
   );
   const [isRollbacking, setIsRollbacking] = useState(false);
   const [canaryPercentage, setCanaryPercentage] = useState<number>(20);

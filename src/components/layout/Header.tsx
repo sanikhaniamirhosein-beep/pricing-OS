@@ -52,8 +52,8 @@ export const Header: React.FC<HeaderProps> = ({ onToggleAiCoPilot, activeWorkspa
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const pendingApprovalsCount = strategyPackages.filter(
-    (p) => p.status === 'In Review' || (p.environment === 'staging' && p.status === 'In Review')
+  const pendingApprovalsCount = (strategyPackages || []).filter(
+    (p) => p && (p.status === 'In Review' || (p.environment === 'staging' && p.status === 'In Review'))
   ).length;
 
   const roleDetails: Record<
@@ -227,14 +227,14 @@ export const Header: React.FC<HeaderProps> = ({ onToggleAiCoPilot, activeWorkspa
                 }`}
               >
                 <div className="w-7 h-7 rounded-lg bg-amber-500 text-white font-bold text-xs flex items-center justify-center shrink-0">
-                  {userName.substring(0, 1)}
+                  {userName ? userName.substring(0, 1) : 'س'}
                 </div>
                 <div className="text-right hidden sm:block">
                   <div className="font-bold text-slate-800 text-xs leading-tight">
-                    {userName}
+                    {userName || 'کاربر سیستم'}
                   </div>
                   <div className="text-[10px] text-slate-400 font-medium leading-tight">
-                    {currentRoleInfo.accessBadge}
+                    {currentRoleInfo?.accessBadge || 'دسترسی سازمانی'}
                   </div>
                 </div>
                 <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${isRoleDropdownOpen ? 'rotate-180' : ''}`} />
@@ -250,16 +250,16 @@ export const Header: React.FC<HeaderProps> = ({ onToggleAiCoPilot, activeWorkspa
                   <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl space-y-2.5">
                     <div className="flex items-center gap-3">
                       <div className="w-11 h-11 rounded-xl bg-amber-500 text-white font-bold text-base flex items-center justify-center shrink-0 shadow-xs">
-                        {userName.substring(0, 1)}
+                        {userName ? userName.substring(0, 1) : 'س'}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-1">
-                          <span className="text-xs font-bold text-slate-900 truncate">{userName}</span>
+                          <span className="text-xs font-bold text-slate-900 truncate">{userName || 'کاربر سیستم'}</span>
                           <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-200/80 text-amber-950 font-bold">
-                            {currentRoleInfo.levelBadge}
+                            {currentRoleInfo?.levelBadge || 'سطح دسترسی'}
                           </span>
                         </div>
-                        <div className="text-[11px] text-amber-800 font-semibold truncate mt-0.5">{currentRoleInfo.titleFa}</div>
+                        <div className="text-[11px] text-amber-800 font-semibold truncate mt-0.5">{currentRoleInfo?.titleFa || 'نقش کاربری'}</div>
                         <div className="text-[10px] text-slate-500 font-mono truncate mt-0.5 flex items-center gap-1">
                           <Mail className="w-3 h-3 text-slate-400 shrink-0" />
                           <span>{userEmail || 'p.sharifi@iran-freight.ir'}</span>

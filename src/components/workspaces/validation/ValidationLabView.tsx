@@ -20,14 +20,14 @@ import { SimulationScenario, RiskClass } from '../../../types/pricing';
 export const ValidationLabView: React.FC = () => {
   const { simulations, runSimulation, activeProductionPackage, activeStagingPackage, userName } = usePricing();
 
-  const [selectedSimId, setSelectedSimId] = useState<string>(simulations[0]?.simulationId || '');
+  const [selectedSimId, setSelectedSimId] = useState<string>(simulations?.[0]?.simulationId || '');
   const [isRunningSim, setIsRunningSim] = useState(false);
   const [scenarioType, setScenarioType] = useState<
     'historical_replay' | 'synthetic_fuel_shock' | 'winter_blizzard_peak' | 'competitor_discount_war'
   >('historical_replay');
   const [sampleCount, setSampleCount] = useState<number>(10000);
 
-  const activeSim = simulations.find((s) => s.simulationId === selectedSimId) || simulations[0];
+  const activeSim = simulations?.find((s) => s.simulationId === selectedSimId) || simulations?.[0];
 
   const handleExecuteSimulation = () => {
     setIsRunningSim(true);
@@ -160,7 +160,7 @@ export const ValidationLabView: React.FC = () => {
                   <span className="font-bold text-slate-900 text-base font-display">{activeSim.datasetName}</span>
                 </div>
                 <span className="text-slate-500 text-xs block mt-1.5">
-                  اجرا شده توسط: <strong className="text-slate-700 font-medium">{activeSim.executedBy}</strong> در تاریخ {activeSim.executedAt.substring(0, 10)}
+                  اجرا شده توسط: <strong className="text-slate-700 font-medium">{activeSim?.executedBy || 'سیستم'}</strong> در تاریخ {activeSim?.executedAt ? activeSim.executedAt.substring(0, 10) : '-'}
                 </span>
               </div>
 

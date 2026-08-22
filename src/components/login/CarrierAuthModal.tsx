@@ -791,7 +791,7 @@ export const CarrierAuthModal: React.FC<CarrierAuthModalProps> = ({
                               <button
                                 type="button"
                                 onClick={() =>
-                                  setTeamMembers((prev) => prev.filter((item) => item.id !== m.id))
+                                  setTeamMembers((prev) => (prev || []).filter((item) => item.id !== m.id))
                                 }
                                 className="text-slate-400 hover:text-rose-600 p-1 transition-colors cursor-pointer"
                               >

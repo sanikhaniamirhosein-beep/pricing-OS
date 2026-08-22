@@ -20,7 +20,7 @@ import { ApprovalRequest } from '../../../types/pricing';
 export const MakerCheckerWorkflowView: React.FC = () => {
   const { approvalQueue, approveRequest, rejectRequest, triggerStepUpMFA, userRole } = usePricing();
   const [selectedRequest, setSelectedRequest] = useState<ApprovalRequest | null>(
-    approvalQueue[0] || null
+    approvalQueue?.[0] || null
   );
   const [rejectionReason, setRejectionReason] = useState('');
   const [showRejectModal, setShowRejectModal] = useState(false);
@@ -50,7 +50,7 @@ export const MakerCheckerWorkflowView: React.FC = () => {
                   ۴.۱ کارتابل تایید دوطرفه و مقایسه نسخه‌ها (Maker-Checker & Diff Viewer)
                 </h1>
                 <span className="bg-amber-100 text-amber-800 text-xs px-2.5 py-0.5 rounded-full font-bold">
-                  {approvalQueue.filter((q) => q.status === 'pending_approval').length} درخواست در صف تایید
+                  {(approvalQueue || []).filter((q) => q && q.status === 'pending_approval').length} درخواست در صف تایید
                 </span>
               </div>
               <p className="text-sm text-slate-500 mt-1">
@@ -71,7 +71,7 @@ export const MakerCheckerWorkflowView: React.FC = () => {
             </h2>
 
             <div className="space-y-2">
-              {approvalQueue.map((req) => {
+              {(approvalQueue || []).map((req) => {
                 const isSelected = selectedRequest?.id === req.id;
                 return (
                   <div
@@ -112,7 +112,7 @@ export const MakerCheckerWorkflowView: React.FC = () => {
 
                     <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
                       <span>سازنده (Maker): {req.makerName}</span>
-                      <span className="font-mono text-slate-400">{req.createdAt.split('T')[0]}</span>
+                      <span className="font-mono text-slate-400">{req?.createdAt ? req.createdAt.split('T')?.[0] : '-'}</span>
                     </div>
                   </div>
                 );
@@ -160,7 +160,7 @@ export const MakerCheckerWorkflowView: React.FC = () => {
                     </div>
                   ) : (
                     <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
-                      این بسته در تاریخ {selectedRequest.approvedAt?.split('T')[0]} توسط {selectedRequest.checkerName} تایید شده است.
+                      این بسته در تاریخ {selectedRequest?.approvedAt ? selectedRequest.approvedAt.split('T')?.[0] : '-'} توسط {selectedRequest.checkerName} تایید شده است.
                     </span>
                   )}
                 </div>

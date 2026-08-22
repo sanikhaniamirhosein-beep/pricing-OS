@@ -18,10 +18,10 @@ import { LogisticsProduct, LogisticsService } from '../../../types/pricing';
 
 export const CatalogStudioView: React.FC = () => {
   const { services, products } = usePricing();
-  const [selectedProductId, setSelectedProductId] = useState<string>(products[0]?.productId || '');
+  const [selectedProductId, setSelectedProductId] = useState<string>(products?.[0]?.productId || '');
   const [deprecateModalService, setDeprecateModalService] = useState<LogisticsService | null>(null);
 
-  const activeProduct = products.find((p) => p.productId === selectedProductId) || products[0];
+  const activeProduct = products?.find((p) => p.productId === selectedProductId) || products?.[0];
 
   // BR-022: Deprecation guard check (find active products depending on service)
   const handleAttemptDeprecate = (service: LogisticsService) => {
@@ -29,11 +29,11 @@ export const CatalogStudioView: React.FC = () => {
   };
 
   const dependentProducts = deprecateModalService
-    ? products.filter(
+    ? (products || []).filter(
         (p) =>
-          p.status === 'Active' &&
-          ((p.serviceComponents && p.serviceComponents.includes(deprecateModalService.serviceId)) ||
-            (p.mandatoryComponents && p.mandatoryComponents.includes(deprecateModalService.serviceId)))
+          p?.status === 'Active' &&
+          ((p?.serviceComponents && p.serviceComponents.includes(deprecateModalService.serviceId)) ||
+            (p?.mandatoryComponents && p.mandatoryComponents.includes(deprecateModalService.serviceId)))
       )
     : [];
 
@@ -99,14 +99,14 @@ export const CatalogStudioView: React.FC = () => {
             <div className="pt-5 border-t border-slate-100">
               <h4 className="font-bold text-slate-900 text-sm mb-4 flex items-center gap-2 font-display">
                 <LinkIcon className="w-4 h-4 text-sky-600" />
-                نمودار ترکیب خدمات تشکیل‌دهنده محصول انتخابی ({activeProduct.nameFa}):
+                نمودار ترکیب خدمات تشکیل‌دهنده محصول انتخابی ({activeProduct?.nameFa || 'محصول'}):
               </h4>
 
               <div className="space-y-3">
-                {activeProduct.serviceComponents.map((srvId) => {
-                  const srv = services.find((s) => s.serviceId === srvId);
+                {(activeProduct?.serviceComponents || []).map((srvId) => {
+                  const srv = services?.find((s) => s.serviceId === srvId);
                   if (!srv) return null;
-                  const isMandatory = (activeProduct.mandatoryComponents || []).includes(srvId);
+                  const isMandatory = (activeProduct?.mandatoryComponents || []).includes(srvId);
 
                   return (
                     <div

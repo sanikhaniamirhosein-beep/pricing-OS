@@ -51,11 +51,11 @@ export const DecisionTraceModal: React.FC = () => {
               <p className="text-xs text-slate-500 mt-0.5">
                 استناد مستقیم به پکیج استراتژی{' '}
                 <span className="text-sky-700 font-mono font-bold">
-                  {selectedTrace.strategyPackageRef.displayId}@v{selectedTrace.strategyPackageRef.version}
+                  {selectedTrace?.strategyPackageRef?.displayId || 'PKG'}@v{selectedTrace?.strategyPackageRef?.version || '1.0'}
                 </span>{' '}
                 (هش محتوا:{' '}
                 <span className="font-mono text-slate-600">
-                  {selectedTrace.strategyPackageRef.snapshotHash.substring(0, 8)}...
+                  {selectedTrace?.strategyPackageRef?.snapshotHash ? selectedTrace.strategyPackageRef.snapshotHash.substring(0, 8) : '0x00000000'}...
                 </span>
                 )
               </p>
@@ -189,11 +189,11 @@ export const DecisionTraceModal: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-slate-900 flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    قواعد و ضرایب تعرفه اعمال‌شده ({selectedTrace.appliedRules.length}):
+                    قواعد و ضرایب تعرفه اعمال‌شده ({(selectedTrace.appliedRules || []).length}):
                   </span>
                 </div>
                 <div className="space-y-2">
-                  {selectedTrace.appliedRules.map((rule, idx) => (
+                  {(selectedTrace.appliedRules || []).map((rule, idx) => (
                     <div
                       key={idx}
                       className="p-3 bg-white border border-slate-200 hover:border-emerald-300 rounded-xl flex items-center justify-between shadow-xs transition-colors"
@@ -208,7 +208,7 @@ export const DecisionTraceModal: React.FC = () => {
                         {rule.note && <span className="text-slate-500 text-xs block">{rule.note}</span>}
                       </div>
                       <span className="font-mono font-bold text-emerald-700 text-sm">
-                        +{(rule.valueToman / 1000000).toLocaleString('fa-IR')} م تومان
+                        +{((rule?.valueToman || 0) / 1000000).toLocaleString('fa-IR')} م تومان
                       </span>
                     </div>
                   ))}
@@ -221,11 +221,11 @@ export const DecisionTraceModal: React.FC = () => {
                 <div className="space-y-3">
                   <span className="font-bold text-slate-900 flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-sky-600" />
-                    تخفیف‌های تاییدشده ({selectedTrace.appliedDiscounts.length}):
+                    تخفیف‌های تاییدشده ({(selectedTrace.appliedDiscounts || []).length}):
                   </span>
-                  {selectedTrace.appliedDiscounts.length > 0 ? (
+                  {(selectedTrace.appliedDiscounts || []).length > 0 ? (
                     <div className="space-y-2">
-                      {selectedTrace.appliedDiscounts.map((disc, idx) => (
+                      {(selectedTrace.appliedDiscounts || []).map((disc, idx) => (
                         <div
                           key={idx}
                           className="p-3 bg-white border border-slate-200 rounded-xl flex items-center justify-between shadow-xs"
@@ -235,7 +235,7 @@ export const DecisionTraceModal: React.FC = () => {
                             <span className="text-xs font-mono text-slate-500">{disc.ref}</span>
                           </div>
                           <span className="font-mono font-bold text-sky-700">
-                            -{(disc.discountToman / 1000000).toLocaleString('fa-IR')} م
+                            -{((disc?.discountToman || 0) / 1000000).toLocaleString('fa-IR')} م
                           </span>
                         </div>
                       ))}
@@ -249,10 +249,10 @@ export const DecisionTraceModal: React.FC = () => {
                 <div className="space-y-3">
                   <span className="font-bold text-slate-900 flex items-center gap-2">
                     <XCircle className="w-4 h-4 text-slate-400" />
-                    تخفیف‌ها و قواعد ردشده با ذکر علت ({selectedTrace.skippedRules.length + selectedTrace.skippedDiscounts.length}):
+                    تخفیف‌ها و قواعد ردشده با ذکر علت ({((selectedTrace.skippedRules || []).length) + ((selectedTrace.skippedDiscounts || []).length)}):
                   </span>
                   <div className="space-y-2">
-                    {[...selectedTrace.skippedDiscounts, ...selectedTrace.skippedRules].map((item, idx) => (
+                    {[...(selectedTrace.skippedDiscounts || []), ...(selectedTrace.skippedRules || [])].map((item, idx) => (
                       <div
                         key={idx}
                         className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1 text-xs"

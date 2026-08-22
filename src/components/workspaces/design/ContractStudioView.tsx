@@ -18,14 +18,14 @@ import { LogisticsContract } from '../../../types/pricing';
 
 export const ContractStudioView: React.FC = () => {
   const { contracts, routeMatrix } = usePricing();
-  const [selectedContractId, setSelectedContractId] = useState<string>(contracts[0]?.contractId || '');
+  const [selectedContractId, setSelectedContractId] = useState<string>(contracts?.[0]?.contractId || '');
 
   // What-If Negotiation Simulator State (BR-023)
   const [targetCompetitorRate, setTargetCompetitorRate] = useState<number>(33000000); // 33M vs standard 38.5M
   const [selectedRoute, setSelectedRoute] = useState('تهران-بندرعباس:تریلی چادری');
   const [currentMonthlyVolumeTons, setCurrentMonthlyVolumeTons] = useState(5000);
 
-  const activeContract = contracts.find((c) => c.contractId === selectedContractId) || contracts[0];
+  const activeContract = contracts?.find((c) => c.contractId === selectedContractId) || contracts?.[0];
 
   // Standard rate for corridor
   const standardRateToman = 38500000;
@@ -71,7 +71,7 @@ export const ContractStudioView: React.FC = () => {
             onChange={(e) => setSelectedContractId(e.target.value)}
             className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 text-xs font-medium focus:bg-white focus:border-amber-500 focus:outline-none"
           >
-            {contracts.map((cnt) => (
+            {(contracts || []).map((cnt) => (
               <option key={cnt.contractId} value={cnt.contractId}>
                 {cnt.displayId} - {cnt.customerNameFa} ({cnt.tier})
               </option>
@@ -93,12 +93,12 @@ export const ContractStudioView: React.FC = () => {
                     {activeContract.customerCode}
                   </span>
                   <span className="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-0.5 rounded-full border border-emerald-200 font-semibold">
-                    رده مشتری: {activeContract.tier}
+                    رده مشتری: {activeContract?.tier || 'استاندارد'}
                   </span>
                 </div>
                 <span className="text-slate-500 text-xs block mt-1.5">
-                  حوزه صنعت: <strong className="text-slate-700 font-medium">{activeContract.industry}</strong> | اعتبار تا:{' '}
-                  <strong className="text-slate-700 font-medium">{activeContract.effectiveTo.substring(0, 10)}</strong>
+                  حوزه صنعت: <strong className="text-slate-700 font-medium">{activeContract?.industry || 'عمومی'}</strong> | اعتبار تا:{' '}
+                  <strong className="text-slate-700 font-medium">{activeContract?.effectiveTo?.substring(0, 10) || '-'}</strong>
                 </span>
               </div>
             </div>
@@ -119,7 +119,7 @@ export const ContractStudioView: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200 font-mono text-xs">
-                    {activeContract.volumeBands.map((band, idx) => (
+                    {(activeContract?.volumeBands || []).map((band, idx) => (
                       <tr key={idx} className="hover:bg-slate-100/60">
                         <td className="p-3.5 text-slate-800">
                           {band.minTonsPerMonth.toLocaleString('fa-IR')} الی{' '}
@@ -143,14 +143,14 @@ export const ContractStudioView: React.FC = () => {
                 نرخ‌های پایه توافقی ثبت‌شده در قرارداد (Price Book Overrides):
               </span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {Object.entries(activeContract.negotiatedBaseOverrides).map(([route, rate]) => (
+                {Object.entries(activeContract?.negotiatedBaseOverrides || {}).map(([route, rate]) => (
                   <div
                     key={route}
                     className="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between shadow-xs"
                   >
                     <div>
-                      <span className="font-bold text-slate-900 block text-xs">{route.split(':')[0]}</span>
-                      <span className="text-slate-500 text-xs">{route.split(':')[1]}</span>
+                      <span className="font-bold text-slate-900 block text-xs">{route.split(':')?.[0] || route}</span>
+                      <span className="text-slate-500 text-xs">{route.split(':')?.[1] || ''}</span>
                     </div>
                     <span className="font-mono font-bold text-amber-700 text-xs bg-amber-50 px-2 py-1 rounded border border-amber-200">
                       {(Number(rate) / 1000000).toLocaleString('fa-IR')} م تومان

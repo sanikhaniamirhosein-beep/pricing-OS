@@ -19,6 +19,7 @@ import {
   Shield,
   Clock,
   Sparkles,
+  X,
 } from 'lucide-react';
 import { usePricing } from '../../../store/PricingContext';
 import { GeoZone, RouteMatrixCell } from '../../../types/pricing';
@@ -31,18 +32,19 @@ export const GeoZoneMatrixView: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedVehicle, setSelectedVehicle] = useState<string>('all');
   const [editingCell, setEditingCell] = useState<RouteMatrixCell | null>(null);
+  const [editingGeoZone, setEditingGeoZone] = useState<GeoZone | null>(null);
 
   // Filtered Matrix Cells
-  const filteredCells = routeMatrix.filter((cell) => {
+  const filteredCells = (routeMatrix || []).filter((cell) => {
     const matchSearch =
-      cell.originCity.includes(searchQuery) ||
-      cell.destinationCity.includes(searchQuery) ||
-      cell.vehicleType.includes(searchQuery);
-    const matchVehicle = selectedVehicle === 'all' || cell.vehicleType === selectedVehicle;
+      cell?.originCity?.includes(searchQuery) ||
+      cell?.destinationCity?.includes(searchQuery) ||
+      cell?.vehicleType?.includes(searchQuery);
+    const matchVehicle = selectedVehicle === 'all' || cell?.vehicleType === selectedVehicle;
     return matchSearch && matchVehicle;
   });
 
-  const vehiclesList = Array.from(new Set(routeMatrix.map((c) => c.vehicleType)));
+  const vehiclesList = Array.from(new Set((routeMatrix || []).map((c) => c?.vehicleType).filter(Boolean)));
 
   const handleSaveCell = () => {
     if (!editingCell) return;
@@ -52,6 +54,12 @@ export const GeoZoneMatrixView: React.FC = () => {
       lastChangedBy: 'سارا رضایی (مدیر ارشد قیمت‌گذاری)',
     });
     setEditingCell(null);
+  };
+
+  const handleSaveGeoZone = () => {
+    if (!editingGeoZone) return;
+    updateGeoZone(editingGeoZone);
+    setEditingGeoZone(null);
   };
 
   return (
@@ -353,20 +361,14 @@ export const GeoZoneMatrixView: React.FC = () => {
 
               <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
                 <span className="text-[10px] font-mono text-slate-400">
-                  [{zone.centerCoordinates ? `${zone.centerCoordinates[0]}, ${zone.centerCoordinates[1]}` : zone.latitude ? `${zone.latitude}, ${zone.longitude}` : '۳۵.۶۸۹۲, ۵۱.۳۸۹۰'}]
+                  [{Array.isArray(zone?.centerCoordinates) && zone.centerCoordinates.length >= 2 ? `${zone.centerCoordinates[0]}, ${zone.centerCoordinates[1]}` : (zone as any)?.latitude ? `${(zone as any).latitude}, ${(zone as any).longitude}` : '۳۵.۶۸۹۲, ۵۱.۳۸۹۰'}]
                 </span>
                 <button
-                  onClick={() => {
-                    const newEntryFee = Number(
-                      prompt('عوارض ورودی جدید پایانه را وارد کنید (تومان):', String(zone.terminalEntryFeeToman))
-                    );
-                    if (newEntryFee && !isNaN(newEntryFee)) {
-                      updateGeoZone({ ...zone, terminalEntryFeeToman: newEntryFee });
-                    }
-                  }}
-                  className="text-amber-800 hover:text-amber-900 font-medium flex items-center gap-1"
+                  type="button"
+                  onClick={() => setEditingGeoZone(zone)}
+                  className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
-                  <Edit3 className="w-3.5 h-3.5" />
+                  <Edit3 className="w-3.5 h-3.5 text-amber-700" />
                   ویرایش عوارض
                 </button>
               </div>
@@ -512,6 +514,160 @@ export const GeoZoneMatrixView: React.FC = () => {
                 className="px-4 py-2 bg-amber-700 hover:bg-amber-800 text-white rounded-xl text-xs font-bold shadow-xs"
               >
                 بروزرسانی کریدور
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Edit Geo Zone, Terminal Fees & Surcharges */}
+      {editingGeoZone && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-150">
+          <div className="bg-white rounded-3xl p-6 max-w-lg w-full border border-slate-200 shadow-xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-700 border border-amber-200 flex items-center justify-center">
+                  <Edit3 className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 font-title text-sm">
+                    ویرایش عوارض پایانه و تنظیمات زون لجستیکی
+                  </h3>
+                  <p className="text-[11px] text-slate-400 font-mono">{editingGeoZone.code} • {editingGeoZone.nameFa}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingGeoZone(null)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              {/* Highlighted Terminal Entry Fee */}
+              <div className="bg-amber-50/80 p-3.5 rounded-2xl border border-amber-200">
+                <label className="block font-bold text-amber-950 mb-1">
+                  عوارض ورودی پایانه / بندر / اسکله (تومان)
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    step="50000"
+                    min="0"
+                    value={editingGeoZone.terminalEntryFeeToman}
+                    onChange={(e) => setEditingGeoZone({ ...editingGeoZone, terminalEntryFeeToman: Number(e.target.value) })}
+                    className="w-full bg-white border border-amber-400 rounded-xl p-2.5 text-sm font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
+                  <span className="text-xs text-amber-900 font-bold whitespace-nowrap">تومان</span>
+                </div>
+                <p className="text-[11px] text-amber-800 mt-1.5">
+                  این مبلغ به عنوان هزینه ثابت ورود و بارگیری پایانه مستقیماً به استعلام کرایه اضافه می‌شود.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-medium text-slate-700 mb-1">نام زون / پایانه</label>
+                  <input
+                    type="text"
+                    value={editingGeoZone.nameFa}
+                    onChange={(e) => setEditingGeoZone({ ...editingGeoZone, nameFa: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs focus:bg-white focus:outline-none focus:border-amber-500 font-semibold"
+                  />
+                </div>
+                <div>
+                  <label className="block font-medium text-slate-700 mb-1">استان مربوطه</label>
+                  <input
+                    type="text"
+                    value={editingGeoZone.provinceFa}
+                    onChange={(e) => setEditingGeoZone({ ...editingGeoZone, provinceFa: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs focus:bg-white focus:outline-none focus:border-amber-500 font-semibold"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-medium text-slate-700 mb-1">نوع زون لجستیکی</label>
+                  <select
+                    value={editingGeoZone.zoneType}
+                    onChange={(e) => setEditingGeoZone({ ...editingGeoZone, zoneType: e.target.value as any })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs focus:bg-white focus:outline-none focus:border-amber-500 font-semibold"
+                  >
+                    <option value="metropolitan">کلان‌شهر / شهری</option>
+                    <option value="industrial_hub">شهرک و قطب صنعتی</option>
+                    <option value="port_terminal">بندر تجاری و اسکله</option>
+                    <option value="border_customs">گمرک و پایانه مرزی</option>
+                    <option value="free_trade_zone">منطقه آزاد تجاری</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block font-medium text-slate-700 mb-1">ضریب سختی دسترسی زون</label>
+                  <input
+                    type="number"
+                    step="0.05"
+                    min="1.0"
+                    max="3.0"
+                    value={editingGeoZone.difficultyMultiplier}
+                    onChange={(e) => setEditingGeoZone({ ...editingGeoZone, difficultyMultiplier: Number(e.target.value) })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-mono focus:bg-white focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-medium text-slate-700 mb-1">سورشارژ کوهستانی/اقلیمی (%)</label>
+                  <input
+                    type="number"
+                    step="1"
+                    min="0"
+                    max="50"
+                    value={editingGeoZone.mountainousSurchargePercent}
+                    onChange={(e) => setEditingGeoZone({ ...editingGeoZone, mountainousSurchargePercent: Number(e.target.value) })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-mono focus:bg-white focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+                <div className="flex flex-col justify-end">
+                  <label className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer hover:bg-slate-100">
+                    <input
+                      type="checkbox"
+                      checked={!!editingGeoZone.trafficSchemeRestricted}
+                      onChange={(e) => setEditingGeoZone({ ...editingGeoZone, trafficSchemeRestricted: e.target.checked })}
+                      className="rounded text-amber-600 focus:ring-amber-500"
+                    />
+                    <span className="text-[11px] font-medium text-slate-800">محدودیت طرح ترافیک / شبانه</span>
+                  </label>
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-medium text-slate-700 mb-1">توضیحات و مشخصات دسترسی</label>
+                <textarea
+                  value={editingGeoZone.descriptionFa}
+                  onChange={(e) => setEditingGeoZone({ ...editingGeoZone, descriptionFa: e.target.value })}
+                  placeholder="ملاحظات دسترسی به پایانه، نوبت‌دهی و تردد ناوگان..."
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs focus:bg-white focus:outline-none focus:border-amber-500 h-16"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setEditingGeoZone(null)}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
+              >
+                انصراف
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveGeoZone}
+                className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
+              >
+                ذخیره عوارض و ضرایب زون
               </button>
             </div>
           </div>

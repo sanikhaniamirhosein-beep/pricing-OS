@@ -27,15 +27,15 @@ export const MatrixEditorView: React.FC = () => {
 
   const vehicleOptions = ['all', 'تریلی چادری', 'تریلر کفی', 'کشنده یخچال‌دار'];
 
-  const filteredCells = routeMatrix.filter((cell) => {
+  const filteredCells = (routeMatrix || []).filter((cell) => {
     const s = (searchTerm || '').trim();
     const matchesSearch =
       !s ||
-      (cell.originCity || '').includes(s) ||
-      (cell.destinationCity || '').includes(s) ||
-      (cell.vehicleType || '').includes(s);
-    const matchesVehicle = selectedVehicle === 'all' || cell.vehicleType === selectedVehicle;
-    const matchesChanged = !showOnlyChanged || (cell.oldRateToman && cell.oldRateToman !== cell.baseRateToman);
+      (cell?.originCity || '').includes(s) ||
+      (cell?.destinationCity || '').includes(s) ||
+      (cell?.vehicleType || '').includes(s);
+    const matchesVehicle = selectedVehicle === 'all' || cell?.vehicleType === selectedVehicle;
+    const matchesChanged = !showOnlyChanged || (cell?.oldRateToman && cell.oldRateToman !== cell.baseRateToman);
     return matchesSearch && matchesVehicle && matchesChanged;
   });
 

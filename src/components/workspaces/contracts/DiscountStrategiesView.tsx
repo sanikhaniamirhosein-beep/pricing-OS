@@ -17,24 +17,96 @@ import {
 import { usePricing } from '../../../store/PricingContext';
 import { DiscountRule } from '../../../types/pricing';
 
+interface ExtendedDiscountRule extends DiscountRule {
+  nameEn?: string;
+  ruleType?: 'volume_tier' | 'backhaul_match' | 'prompt_payment' | 'off_peak';
+  active?: boolean;
+}
+
+const DEFAULT_DISCOUNT_RULES: ExtendedDiscountRule[] = [
+  {
+    id: 'disc-vol-1',
+    code: 'VOL-TIER-01',
+    nameFa: 'تخفیف تناژ ماهانه (بیش از ۵,۰۰۰ تن)',
+    nameEn: 'Monthly Tonnage Tier 1 (>5k Tons)',
+    ruleType: 'volume_tier',
+    descriptionFa: 'اعمال تخفیف پلکانی ۵٪ به صاحبان کالا در صورت تحقق سقف تناژ ماهانه ۵ هزار تن',
+    discountType: 'percentage',
+    discountValue: 5,
+    isStackable: true,
+    priority: 1,
+    monthlyBudgetCapToman: 200000000,
+    currentBudgetUsedToman: 85000000,
+    status: 'active',
+    active: true,
+  },
+  {
+    id: 'disc-backhaul-1',
+    code: 'BKH-SOUTH-02',
+    nameFa: 'تخفیف جذب بار برگشت کریدورهای جنوبی (Backhaul Match)',
+    nameEn: 'Southern Corridor Empty Return Incentive',
+    ruleType: 'backhaul_match',
+    descriptionFa: 'تخفیف ویژه ۱۲٪ در مبادی برگشتی (تهران، اصفهان، یزد به بندرعباس و عسلویه) جهت حذف تردد خالی ناوگان',
+    discountType: 'percentage',
+    discountValue: 12,
+    isStackable: false,
+    priority: 2,
+    monthlyBudgetCapToman: 500000000,
+    currentBudgetUsedToman: 310000000,
+    status: 'active',
+    active: true,
+  },
+  {
+    id: 'disc-prepay-1',
+    code: 'PAY-WALLET-03',
+    nameFa: 'تخفیف تسویه آنی از کیف پول اعتباری (Prompt Payment)',
+    nameEn: 'Instant Wallet Settlement Rebate',
+    ruleType: 'prompt_payment',
+    descriptionFa: 'کسر ۳.۵٪ از کل کرایه در صورت پرداخت نقدی یا تسویه قبل از صدور بارنامه الکترونیک',
+    discountType: 'percentage',
+    discountValue: 3.5,
+    isStackable: true,
+    priority: 3,
+    monthlyBudgetCapToman: 150000000,
+    currentBudgetUsedToman: 42000000,
+    status: 'active',
+    active: true,
+  },
+  {
+    id: 'disc-offpeak-1',
+    code: 'OFF-MIDWEEK-04',
+    nameFa: 'تخفیف بارگیری ایام وسط هفته (Mid-week Off-Peak)',
+    nameEn: 'Mid-week Off-Peak Incentive',
+    ruleType: 'off_peak',
+    descriptionFa: 'تخفیف ۴٪ برای ترخیص و بارگیری در روزهای دوشنبه و سه‌شنبه برای متعادل‌سازی تقاضای پایانه',
+    discountType: 'percentage',
+    discountValue: 4,
+    isStackable: false,
+    priority: 4,
+    monthlyBudgetCapToman: 100000000,
+    currentBudgetUsedToman: 18000000,
+    status: 'active',
+    active: true,
+  },
+];
+
 export const DiscountStrategiesView: React.FC = () => {
-  const { discounts, updateDiscountStatus } = usePricing();
-  const [discountList, setDiscountList] = useState<DiscountRule[]>(discounts);
+  const { discountPolicies } = usePricing();
+  const [discountList, setDiscountList] = useState<ExtendedDiscountRule[]>(DEFAULT_DISCOUNT_RULES);
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'volume' | 'backhaul' | 'prepay'>('all');
   const [maxStackingPercent, setMaxStackingPercent] = useState<number>(25);
 
-  const toggleDiscountActive = (id: string, currentStatus: boolean) => {
-    updateDiscountStatus(id, !currentStatus);
+  const toggleDiscountActive = (id: string, currentStatus?: boolean) => {
     setDiscountList((prev) =>
-      prev.map((d) => (d.id === id ? { ...d, active: !currentStatus } : d))
+      (prev || []).map((d) => (d.id === id ? { ...d, active: !currentStatus, status: !currentStatus ? 'active' : 'paused' } : d))
     );
   };
 
-  const filteredDiscounts = discountList.filter((d) => {
+  const filteredDiscounts = (discountList || []).filter((d) => {
     if (selectedCategory === 'all') return true;
-    if (selectedCategory === 'volume') return d.ruleType === 'volume_tier';
-    if (selectedCategory === 'backhaul') return d.ruleType === 'backhaul_match';
-    if (selectedCategory === 'prepay') return d.ruleType === 'prompt_payment' || d.ruleType === 'off_peak';
+    if (selectedCategory === 'volume') return d?.ruleType === 'volume_tier';
+    if (selectedCategory === 'backhaul') return d?.ruleType === 'backhaul_match';
+    if (selectedCategory === 'prepay') return d?.ruleType === 'prompt_payment' || d?.ruleType === 'off_peak';
     return true;
   });
 
@@ -53,7 +125,7 @@ export const DiscountStrategiesView: React.FC = () => {
                   ۲.۲ استراتژی‌های تخفیف و انحصار متقابل (Discount Engine & Stacking Rules)
                 </h1>
                 <span className="bg-amber-100 text-amber-800 text-xs px-2.5 py-0.5 rounded-full font-bold">
-                  {discounts.filter((d) => d.active).length} تخفیف فعال
+                  {(discountList || []).filter((d) => d?.active).length} تخفیف فعال
                 </span>
                 <span className="bg-rose-100 text-rose-800 text-xs px-2.5 py-0.5 rounded-full font-medium">
                   سقف تجمعی: {maxStackingPercent}٪
@@ -75,7 +147,7 @@ export const DiscountStrategiesView: React.FC = () => {
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              همه ({discounts.length})
+              همه ({(discountList || []).length})
             </button>
             <button
               onClick={() => setSelectedCategory('volume')}

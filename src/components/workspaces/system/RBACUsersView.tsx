@@ -18,7 +18,7 @@ import { RBACRoleDefinition } from '../../../types/pricing';
 
 export const RBACUsersView: React.FC = () => {
   const { rbacRoles, userRole } = usePricing();
-  const [selectedRole, setSelectedRole] = useState<RBACRoleDefinition>(rbacRoles[0] || ({} as RBACRoleDefinition));
+  const [selectedRole, setSelectedRole] = useState<RBACRoleDefinition>(rbacRoles?.[0] || ({} as RBACRoleDefinition));
 
   const roleTitle = selectedRole?.roleNameFa || selectedRole?.titleFa || 'نقش نامشخص';
   const roleSubtitle = selectedRole?.roleNameEn || selectedRole?.titleEn || selectedRole?.role || 'Custom Role';

@@ -47,12 +47,12 @@ export const ControlTowerView: React.FC<ControlTowerViewProps> = ({
     setLocalActiveTab(tab);
     if (onSubTabChange) onSubTabChange(tab);
   };
-  const [selectedPackageId, setSelectedPackageId] = useState<string>(strategyPackages[0]?.packageId || '');
+  const [selectedPackageId, setSelectedPackageId] = useState<string>(strategyPackages?.[0]?.packageId || '');
   const [canaryPercent, setCanaryPercent] = useState<number>(100);
   const [rollbackReason, setRollbackReason] = useState<string>('افزایش ناگهانی نرخ سوخت و نیاز به بازگشت موقت به تعرفه مرجع');
   const [feedbackMsg, setFeedbackMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  const pendingPackages = strategyPackages.filter((p) => p.status === 'In Review' || p.status === 'Draft');
+  const pendingPackages = (strategyPackages || []).filter((p) => p && (p.status === 'In Review' || p.status === 'Draft'));
 
   const handleApproveWithMfa = (pkg: StrategyPackage) => {
     // Check maker != checker rule (BR-012)
@@ -235,7 +235,7 @@ export const ControlTowerView: React.FC<ControlTowerViewProps> = ({
                       </div>
                       <div>
                         <span className="text-slate-500 font-sans">هش محتوا: </span>
-                        <span className="text-slate-600">{pkg.snapshotHash.substring(0, 8)}...</span>
+                        <span className="text-slate-600">{pkg?.snapshotHash ? pkg.snapshotHash.substring(0, 8) : '-'}...</span>
                       </div>
                     </div>
 
@@ -327,7 +327,7 @@ export const ControlTowerView: React.FC<ControlTowerViewProps> = ({
                 </div>
 
                 <div className="flex items-center justify-between text-xs text-slate-500 border-t border-slate-100 pt-3">
-                  <span>مولف: <strong className="text-slate-700">{pkg.authorName.split(' ')[0]}</strong></span>
+                  <span>مولف: <strong className="text-slate-700">{(pkg?.authorName || '').split(' ')[0] || 'سیستم'}</strong></span>
                   <span className="text-slate-400">{pkg.createdAt}</span>
                 </div>
               </div>

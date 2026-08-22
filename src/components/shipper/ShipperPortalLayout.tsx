@@ -117,8 +117,24 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
             </div>
           </div>
 
-          {/* Right Controls: AI CoPilot Button + Rich User Profile Panel */}
+          {/* Right Controls: Quick Quote + AI CoPilot Button + Rich User Profile Panel */}
           <div className="flex items-center gap-3 shrink-0">
+            {/* Quick Price Inquiry Button */}
+            <button
+              type="button"
+              id="btn-shipper-header-quote"
+              onClick={() => setActiveTab('quote')}
+              className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl border transition-all duration-150 cursor-pointer shadow-2xs hover:shadow-xs ${
+                activeTab === 'quote'
+                  ? 'bg-amber-500 text-white border-amber-600 shadow-xs'
+                  : 'bg-white hover:bg-amber-50/70 text-slate-700 hover:text-amber-900 border-slate-200 hover:border-amber-300'
+              }`}
+              title="استعلام فوری نرخ کرایه و ثبت سفارش حمل بار"
+            >
+              <Calculator className={`w-4 h-4 ${activeTab === 'quote' ? 'text-white' : 'text-amber-600'}`} />
+              <span>استعلام قیمت</span>
+            </button>
+
             {/* AI Assistant Button (Identical to Carrier Panel) */}
             <div className="relative group">
               <button

@@ -252,13 +252,13 @@ export function calculateShipmentPrice(
 
   // Step 5: Discounts & Rebates (with Mutual Exclusivity and Caps)
   let totalDiscountsToman = 0;
-  const maxDiscountCapPercent = pricingPolicy.guardrails.maxDiscountCapPercent || 25;
+  const maxDiscountCapPercent = pricingPolicy?.guardrails?.maxDiscountCapPercent || 25;
   const maxAllowedDiscountToman = Math.round((runningSubtotal * maxDiscountCapPercent) / 100);
 
   // 5.1 Contract Volume Band Discount
-  if (activeContract && activeContract.volumeBands.length > 0) {
+  if (activeContract && activeContract.volumeBands?.length > 0) {
     // E.g. assume average 10,000 tons monthly tier for enterprise contract
-    const eligibleBand = activeContract.volumeBands[2] || activeContract.volumeBands[1];
+    const eligibleBand = activeContract.volumeBands?.[2] || activeContract.volumeBands?.[1] || activeContract.volumeBands?.[0];
     if (eligibleBand && eligibleBand.discountPercent > 0) {
       const contractDiscount = Math.round((runningSubtotal * eligibleBand.discountPercent) / 100);
       totalDiscountsToman += contractDiscount;

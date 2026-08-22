@@ -78,12 +78,28 @@ export const SchemaBuilderView: React.FC = () => {
     minWeightTons: 10,
     maxWeightTons: 24,
     volumeCbm: 80,
-    dimensionsMeters: '13.6 × 2.5 × 2.6',
+    dimensionsMeters: '13.6 × 2.4 × 2.6',
     axleCount: 5,
     fuelConsumptionLitersPer100Km: 34,
     baseKmRateToman: 42000,
     descriptionFa: '',
   });
+
+  // Dedicated Edit Modals State
+  const [editingCommodity, setEditingCommodity] = useState<CommodityCategory | null>(null);
+  const [editingFleet, setEditingFleet] = useState<FleetCategory | null>(null);
+
+  const handleSaveEditCommodity = () => {
+    if (!editingCommodity) return;
+    updateCommodity(editingCommodity);
+    setEditingCommodity(null);
+  };
+
+  const handleSaveEditFleet = () => {
+    if (!editingFleet) return;
+    updateFleetCategory(editingFleet);
+    setEditingFleet(null);
+  };
 
   const handleSaveAttribute = () => {
     if (!newAttr.name || !newAttr.labelFa) return;
@@ -140,25 +156,25 @@ export const SchemaBuilderView: React.FC = () => {
     setIsAddingFleet(false);
   };
 
-  const filteredAttributes = schema.attributes.filter(
+  const filteredAttributes = (schema?.attributes || []).filter(
     (a) =>
-      a.labelFa.includes(searchQuery) ||
-      a.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (a.description && a.description.includes(searchQuery))
+      a?.labelFa?.includes(searchQuery) ||
+      a?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (a?.description && a.description.includes(searchQuery))
   );
 
-  const filteredCommodities = commodities.filter(
+  const filteredCommodities = (commodities || []).filter(
     (c) =>
-      c.nameFa.includes(searchQuery) ||
-      c.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.descriptionFa.includes(searchQuery)
+      c?.nameFa?.includes(searchQuery) ||
+      c?.code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (c?.descriptionFa && c.descriptionFa.includes(searchQuery))
   );
 
-  const filteredFleet = fleetCategories.filter(
+  const filteredFleet = (fleetCategories || []).filter(
     (f) =>
-      f.nameFa.includes(searchQuery) ||
-      f.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      f.descriptionFa.includes(searchQuery)
+      f?.nameFa?.includes(searchQuery) ||
+      f?.code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (f?.descriptionFa && f.descriptionFa.includes(searchQuery))
   );
 
   return (
@@ -176,10 +192,10 @@ export const SchemaBuilderView: React.FC = () => {
                   ۱.۱ سازنده اسکیما و موجودیت‌های پایه (Schema & Entity Builder)
                 </h1>
                 <span className="bg-amber-100 text-amber-800 text-xs px-2.5 py-0.5 rounded-full font-bold">
-                  نسخه {schema.version}
+                  نسخه {schema?.version || 1}
                 </span>
                 <span className="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-0.5 rounded-full font-medium">
-                  {schema.status}
+                  {schema?.status || 'Active'}
                 </span>
               </div>
               <p className="text-sm text-slate-500 mt-1">
@@ -199,7 +215,7 @@ export const SchemaBuilderView: React.FC = () => {
               }`}
             >
               <Package className="w-4 h-4" />
-              ویژگی‌های بار ({schema.attributes.length})
+              ویژگی‌های بار ({schema?.attributes?.length || 0})
             </button>
             <button
               onClick={() => setActiveTab('commodities')}
@@ -210,7 +226,7 @@ export const SchemaBuilderView: React.FC = () => {
               }`}
             >
               <Shield className="w-4 h-4" />
-              انواع کالا و ضرایب ریسک ({commodities.length})
+              انواع کالا و ضرایب ریسک ({commodities?.length || 0})
             </button>
             <button
               onClick={() => setActiveTab('fleet')}
@@ -221,7 +237,7 @@ export const SchemaBuilderView: React.FC = () => {
               }`}
             >
               <Truck className="w-4 h-4" />
-              دسته‌بندی ناوگان ({fleetCategories.length})
+              دسته‌بندی ناوگان ({fleetCategories?.length || 0})
             </button>
           </div>
         </div>
@@ -423,15 +439,11 @@ export const SchemaBuilderView: React.FC = () => {
               <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
                 <span className="text-[11px] text-slate-400">شناسه: {cmd.id}</span>
                 <button
-                  onClick={() => {
-                    const newMultiplier = Number(prompt('ضریب ریسک جدید را وارد کنید:', String(cmd.riskMultiplier)));
-                    if (newMultiplier && !isNaN(newMultiplier)) {
-                      updateCommodity({ ...cmd, riskMultiplier: newMultiplier });
-                    }
-                  }}
-                  className="text-amber-800 hover:text-amber-900 font-medium flex items-center gap-1"
+                  type="button"
+                  onClick={() => setEditingCommodity(cmd)}
+                  className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
-                  <Edit2 className="w-3 h-3" />
+                  <Edit2 className="w-3.5 h-3.5 text-amber-700" />
                   ویرایش ضریب
                 </button>
               </div>
@@ -514,15 +526,11 @@ export const SchemaBuilderView: React.FC = () => {
               <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
                 <span className="text-[11px] text-slate-400 font-mono">{fleet.dimensionsMeters}</span>
                 <button
-                  onClick={() => {
-                    const newRate = Number(prompt('نرخ کیلومتری جدید را وارد کنید (تومان):', String(fleet.baseKmRateToman)));
-                    if (newRate && !isNaN(newRate)) {
-                      updateFleetCategory({ ...fleet, baseKmRateToman: newRate });
-                    }
-                  }}
-                  className="text-amber-800 hover:text-amber-900 font-medium flex items-center gap-1"
+                  type="button"
+                  onClick={() => setEditingFleet(fleet)}
+                  className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
-                  <Edit2 className="w-3 h-3" />
+                  <Edit2 className="w-3.5 h-3.5 text-amber-700" />
                   اصلاح نرخ مبنا
                 </button>
               </div>
@@ -872,6 +880,321 @@ export const SchemaBuilderView: React.FC = () => {
                 className="px-4 py-2 bg-amber-700 hover:bg-amber-800 text-white rounded-xl text-xs font-bold shadow-xs"
               >
                 افزودن ناوگان
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Edit Commodity & Risk Multiplier */}
+      {editingCommodity && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-150">
+          <div className="bg-white rounded-3xl p-6 max-w-lg w-full border border-slate-200 shadow-xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-700 border border-amber-200 flex items-center justify-center">
+                  <Edit2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 font-title text-sm">
+                    ویرایش ضریب و مشخصات ریسک کالا
+                  </h3>
+                  <p className="text-[11px] text-slate-400 font-mono">{editingCommodity.code}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingCommodity(null)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-medium text-slate-700 mb-1">نام فارسی کالا</label>
+                  <input
+                    type="text"
+                    value={editingCommodity.nameFa}
+                    onChange={(e) => setEditingCommodity({ ...editingCommodity, nameFa: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs focus:bg-white focus:outline-none focus:border-amber-500 font-semibold"
+                  />
+                </div>
+                <div>
+                  <label className="block font-medium text-slate-700 mb-1">سطح ریسک حمل</label>
+                  <select
+                    value={editingCommodity.riskClass}
+                    onChange={(e) => setEditingCommodity({ ...editingCommodity, riskClass: e.target.value as any })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs focus:bg-white focus:outline-none focus:border-amber-500 font-semibold"
+                  >
+                    <option value="low">کم‌ریسک (Low Risk)</option>
+                    <option value="medium">متوسط (Medium Risk)</option>
+                    <option value="high">پرخطر / حساس (High Risk)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 bg-amber-50/60 p-3 rounded-2xl border border-amber-200/70">
+                <div>
+                  <label className="block font-bold text-amber-900 mb-1">ضریب نرخ کرایه (Risk Multiplier)</label>
+                  <input
+                    type="number"
+                    step="0.05"
+                    min="0.5"
+                    max="5"
+                    value={editingCommodity.riskMultiplier}
+                    onChange={(e) => setEditingCommodity({ ...editingCommodity, riskMultiplier: Number(e.target.value) })}
+                    className="w-full bg-white border border-amber-300 rounded-xl p-2.5 text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
+                  <span className="text-[10px] text-amber-800 mt-1 block">مثال: ۱.۲۵ یعنی ۲۵٪ افزایش کرایه پایه</span>
+                </div>
+                <div>
+                  <label className="block font-bold text-amber-900 mb-1">اضافه حق بیمه ریسک (%)</label>
+                  <input
+                    type="number"
+                    step="0.05"
+                    min="0"
+                    max="20"
+                    value={editingCommodity.insuranceRiskPercent}
+                    onChange={(e) => setEditingCommodity({ ...editingCommodity, insuranceRiskPercent: Number(e.target.value) })}
+                    className="w-full bg-white border border-amber-300 rounded-xl p-2.5 text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
+                  <span className="text-[10px] text-amber-800 mt-1 block">درصد ارزش محموله جهت محاسبه بیمه</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 pt-1">
+                <label className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer hover:bg-slate-100">
+                  <input
+                    type="checkbox"
+                    checked={!!editingCommodity.isColdChainRequired}
+                    onChange={(e) => setEditingCommodity({ ...editingCommodity, isColdChainRequired: e.target.checked })}
+                    className="rounded text-amber-600 focus:ring-amber-500"
+                  />
+                  <span className="text-[11px] font-medium text-slate-800">نیازمند زنجیره سرد</span>
+                </label>
+                <label className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer hover:bg-slate-100">
+                  <input
+                    type="checkbox"
+                    checked={!!editingCommodity.isFragile}
+                    onChange={(e) => setEditingCommodity({ ...editingCommodity, isFragile: e.target.checked })}
+                    className="rounded text-amber-600 focus:ring-amber-500"
+                  />
+                  <span className="text-[11px] font-medium text-slate-800">کالای شکستنی / حساس</span>
+                </label>
+                <label className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer hover:bg-slate-100">
+                  <input
+                    type="checkbox"
+                    checked={!!editingCommodity.sealRequired}
+                    onChange={(e) => setEditingCommodity({ ...editingCommodity, sealRequired: e.target.checked })}
+                    className="rounded text-amber-600 focus:ring-amber-500"
+                  />
+                  <span className="text-[11px] font-medium text-slate-800">الزام پلمپ امنیتی گمرک</span>
+                </label>
+                <label className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer hover:bg-slate-100">
+                  <input
+                    type="checkbox"
+                    checked={!!editingCommodity.isLiquidBulk}
+                    onChange={(e) => setEditingCommodity({ ...editingCommodity, isLiquidBulk: e.target.checked })}
+                    className="rounded text-amber-600 focus:ring-amber-500"
+                  />
+                  <span className="text-[11px] font-medium text-slate-800">مایع فله تانکری</span>
+                </label>
+              </div>
+
+              <div>
+                <label className="block font-medium text-slate-700 mb-1">کد خطر کالای ADR / HAZMAT (اختیاری)</label>
+                <input
+                  type="text"
+                  value={editingCommodity.hazmatAdrCode || ''}
+                  onChange={(e) => setEditingCommodity({ ...editingCommodity, hazmatAdrCode: e.target.value || undefined })}
+                  placeholder="مثال: ADR-Class-3 (مایعات قابل اشتعال)"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-mono focus:bg-white focus:outline-none focus:border-amber-500"
+                />
+              </div>
+
+              <div>
+                <label className="block font-medium text-slate-700 mb-1">توضیحات و دستورالعمل حمل</label>
+                <textarea
+                  value={editingCommodity.descriptionFa}
+                  onChange={(e) => setEditingCommodity({ ...editingCommodity, descriptionFa: e.target.value })}
+                  placeholder="دستورالعمل حمل و بارگیری..."
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs focus:bg-white focus:outline-none focus:border-amber-500 h-16"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setEditingCommodity(null)}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
+              >
+                انصراف
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveEditCommodity}
+                className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
+              >
+                ذخیره تغییرات ضریب کالا
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Edit Fleet Category & Base Km Rate */}
+      {editingFleet && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in duration-150">
+          <div className="bg-white rounded-3xl p-6 max-w-lg w-full border border-slate-200 shadow-xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-700 border border-amber-200 flex items-center justify-center">
+                  <Edit2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 font-title text-sm">
+                    اصلاح نرخ مبنا و مشخصات ناوگان
+                  </h3>
+                  <p className="text-[11px] text-slate-400 font-mono">{editingFleet.code} • {editingFleet.nameFa}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingFleet(null)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              {/* Highlighted Base Km Rate */}
+              <div className="bg-amber-50/80 p-3.5 rounded-2xl border border-amber-200">
+                <label className="block font-bold text-amber-950 mb-1">
+                  نرخ مبنای هر کیلومتر تردد (تومان/km)
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    step="1000"
+                    min="1000"
+                    value={editingFleet.baseKmRateToman}
+                    onChange={(e) => setEditingFleet({ ...editingFleet, baseKmRateToman: Number(e.target.value) })}
+                    className="w-full bg-white border border-amber-400 rounded-xl p-2.5 text-sm font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
+                  <span className="text-xs text-amber-900 font-bold whitespace-nowrap">تومان</span>
+                </div>
+                <p className="text-[11px] text-amber-800 mt-1.5">
+                  این نرخ پایه مستقیماً در ماتریس فاصله، هزینه‌یاب کریدور و محاسبات هوشمند کرایه ملاک قرار می‌گیرد.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-medium text-slate-700 mb-1">نام ناوگان</label>
+                  <input
+                    type="text"
+                    value={editingFleet.nameFa}
+                    onChange={(e) => setEditingFleet({ ...editingFleet, nameFa: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs focus:bg-white focus:outline-none focus:border-amber-500 font-semibold"
+                  />
+                </div>
+                <div>
+                  <label className="block font-medium text-slate-700 mb-1">دسته‌بندی تناژ</label>
+                  <select
+                    value={editingFleet.categoryType}
+                    onChange={(e) => setEditingFleet({ ...editingFleet, categoryType: e.target.value as any })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs focus:bg-white focus:outline-none focus:border-amber-500 font-semibold"
+                  >
+                    <option value="light">سبک (نیسان و وانت)</option>
+                    <option value="medium">نیمه‌سنگین (خاور و ۹۱۱)</option>
+                    <option value="heavy">سنگین (تک، جفت، تریلی)</option>
+                    <option value="specialized">تخصصی (کمپرسی، تانکر، یخچال)</option>
+                    <option value="super_heavy">فوق‌سنگین (بوژی و کمرشکن)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block font-medium text-slate-700 mb-1">حداقل وزن (تن)</label>
+                  <input
+                    type="number"
+                    value={editingFleet.minWeightTons}
+                    onChange={(e) => setEditingFleet({ ...editingFleet, minWeightTons: Number(e.target.value) })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-mono focus:bg-white focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+                <div>
+                  <label className="block font-medium text-slate-700 mb-1">حداکثر وزن (تن)</label>
+                  <input
+                    type="number"
+                    value={editingFleet.maxWeightTons}
+                    onChange={(e) => setEditingFleet({ ...editingFleet, maxWeightTons: Number(e.target.value) })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-mono focus:bg-white focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+                <div>
+                  <label className="block font-medium text-slate-700 mb-1">حجم بارگیر (CBM)</label>
+                  <input
+                    type="number"
+                    value={editingFleet.volumeCbm}
+                    onChange={(e) => setEditingFleet({ ...editingFleet, volumeCbm: Number(e.target.value) })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-mono focus:bg-white focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-medium text-slate-700 mb-1">مصرف گازوئیل (لیتر در ۱۰۰km)</label>
+                  <input
+                    type="number"
+                    value={editingFleet.fuelConsumptionLitersPer100Km}
+                    onChange={(e) => setEditingFleet({ ...editingFleet, fuelConsumptionLitersPer100Km: Number(e.target.value) })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-mono focus:bg-white focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+                <div>
+                  <label className="block font-medium text-slate-700 mb-1">ابعاد محفظه (متر)</label>
+                  <input
+                    type="text"
+                    value={editingFleet.dimensionsMeters}
+                    onChange={(e) => setEditingFleet({ ...editingFleet, dimensionsMeters: e.target.value })}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-mono focus:bg-white focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-medium text-slate-700 mb-1">توضیحات و کاربرد اصلی ناوگان</label>
+                <textarea
+                  value={editingFleet.descriptionFa}
+                  onChange={(e) => setEditingFleet({ ...editingFleet, descriptionFa: e.target.value })}
+                  placeholder="ملاحظات و کاربرد ناوگان..."
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs focus:bg-white focus:outline-none focus:border-amber-500 h-16"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setEditingFleet(null)}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
+              >
+                انصراف
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveEditFleet}
+                className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
+              >
+                ذخیره اصلاحات نرخ و مشخصات
               </button>
             </div>
           </div>

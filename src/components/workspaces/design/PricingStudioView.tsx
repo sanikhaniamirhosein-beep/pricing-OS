@@ -145,12 +145,12 @@ export const PricingStudioView: React.FC<{ onNavigateToValidation?: () => void }
                 </p>
               </div>
               <span className="text-xs bg-amber-50 text-amber-900 px-3 py-1 rounded-xl border border-amber-200 font-mono font-bold">
-                {pricingPolicy.ruleBlocks.length} بلوک فعال
+                {(pricingPolicy?.ruleBlocks || []).length} بلوک فعال
               </span>
             </div>
 
             <div className="space-y-3">
-              {pricingPolicy.ruleBlocks.map((block, idx) => {
+              {(pricingPolicy?.ruleBlocks || []).map((block, idx) => {
                 const Icon = getBlockIcon(block.type);
                 const isSelected = selectedBlockId === block.id;
 

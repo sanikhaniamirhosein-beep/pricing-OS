@@ -189,8 +189,8 @@ export const ShipperAnalyticsView: React.FC = () => {
                 </Pie>
                 <Tooltip
                   formatter={(val: any, name: any, item: any) => [
-                    `${val} بارنامه (${item.payload.percentage}٪)`,
-                    item.payload.truck,
+                    `${val ?? 0} بارنامه (${item?.payload?.percentage ?? 0}٪)`,
+                    item?.payload?.truck || name || '',
                   ]}
                   contentStyle={{
                     backgroundColor: '#1e293b',

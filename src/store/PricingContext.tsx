@@ -182,14 +182,14 @@ export const PricingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const updateSchemaAttribute = (attrName: string, updated: Partial<SchemaAttribute>) => {
     setSchema((prev) => ({
       ...prev,
-      attributes: prev.attributes.map((a) => (a.name === attrName ? { ...a, ...updated } : a)),
+      attributes: (prev?.attributes || []).map((a) => (a.name === attrName ? { ...a, ...updated } : a)),
     }));
   };
 
   const deleteSchemaAttribute = (attrName: string) => {
     setSchema((prev) => ({
       ...prev,
-      attributes: prev.attributes.filter((a) => a.name !== attrName),
+      attributes: (prev?.attributes || []).filter((a) => a.name !== attrName),
     }));
   };
 
@@ -282,7 +282,7 @@ export const PricingProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // Derive Active Packages
   const activeProductionPackage =
-    strategyPackages.find((p) => p.environment === 'production' && p.status === 'Active') || strategyPackages[0];
+    strategyPackages.find((p) => p.environment === 'production' && p.status === 'Active') || strategyPackages?.[0];
   const activeStagingPackage = strategyPackages.find((p) => p.environment === 'staging' && (p.status === 'In Review' || p.status === 'Active'));
 
   const calculatePrice = (ctx: ShipmentPricingContext): EngineExecutionResult => {

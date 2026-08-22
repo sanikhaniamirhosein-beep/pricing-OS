@@ -89,11 +89,11 @@ export const ShipperMasterDataView: React.FC = () => {
   };
 
   const handleDeleteLocation = (id: string) => {
-    setLocations(locations.filter((l) => l.id !== id));
+    setLocations((prev) => (prev || []).filter((l) => l?.id !== id));
   };
 
   const handleDeleteCommodity = (id: string) => {
-    setCommodities(commodities.filter((c) => c.id !== id));
+    setCommodities((prev) => (prev || []).filter((c) => c?.id !== id));
   };
 
   return (

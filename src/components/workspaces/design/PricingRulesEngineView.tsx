@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   SlidersHorizontal,
   Code2,
@@ -29,12 +29,18 @@ export const PricingRulesEngineView: React.FC = () => {
     setFuelIndexMultiplier,
   } = usePricing();
 
-  const [ruleBlocks, setRuleBlocks] = useState<PricingRuleBlock[]>(pricingPolicy.ruleBlocks);
+  const [ruleBlocks, setRuleBlocks] = useState<PricingRuleBlock[]>(pricingPolicy?.ruleBlocks || []);
+
+  useEffect(() => {
+    if (pricingPolicy?.ruleBlocks) {
+      setRuleBlocks(pricingPolicy.ruleBlocks);
+    }
+  }, [pricingPolicy]);
   const [baseCalculationMethod, setBaseCalculationMethod] = useState<'matrix' | 'ton_km' | 'tiered'>('matrix');
   const [tonKmUnitRate, setTonKmUnitRate] = useState<number>(34000); // 34,000 Toman per ton-km
-  const [minMargin, setMinMargin] = useState<number>(pricingPolicy.guardrails.minMarginPercent);
-  const [maxDiscount, setMaxDiscount] = useState<number>(pricingPolicy.guardrails.maxDiscountCapPercent);
-  const [guardrailAction, setGuardrailAction] = useState<'clamp' | 'reject'>(pricingPolicy.guardrails.mode);
+  const [minMargin, setMinMargin] = useState<number>(pricingPolicy?.guardrails?.minMarginPercent ?? 10);
+  const [maxDiscount, setMaxDiscount] = useState<number>(pricingPolicy?.guardrails?.maxDiscountCapPercent ?? 25);
+  const [guardrailAction, setGuardrailAction] = useState<'clamp' | 'reject'>(pricingPolicy?.guardrails?.mode ?? 'clamp');
   const [detentionHourRate, setDetentionHourRate] = useState<number>(350000);
   const [handlingBaseFee, setHandlingBaseFee] = useState<number>(800000);
   const [suppInsuranceRate, setSuppInsuranceRate] = useState<number>(0.001); // 0.1%
@@ -374,13 +380,13 @@ export const PricingRulesEngineView: React.FC = () => {
             </p>
           </div>
           <span className="text-xs font-mono font-bold bg-slate-100 text-slate-700 px-3 py-1 rounded-xl">
-            {ruleBlocks.filter((r) => r.enabled).length} از {ruleBlocks.length} فعال
+            {(ruleBlocks || []).filter((r) => r?.enabled).length} از {(ruleBlocks || []).length} فعال
           </span>
         </div>
 
         <div className="space-y-3">
-          {ruleBlocks
-            .sort((a, b) => a.priority - b.priority)
+          {[...(ruleBlocks || [])]
+            .sort((a, b) => (a?.priority ?? 0) - (b?.priority ?? 0))
             .map((block, idx) => (
               <div
                 key={block.id}
