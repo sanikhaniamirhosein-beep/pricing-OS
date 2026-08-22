@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-title: 'Rokh', 'IRANYekan', 'Vazirmatn', system-ui, sans-serif;
+    --font-sans: 'IRANYekan', 'IRANSans', 'Vazirmatn', 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Plus Jakarta Sans', monospace;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: #f8fafc;
+    color: #1e293b;
+    line-height: 1.6;
+  }
+
+  h1, h2, h3, .font-title, .font-display {
+    font-family: var(--font-title);
+    letter-spacing: -0.015em;
+  }
+
+  code, pre, .font-mono, .num-mono, input[type="number"], .tabular-nums {
+    font-family: var(--font-mono) !important;
+    font-feature-settings: "tnum" 1;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Tabular numbers helper for clean financial and operational numbers */
+.num-mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-feature-settings: "tnum" 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Custom crisp light scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(241, 245, 249, 0.8);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(203, 213, 225, 0.9);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 1);
+}
+
+
