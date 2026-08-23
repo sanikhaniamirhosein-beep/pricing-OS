@@ -66,46 +66,46 @@ export const QuickQuoteSandboxModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200 font-sans">
-      <div className="w-full max-w-2xl bg-white border border-amber-200/90 rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
-        {/* Header - Bright Light Theme with Amber Accent */}
-        <div className="flex items-center justify-between p-5 border-b border-amber-200/80 bg-[#FAF8F5]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200 font-sans">
+      <div className="w-full max-w-2xl bg-white border border-[#D3D1C7] rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-[#F1EFE8] bg-[#FAFAF8]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-600 flex items-center justify-center shadow-2xs">
+            <div className="w-10 h-10 rounded-2xl bg-[#E1F5EE] text-[#085041] border border-[#9FE1CB] flex items-center justify-center">
               <Calculator className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-extrabold text-slate-900 text-sm sm:text-base font-display">
-                  استعلام نرخ و شبیه‌ساز مهندسی باربری (پنل مدیریت)
+                <h3 className="font-bold text-[#2C2C2A] text-sm">
+                  شبیه‌ساز و استعلام نرخ باربری
                 </h3>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
-                  تحلیلی
+                <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-[#E1F5EE] text-[#04342C] border border-[#9FE1CB]">
+                  پنل مدیریت
                 </span>
               </div>
-              <p className="text-xs text-slate-500 font-medium mt-0.5">
-                محاسبه بلادرنگ بر اساس پکیج فعال پروداکشن و اعتبارسنجی گاردریل‌ها
+              <p className="text-xs text-[#5F5E5A] mt-0.5">
+                محاسبه بلادرنگ بر اساس پکیج تعرفه فعال و اعتبارسنجی قوانین
               </p>
             </div>
           </div>
           <button
             onClick={() => setIsQuickQuoteOpen(false)}
-            className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+            className="p-2 text-[#888780] hover:text-[#2C2C2A] hover:bg-[#F1EFE8] rounded-xl transition-colors cursor-pointer"
             aria-label="بستن"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Content Body - Clean Light Layout */}
-        <div className="p-6 space-y-4 text-xs overflow-y-auto max-h-[75vh] bg-white">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+        {/* Content Body */}
+        <div className="p-5 space-y-4 text-xs overflow-y-auto max-h-[75vh] bg-white">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {/* Origin */}
             <CityPickerDropdown
               id="sandbox-origin-city"
               value={originCity}
               onChange={setOriginCity}
-              label="شهر مبدأ بارگیری:"
+              label="شهر مبدأ:"
               type="origin"
             />
 
@@ -114,28 +114,28 @@ export const QuickQuoteSandboxModal: React.FC = () => {
               id="sandbox-dest-city"
               value={destinationCity}
               onChange={setDestinationCity}
-              label="شهر مقصد تخلیه:"
+              label="شهر مقصد:"
               type="destination"
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {/* Vehicle Type */}
             <VehiclePickerDropdown
               id="sandbox-vehicle-type"
               value={vehicleType}
               onChange={setVehicleType}
-              label="نوع ناوگان باربری:"
+              label="نوع ناوگان:"
             />
 
             {/* Cargo Weight */}
             <div>
-              <label className="block text-slate-700 mb-1.5 font-bold flex items-center justify-between text-xs">
+              <label className="block text-[#2C2C2A] mb-1.5 font-bold flex items-center justify-between text-xs">
                 <span className="flex items-center gap-1.5">
-                  <Scale className="w-3.5 h-3.5 text-amber-600" />
-                  <span>وزن خالص محموله (تن):</span>
+                  <Scale className="w-3.5 h-3.5 text-[#D85A30]" />
+                  <span>وزن محموله (تن):</span>
                 </span>
-                <span className="text-[10px] text-slate-400 font-mono">حداکثر ۶۰ تن</span>
+                <span className="text-[10px] text-[#888780] font-mono">حداکثر ۶۰ تن</span>
               </label>
               <div className="flex items-center gap-2">
                 <input
@@ -144,9 +144,9 @@ export const QuickQuoteSandboxModal: React.FC = () => {
                   max="60"
                   value={cargoWeightTons}
                   onChange={(e) => setCargoWeightTons(Number(e.target.value))}
-                  className="w-full bg-white border border-slate-200 rounded-2xl p-2.5 text-slate-800 text-xs focus:border-amber-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 font-mono font-bold shadow-2xs"
+                  className="w-full bg-white border border-[#D3D1C7] rounded-2xl p-2.5 text-[#2C2C2A] text-xs focus:border-[#9FE1CB] focus:outline-none font-mono font-bold"
                 />
-                <span className="text-slate-500 font-bold px-2">تن</span>
+                <span className="text-[#888780] text-xs font-medium px-1">تن</span>
               </div>
             </div>
           </div>
@@ -157,95 +157,101 @@ export const QuickQuoteSandboxModal: React.FC = () => {
             value={contractId}
             contracts={contracts || []}
             onChange={setContractId}
-            label="قرارداد صاحب‌کالا (اختیاری):"
+            label="قرارداد صاحب کالا (اختیاری):"
           />
 
           {/* Service Addon Toggles */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 pt-1">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 pt-1">
             <button
               type="button"
               onClick={() => setIsColdChain(!isColdChain)}
-              className={`p-2.5 rounded-xl border flex items-center gap-2 transition-all cursor-pointer ${
+              className={`p-2.5 rounded-xl border flex items-center justify-between transition-all cursor-pointer ${
                 isColdChain
-                  ? 'bg-teal-50 border-teal-400 text-teal-900 font-bold shadow-2xs'
-                  : 'bg-[#FAF8F5] border-amber-200/70 text-slate-600 hover:bg-white'
+                  ? 'bg-[#E1F5EE] border-[#9FE1CB] text-[#04342C] font-bold'
+                  : 'bg-[#FAFAF8] border-[#D3D1C7] text-[#5F5E5A] hover:bg-white'
               }`}
             >
-              <Snowflake className="w-4 h-4 shrink-0 text-teal-600" />
-              <span className="text-[11px]">زنجیره سرد (+۱۸٪)</span>
+              <div className="flex items-center gap-1.5">
+                <Snowflake className="w-3.5 h-3.5 text-[#0F6E56] shrink-0" />
+                <span className="text-xs">زنجیره سرد (+۱۸٪)</span>
+              </div>
             </button>
 
             <button
               type="button"
               onClick={() => setIsHazardous(!isHazardous)}
-              className={`p-2.5 rounded-xl border flex items-center gap-2 transition-all cursor-pointer ${
+              className={`p-2.5 rounded-xl border flex items-center justify-between transition-all cursor-pointer ${
                 isHazardous
-                  ? 'bg-rose-50 border-rose-400 text-rose-900 font-bold shadow-2xs'
-                  : 'bg-[#FAF8F5] border-amber-200/70 text-slate-600 hover:bg-white'
+                  ? 'bg-[#FAECE7] border-[#D85A30] text-[#D85A30] font-bold'
+                  : 'bg-[#FAFAF8] border-[#D3D1C7] text-[#5F5E5A] hover:bg-white'
               }`}
             >
-              <Flame className="w-4 h-4 shrink-0 text-rose-600" />
-              <span className="text-[11px]">کالای خطرناک ADR (+۲۵٪)</span>
+              <div className="flex items-center gap-1.5">
+                <Flame className="w-3.5 h-3.5 text-[#D85A30] shrink-0" />
+                <span className="text-xs">کالای خطرناک ADR (+۲۵٪)</span>
+              </div>
             </button>
 
             <button
               type="button"
               onClick={() => setIsPeakSeason(!isPeakSeason)}
-              className={`p-2.5 rounded-xl border flex items-center gap-2 transition-all cursor-pointer ${
+              className={`p-2.5 rounded-xl border flex items-center justify-between transition-all cursor-pointer ${
                 isPeakSeason
-                  ? 'bg-amber-50 border-amber-400 text-amber-950 font-bold shadow-2xs'
-                  : 'bg-[#FAF8F5] border-amber-200/70 text-slate-600 hover:bg-white'
+                  ? 'bg-[#E1F5EE] border-[#085041] text-[#04342C] font-bold'
+                  : 'bg-[#FAFAF8] border-[#D3D1C7] text-[#5F5E5A] hover:bg-white'
               }`}
             >
-              <Calendar className="w-4 h-4 shrink-0 text-amber-600" />
-              <span className="text-[11px]">پیک بار پاییزه (+۱۵٪)</span>
+              <div className="flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-[#085041] shrink-0" />
+                <span className="text-xs">پیک بار فصلی (+۱۵٪)</span>
+              </div>
             </button>
           </div>
 
-          <div className="pt-2">
+          <div className="pt-1">
             <button
               type="button"
               onClick={handleCalculate}
-              className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-md shadow-amber-500/20 transition-all cursor-pointer"
+              className="w-full py-2.5 bg-[#085041] hover:bg-[#04342C] text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer text-xs"
             >
               <Zap className="w-4 h-4" />
-              استعلام نرخ آنی و تولید ردگیری تصمیم
+              محاسبه نرخ و ثبت ردگیری تصمیم
             </button>
           </div>
 
           {/* Results Area */}
           {quoteResult && (
-            <div className="mt-4 p-4 bg-gradient-to-br from-[#FAF8F5] to-[#F5EFEB] border border-amber-300 rounded-2xl space-y-3 animate-in fade-in zoom-in-95 duration-150">
-              <div className="flex items-center justify-between border-b border-amber-200/80 pb-3">
+            <div className="mt-3 p-4 bg-[#FAFAF8] border border-[#9FE1CB] rounded-2xl space-y-3 animate-in fade-in duration-150">
+              <div className="flex items-center justify-between border-b border-[#D3D1C7] pb-2.5">
                 <div>
-                  <span className="text-slate-500 block text-[11px] font-medium">کرایه خالص پیشنهادی:</span>
-                  <span className="text-xl font-black font-mono text-emerald-700">
+                  <span className="text-[#888780] block text-[11px]">کرایه خالص پیشنهادی:</span>
+                  <span className="text-lg font-black font-mono text-[#085041]">
                     {(quoteResult.finalPriceToman / 1000000).toLocaleString('fa-IR')} میلیون تومان
                   </span>
                 </div>
                 <div className="text-left">
-                  <span className="text-slate-500 block text-[11px] font-medium">حاشیه سود عملیاتی:</span>
-                  <span className="text-base font-bold font-mono text-teal-800">
+                  <span className="text-[#888780] block text-[11px]">حاشیه سود:</span>
+                  <span className="text-sm font-bold font-mono text-[#2C2C2A]">
                     {quoteResult.marginPercent.toLocaleString('fa-IR')}٪
                   </span>
                 </div>
               </div>
 
-              <p className="text-slate-700 text-xs leading-relaxed font-medium bg-white/80 p-2.5 rounded-xl border border-amber-100">
+              <p className="text-[#5F5E5A] text-xs leading-relaxed bg-white p-2.5 rounded-xl border border-[#D3D1C7]">
                 {quoteResult.trace.explanationFa}
               </p>
 
               <div className="flex items-center justify-between pt-1">
-                <span className="text-slate-500 text-[11px] font-mono">
-                  ردگیری: {quoteResult.trace.traceId} (زمان: {quoteResult.trace.latencyMs}ms)
+                <span className="text-[#888780] text-[11px] font-mono">
+                  شناسه ردگیری: {quoteResult.trace.traceId} ({quoteResult.trace.latencyMs}ms)
                 </span>
                 <button
                   type="button"
                   onClick={handleOpenTrace}
-                  className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg flex items-center gap-1.5 font-bold text-xs transition-colors cursor-pointer shadow-xs"
+                  className="px-3 py-1.5 bg-[#085041] hover:bg-[#04342C] text-white rounded-lg flex items-center gap-1.5 font-bold text-xs transition-colors cursor-pointer"
                 >
                   <FileSearch className="w-3.5 h-3.5" />
-                  مشاهده کامل ردگیری تصمیم (≤ ۳ کلیک)
+                  مشاهده ردگیری تصمیم
                 </button>
               </div>
             </div>

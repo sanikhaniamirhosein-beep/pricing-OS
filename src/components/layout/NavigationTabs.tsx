@@ -68,8 +68,8 @@ export const NavigationTabs: React.FC<NavigationTabsProps> = ({
   onSelectWorkspace,
 }) => {
   return (
-    <nav className="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-30 shadow-xs">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className="bg-white border-b border-[#D3D1C7] sticky top-0 z-30 shadow-xs">
+      <div className="max-w-[98%] 2xl:max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-2 overflow-x-auto py-2.5 no-scrollbar">
           {WORKSPACES.map((ws) => {
             const Icon = ws.icon;
@@ -82,17 +82,17 @@ export const NavigationTabs: React.FC<NavigationTabsProps> = ({
                 onClick={() => onSelectWorkspace(ws.id)}
                 className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer shrink-0 ${
                   isActive
-                    ? 'bg-amber-500 text-white shadow-sm font-bold'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/90 border border-transparent'
+                    ? 'bg-[#085041] text-white shadow-xs font-bold'
+                    : 'text-[#5F5E5A] hover:text-[#2C2C2A] hover:bg-[#F1EFE8] border border-transparent'
                 }`}
                 title={ws.descriptionFa}
               >
-                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-amber-600'}`} />
+                <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-[#0F6E56]'}`} />
                 <span className="font-display tracking-tight">{ws.nameFa}</span>
                 {ws.badge && (
                   <span
-                    className={`text-[10px] px-2 py-0.5 rounded-md font-mono font-medium ${
-                      isActive ? 'bg-amber-600 text-white' : 'bg-slate-100 text-slate-700 border border-slate-200'
+                    className={`text-[10px] px-2 py-0.5 rounded-md font-mono font-bold ${
+                      isActive ? 'bg-[#04342C] text-white' : 'bg-[#E1F5EE] text-[#04342C] border border-[#9FE1CB]'
                     }`}
                   >
                     {ws.badge}

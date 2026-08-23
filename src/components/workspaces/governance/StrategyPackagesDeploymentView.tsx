@@ -18,10 +18,9 @@ import { usePricing } from '../../../store/PricingContext';
 import { StrategyPackage } from '../../../types/pricing';
 
 export const StrategyPackagesDeploymentView: React.FC = () => {
-  const { strategyPackages, rollbackPackage, deployPackage, triggerStepUpMFA } = usePricing();
-  const [packagesList, setPackagesList] = useState<StrategyPackage[]>(strategyPackages || []);
+  const { strategyPackages, rollbackPackage, deployPackage, publishPackage, triggerStepUpMFA } = usePricing();
   const [selectedPackage, setSelectedPackage] = useState<StrategyPackage | null>(
-    strategyPackages?.find((p) => p.status === 'live') || strategyPackages?.[0] || null
+    strategyPackages?.find((p) => p.status === 'Active') || strategyPackages?.[0] || null
   );
   const [isRollbacking, setIsRollbacking] = useState(false);
   const [canaryPercentage, setCanaryPercentage] = useState<number>(20);
@@ -30,7 +29,7 @@ export const StrategyPackagesDeploymentView: React.FC = () => {
     triggerStepUpMFA('عملیات بازگشت اضطراری به نسخه پایدار قبلی (Emergency Rollback)', () => {
       setIsRollbacking(true);
       setTimeout(() => {
-        rollbackPackage(pkgId);
+        rollbackPackage(pkgId, 'Emergency rollback triggered by operator');
         setIsRollbacking(false);
         alert('نسخه فعال با موفقیت به نسخه پایدار بازگردانده شد.');
       }, 1000);
@@ -38,13 +37,13 @@ export const StrategyPackagesDeploymentView: React.FC = () => {
   };
 
   const handleDeployCanary = (pkgId: string) => {
-    deployPackage(pkgId, 'canary');
+    publishPackage(pkgId, canaryPercentage);
     alert(`بسته ${pkgId} با موفقیت به صورت آزمایشی روی ${canaryPercentage}٪ درخواست‌ها منتشر شد.`);
   };
 
   const handleDeployProduction = (pkgId: string) => {
     triggerStepUpMFA('انتشار نهایی سراسری در محیط عملیاتی (Production Deployment)', () => {
-      deployPackage(pkgId, 'live');
+      deployPackage(pkgId);
       alert(`بسته ${pkgId} با موفقیت به عنوان نسخه اصلی و ۱۰۰٪ فعال در پروداکشن قرار گرفت.`);
     });
   };
@@ -86,14 +85,14 @@ export const StrategyPackagesDeploymentView: React.FC = () => {
 
             <div className="space-y-2">
               {strategyPackages.map((pkg) => {
-                const pkgKey = pkg.packageId || pkg.id || `pkg-${pkg.version}`;
-                const isSelected = (selectedPackage?.packageId || selectedPackage?.id) === pkgKey;
-                const pTitleFa = pkg.nameFa || pkg.titleFa || 'بسته استراتژی تعرفه';
-                const pChangelog = pkg.changelogFa || pkg.changeSummaryFa || 'بروزرسانی استراتژی و ضرایب';
-                const pAuthor = pkg.releasedBy || pkg.authorName || 'معاونت قیمت‌گذاری';
-                const isLive = pkg.status === 'live' || pkg.status === 'Active';
-                const isCanary = pkg.status === 'canary' || (pkg.environment === 'staging' && pkg.status === 'In Review');
-                const isApproved = pkg.status === 'approved' || pkg.status === 'Approved';
+                const pkgKey = pkg.packageId || `pkg-${pkg.version}`;
+                const isSelected = selectedPackage?.packageId === pkgKey;
+                const pTitleFa = pkg.titleFa || 'بسته استراتژی تعرفه';
+                const pChangelog = pkg.changeSummaryFa || 'بروزرسانی استراتژی و ضرایب';
+                const pAuthor = pkg.authorName || 'معاونت قیمت‌گذاری';
+                const isLive = pkg.status === 'Active';
+                const isCanary = pkg.environment === 'staging' && pkg.status === 'In Review';
+                const isApproved = pkg.status === 'Approved';
 
                 return (
                   <div
@@ -119,7 +118,7 @@ export const StrategyPackagesDeploymentView: React.FC = () => {
                                 ? 'bg-cyan-100 text-cyan-800'
                                 : isApproved
                                 ? 'bg-blue-100 text-blue-800'
-                                : pkg.status === 'deprecated'
+                                : pkg.status === 'Deprecated'
                                 ? 'bg-slate-100 text-slate-500'
                                 : 'bg-amber-100 text-amber-800'
                             }`}
@@ -130,7 +129,7 @@ export const StrategyPackagesDeploymentView: React.FC = () => {
                               ? 'انتشار تدریجی آزمایشی'
                               : isApproved
                               ? 'آماده انتشار'
-                              : pkg.status === 'deprecated'
+                              : pkg.status === 'Deprecated'
                               ? 'منسوخ شده'
                               : 'پیش‌نویس'}
                           </span>
@@ -164,17 +163,17 @@ export const StrategyPackagesDeploymentView: React.FC = () => {
                         v{selectedPackage.version}
                       </span>
                       <h2 className="text-base font-bold text-slate-900 font-title">
-                        {selectedPackage.nameFa || selectedPackage.titleFa || 'بسته تعرفه'}
+                        {selectedPackage.titleFa || 'بسته تعرفه'}
                       </h2>
                     </div>
-                    <p className="text-xs text-slate-400 font-mono mt-0.5">{selectedPackage.nameEn || selectedPackage.titleEn}</p>
+                    <p className="text-xs text-slate-400 font-mono mt-0.5">{selectedPackage.titleEn}</p>
                   </div>
 
                   {/* Deployment Trigger Buttons */}
                   <div className="flex items-center gap-2">
-                    {selectedPackage.status === 'live' || selectedPackage.status === 'Active' ? (
+                    {selectedPackage.status === 'Active' ? (
                       <button
-                        onClick={() => handleRollback(selectedPackage.packageId || selectedPackage.id)}
+                        onClick={() => handleRollback(selectedPackage.packageId)}
                         disabled={isRollbacking}
                         className="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold flex items-center gap-2 transition-colors cursor-pointer"
                       >
@@ -184,14 +183,14 @@ export const StrategyPackagesDeploymentView: React.FC = () => {
                     ) : (
                       <>
                         <button
-                          onClick={() => handleDeployCanary(selectedPackage.packageId || selectedPackage.id)}
+                          onClick={() => handleDeployCanary(selectedPackage.packageId)}
                           className="px-3.5 py-2 bg-cyan-700 hover:bg-cyan-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
                         >
                           <Rocket className="w-3.5 h-3.5" />
                           انتشار تدریجی ({canaryPercentage}٪)
                         </button>
                         <button
-                          onClick={() => handleDeployProduction(selectedPackage.packageId || selectedPackage.id)}
+                          onClick={() => handleDeployProduction(selectedPackage.packageId)}
                           className="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
                         >
                           <CheckCircle2 className="w-3.5 h-3.5" />
@@ -207,14 +206,14 @@ export const StrategyPackagesDeploymentView: React.FC = () => {
                   <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
                     <span className="text-[10px] text-slate-400 block font-bold">خلاصه تغییرات (Changelog):</span>
                     <p className="text-slate-800 mt-1 leading-relaxed font-medium">
-                      {selectedPackage.changelogFa || selectedPackage.changeSummaryFa || 'بدون توضیحات تکمیلی'}
+                      {selectedPackage.changeSummaryFa || 'بدون توضیحات تکمیلی'}
                     </p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
                       <span className="text-[10px] text-slate-400">شناسه بسته سیستمی:</span>
-                      <span className="font-mono font-bold text-slate-800 block">{selectedPackage.packageId || selectedPackage.id}</span>
+                      <span className="font-mono font-bold text-slate-800 block">{selectedPackage.packageId}</span>
                     </div>
                     <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
                       <span className="text-[10px] text-slate-400">تاریخ فعال‌سازی:</span>

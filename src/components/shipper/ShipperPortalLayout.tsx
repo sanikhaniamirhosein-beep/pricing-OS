@@ -36,8 +36,11 @@ import { ShipperBillingView } from './ShipperBillingView';
 import { ShipperMasterDataView } from './ShipperMasterDataView';
 import { ShipperAnalyticsView } from './ShipperAnalyticsView';
 import { ShipperSettingsView } from './ShipperSettingsView';
+import { ShipperSupportIncidentsView } from './ShipperSupportIncidentsView';
+import { ShipperBatchOrdersView } from './ShipperBatchOrdersView';
 import { AICoPilotDrawer } from '../common/AICoPilotDrawer';
-import { INITIAL_SHIPPER_TIER, ShipperActiveLoad } from '../../data/mockShipperData';
+import { INITIAL_SHIPPER_TIER, ShipperActiveLoad, INITIAL_ACTIVE_LOADS } from '../../data/mockShipperData';
+import { LifeBuoy, FileSpreadsheet } from 'lucide-react';
 
 interface ShipperPortalLayoutProps {
   onLogout: () => void;
@@ -49,10 +52,13 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
 }) => {
   const { userName, userOrgName, userEmail } = usePricing();
   const [activeTab, setActiveTab] = useState<
-    'dashboard' | 'quote' | 'shipments' | 'contracts' | 'billing' | 'master_data' | 'analytics' | 'settings'
+    'dashboard' | 'quote' | 'batch_orders' | 'shipments' | 'support' | 'contracts' | 'billing' | 'master_data' | 'analytics' | 'settings'
   >('dashboard');
 
+  const [activeLoads, setActiveLoads] = useState<ShipperActiveLoad[]>(INITIAL_ACTIVE_LOADS);
   const [selectedShipmentForTracking, setSelectedShipmentForTracking] = useState<ShipperActiveLoad | null>(null);
+  const [selectedLoadForSupport, setSelectedLoadForSupport] = useState<string | null>(null);
+  const [selectedTicketForSupport, setSelectedTicketForSupport] = useState<string | null>(null);
   const [isAiCoPilotOpen, setIsAiCoPilotOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [isSidebarCompact, setIsSidebarCompact] = useState(false);
@@ -72,7 +78,9 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
   const navigationItems = [
     { id: 'dashboard', label: 'داشبورد اصلی', icon: LayoutDashboard, badge: undefined },
     { id: 'quote', label: 'استعلام و ثبت سفارش', icon: Calculator, badge: 'نرخ آنی' },
-    { id: 'shipments', label: 'مدیریت و رهگیری بارها', icon: Truck, badge: '۴ فعال' },
+    { id: 'batch_orders', label: 'ثبت دسته‌ای بار (اکسل)', icon: FileSpreadsheet, badge: 'جدید' },
+    { id: 'shipments', label: 'مدیریت و رهگیری بارها', icon: Truck, badge: `${activeLoads.length} بار` },
+    { id: 'support', label: 'پشتیبانی و حوادث حین حمل', icon: LifeBuoy, badge: '۲ تیکت' },
     { id: 'contracts', label: 'قراردادها و تخفیف‌ها', icon: ShieldCheck, badge: 'پله طلایی' },
     { id: 'billing', label: 'امور مالی و صورتحساب‌ها', icon: Receipt, badge: undefined },
     { id: 'master_data', label: 'اطلاعات پایه و انبارها', icon: BookOpen, badge: undefined },
@@ -363,20 +371,56 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
                 setSelectedShipmentForTracking(shipment);
                 setActiveTab('shipments');
               }}
+              activeLoads={activeLoads}
             />
           )}
 
           {activeTab === 'quote' && (
             <ShipperQuoteBookingView
               onOrderCreated={(newLoad) => {
-                setSelectedShipmentForTracking(newLoad);
+                if (newLoad) {
+                  setActiveLoads((prev) => [newLoad, ...prev]);
+                  setSelectedShipmentForTracking(newLoad);
+                }
               }}
               onNavigateTab={(tab) => setActiveTab(tab as any)}
             />
           )}
 
+          {activeTab === 'batch_orders' && (
+            <ShipperBatchOrdersView
+              onNavigateTab={(tab) => setActiveTab(tab as any)}
+              onBatchSubmitted={(count, createdLoads) => {
+                if (createdLoads && createdLoads.length > 0) {
+                  setActiveLoads((prev) => [...createdLoads, ...prev]);
+                  setSelectedShipmentForTracking(createdLoads[0]);
+                }
+              }}
+            />
+          )}
+
           {activeTab === 'shipments' && (
-            <ShipperShipmentsView initialSelectedShipment={selectedShipmentForTracking} />
+            <ShipperShipmentsView
+              initialSelectedShipment={selectedShipmentForTracking}
+              loads={activeLoads}
+              onNavigateTab={(tab) => setActiveTab(tab as any)}
+              onNavigateToSupport={(loadId, ticketId) => {
+                setSelectedLoadForSupport(loadId);
+                setSelectedTicketForSupport(ticketId || null);
+                setActiveTab('support');
+              }}
+            />
+          )}
+
+          {activeTab === 'support' && (
+            <ShipperSupportIncidentsView
+              initialPreselectedLoadId={selectedLoadForSupport}
+              initialSelectedTicketId={selectedTicketForSupport}
+              onNavigateToTracking={(load) => {
+                setSelectedShipmentForTracking(load);
+                setActiveTab('shipments');
+              }}
+            />
           )}
 
           {activeTab === 'contracts' && <ShipperContractsView />}

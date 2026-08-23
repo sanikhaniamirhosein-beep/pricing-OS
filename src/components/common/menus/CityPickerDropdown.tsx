@@ -29,7 +29,7 @@ export const IRAN_LOGISTICS_CITIES: CityOption[] = [
     id: 'tehran',
     nameFa: 'تهران',
     provinceFa: 'تهران',
-    hubNameFa: 'پایانه مرکزی جنوب / احمدآباد مستوفی / شورآباد',
+    hubNameFa: 'پایانه مرکزی جنوب و شورآباد',
     category: 'capital',
     categoryLabelFa: 'پایتخت و هاب توزیع',
     isPopular: true,
@@ -38,135 +38,135 @@ export const IRAN_LOGISTICS_CITIES: CityOption[] = [
     id: 'bandar_abbas',
     nameFa: 'بندرعباس',
     provinceFa: 'هرمزگان',
-    hubNameFa: 'اسکله شهید رجایی و گمرک شهید باهنر',
+    hubNameFa: 'اسکله شهید رجایی و باهنر',
     category: 'port',
-    categoryLabelFa: 'بندر استراتژیک کانتینری',
+    categoryLabelFa: 'بندر کانتینری',
     isPopular: true,
   },
   {
     id: 'isfahan',
     nameFa: 'اصفهان',
     provinceFa: 'اصفهان',
-    hubNameFa: 'پایانه بار امیرکبیر و مجتمع فولاد مبارکه',
+    hubNameFa: 'پایانه امیرکبیر و فولاد مبارکه',
     category: 'industrial',
-    categoryLabelFa: 'قطب صنعتی و فولادی کشور',
+    categoryLabelFa: 'قطب صنعتی و فولاد',
     isPopular: true,
   },
   {
     id: 'mashhad',
     nameFa: 'مشهد',
     provinceFa: 'خراسان رضوی',
-    hubNameFa: 'پایانه بار بزرگ شرق / جاده سنتو',
+    hubNameFa: 'پایانه بار بزرگ شرق',
     category: 'general',
-    categoryLabelFa: 'کلان‌شهر و کریدور ترانزیت شرق',
+    categoryLabelFa: 'کریدور ترانزیت شرق',
     isPopular: true,
   },
   {
     id: 'tabriz',
     nameFa: 'تبریز',
     provinceFa: 'آذربایجان شرقی',
-    hubNameFa: 'پایانه ترانزیت غرب / جاده آذرشهر',
+    hubNameFa: 'پایانه غرب و جاده آذرشهر',
     category: 'industrial',
-    categoryLabelFa: 'هاب صنعتی و ترانزیت قفقاز',
+    categoryLabelFa: 'ترانزیت غرب و قفقاز',
     isPopular: true,
   },
   {
     id: 'ahvaz',
     nameFa: 'اهواز',
     provinceFa: 'خوزستان',
-    hubNameFa: 'پایانه بار خوزستان و صنایع پتروشیمی',
+    hubNameFa: 'پایانه بار و صنایع پتروشیمی',
     category: 'industrial',
-    categoryLabelFa: 'قطب نفت، پتروشیمی و فولاد',
+    categoryLabelFa: 'نفت و پتروشیمی',
     isPopular: true,
   },
   {
     id: 'bushehr',
     nameFa: 'بوشهر',
     provinceFa: 'بوشهر',
-    hubNameFa: 'گمرک منطقه ویژه اقتصادی و عسلویه',
+    hubNameFa: 'گمرک منطقه ویژه و عسلویه',
     category: 'port',
-    categoryLabelFa: 'پایانه دریایی و انرژی',
+    categoryLabelFa: 'بندر و انرژی',
     isPopular: true,
   },
   {
     id: 'chabahar',
     nameFa: 'چابهار',
     provinceFa: 'سیستان و بلوچستان',
-    hubNameFa: 'بندر شهید بهشتی و کریدور اقیانوسی',
+    hubNameFa: 'بندر شهید بهشتی و کلانتری',
     category: 'port',
-    categoryLabelFa: 'تنها بندر اقیانوسی کشور',
+    categoryLabelFa: 'بندر اقیانوسی',
     isPopular: true,
   },
   {
     id: 'bazargan',
     nameFa: 'بازرگان',
     provinceFa: 'آذربایجان غربی',
-    hubNameFa: 'گمرک مرزی ترانزیت ایران-ترکیه-اروپا',
+    hubNameFa: 'گمرک مرزی ایران-ترکیه',
     category: 'border',
-    categoryLabelFa: 'پایانه مرز ترانزیتی زمینی',
+    categoryLabelFa: 'پایانه مرزی ترانزیت',
     isPopular: true,
   },
   {
     id: 'shiraz',
     nameFa: 'شیراز',
     provinceFa: 'فارس',
-    hubNameFa: 'پایانه بار شیراز و شهرک صنعتی بزرگ',
+    hubNameFa: 'پایانه بار و منطقه ویژه اقتصادی',
     category: 'general',
-    categoryLabelFa: 'مرکز جنوب مرکزی کشور',
+    categoryLabelFa: 'هاب جنوب مرکزی',
     isPopular: true,
   },
   {
     id: 'rasht',
     nameFa: 'رشت',
     provinceFa: 'گیلان',
-    hubNameFa: 'پایانه بار گیلان و کریدور شمال-جنوب (انزلی)',
+    hubNameFa: 'پایانه بار گیلان و بندر انزلی',
     category: 'general',
-    categoryLabelFa: 'هاب کشاورزی و ترانزیت خزر',
+    categoryLabelFa: 'کریدور شمال و خزر',
     isPopular: true,
   },
   {
     id: 'bandar_imam',
     nameFa: 'بندر امام خمینی',
     provinceFa: 'خوزستان',
-    hubNameFa: 'مجتمع بندری امام خمینی (فله‌بری و غلات)',
+    hubNameFa: 'مجتمع بندری کالای اساسی',
     category: 'port',
-    categoryLabelFa: 'هاب اصلی کالاهای اساسی',
+    categoryLabelFa: 'هاب غلات و فله',
     isPopular: false,
   },
   {
     id: 'arak',
     nameFa: 'اراک',
     provinceFa: 'مرکزی',
-    hubNameFa: 'پایانه بار مرکزی و شهرک صنعتی خیرآباد',
+    hubNameFa: 'پایانه بار مرکزی و خیرآباد',
     category: 'industrial',
-    categoryLabelFa: 'صنایع سنگین و ماشین‌سازی',
+    categoryLabelFa: 'صنایع سنگین',
     isPopular: false,
   },
   {
     id: 'yazd',
     nameFa: 'یزد',
     provinceFa: 'یزد',
-    hubNameFa: 'پایانه بار یزد و منطقه ویژه اقتصادی',
+    hubNameFa: 'پایانه بار و شهرک صنعتی',
     category: 'industrial',
-    categoryLabelFa: 'صنایع معدنی، کاشی و نساجی',
+    categoryLabelFa: 'صنایع معدنی و کاشی',
     isPopular: false,
   },
   {
     id: 'qazvin',
     nameFa: 'قزوین',
     provinceFa: 'قزوین',
-    hubNameFa: 'پایانه بار کاسپین و البرز صنعتی',
+    hubNameFa: 'پایانه کاسپین و شهر صنعتی البرز',
     category: 'industrial',
-    categoryLabelFa: 'هاب لجستیک غرب تهران',
+    categoryLabelFa: 'هاب صنعتی',
     isPopular: false,
   },
   {
     id: 'kerman',
     nameFa: 'کرمان',
     provinceFa: 'کرمان',
-    hubNameFa: 'پایانه بار کرمان و معادن سرچشمه و گل‌گهر',
+    hubNameFa: 'پایانه بار و معادن گل‌گهر',
     category: 'industrial',
-    categoryLabelFa: 'صنایع مس و سنگ‌آهن',
+    categoryLabelFa: 'صنایع مس و معدن',
     isPopular: false,
   },
 ];
@@ -289,29 +289,31 @@ export const CityPickerDropdown: React.FC<CityPickerDropdownProps> = ({
       >
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
           <div
-            className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${
+            className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${
               isOrigin
                 ? 'bg-amber-500/10 text-amber-600 border border-amber-500/20'
                 : 'bg-teal-500/10 text-teal-600 border border-teal-500/20'
             }`}
           >
-            <MapPin className="w-4 h-4" />
+            <MapPin className="w-3.5 h-3.5" />
           </div>
 
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-black text-slate-900 truncate">
+          <div className="min-w-0 flex-1 flex items-center justify-between">
+            <div className="flex items-center gap-1.5 truncate">
+              <span className="text-xs font-bold text-slate-900 truncate">
                 {selectedCity.nameFa}
               </span>
               {selectedCity.provinceFa && (
-                <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 font-medium shrink-0">
-                  استان {selectedCity.provinceFa}
+                <span className="text-[10px] text-slate-500 font-medium truncate">
+                  (استان {selectedCity.provinceFa})
                 </span>
               )}
             </div>
-            <p className="text-[10px] text-slate-400 truncate mt-0.5 font-medium leading-tight">
-              {selectedCity.hubNameFa}
-            </p>
+            {selectedCity.categoryLabelFa && (
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-medium shrink-0 hidden sm:inline-block">
+                {selectedCity.categoryLabelFa}
+              </span>
+            )}
           </div>
         </div>
 

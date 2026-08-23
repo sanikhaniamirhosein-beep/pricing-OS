@@ -10,6 +10,7 @@ import {
   RiskClass,
   StrategyPackage,
   PricingPolicy,
+  RuleBlock,
   RouteMatrixCell,
   LogisticsContract,
   LogisticsProduct,
@@ -101,6 +102,14 @@ interface PricingContextType {
   products: LogisticsProduct[];
   routeMatrix: RouteMatrixCell[];
   pricingPolicy: PricingPolicy;
+  setPricingPolicy: React.Dispatch<React.SetStateAction<PricingPolicy>>;
+  updatePricingPolicy: (updated: Partial<PricingPolicy>) => void;
+  updateRuleBlock: (blockId: string, updated: Partial<RuleBlock>) => void;
+  addRuleBlock: (block: RuleBlock) => void;
+  deleteRuleBlock: (blockId: string) => void;
+  toggleRuleBlock: (blockId: string) => void;
+  addRouteMatrixCell: (cell: RouteMatrixCell) => void;
+  deleteRouteMatrixCell: (originCity: string, destinationCity: string, vehicleType: string) => void;
   discountPolicies: DiscountPolicy[];
   offers: LogisticsOffer[];
   contracts: LogisticsContract[];
@@ -391,6 +400,112 @@ export const PricingProvider: React.FC<{ children: React.ReactNode }> = ({ child
       },
       mfaVerified: true,
     });
+  };
+
+  const updatePricingPolicy = (updated: Partial<PricingPolicy>) => {
+    setPricingPolicy((prev) => ({
+      ...prev,
+      ...updated,
+      updatedAt: new Date().toISOString().slice(0, 10),
+    }));
+    addAuditLog({
+      eventType: 'policy.changed',
+      objectRef: `${pricingPolicy.displayId}@v${pricingPolicy.version}`,
+      actorName: userName,
+      actorRole: userRole,
+      details: { change: 'به‌روزرسانی تنظیمات سیاست تعرفه' },
+    });
+  };
+
+  const updateRuleBlock = (blockId: string, updated: Partial<RuleBlock>) => {
+    setPricingPolicy((prev) => ({
+      ...prev,
+      ruleBlocks: (prev?.ruleBlocks || []).map((b) => (b.id === blockId ? { ...b, ...updated } : b)),
+      updatedAt: new Date().toISOString().slice(0, 10),
+    }));
+    addAuditLog({
+      eventType: 'policy.changed',
+      objectRef: `RuleBlock[${blockId}]`,
+      actorName: userName,
+      actorRole: userRole,
+      details: { blockId, updated },
+    });
+  };
+
+  const addRuleBlock = (block: RuleBlock) => {
+    setPricingPolicy((prev) => ({
+      ...prev,
+      ruleBlocks: [...(prev?.ruleBlocks || []), block],
+      updatedAt: new Date().toISOString().slice(0, 10),
+    }));
+    addAuditLog({
+      eventType: 'policy.changed',
+      objectRef: `RuleBlock[${block.id}]`,
+      actorName: userName,
+      actorRole: userRole,
+      details: { action: 'ایجاد بلوک قاعده جدید', nameFa: block.nameFa },
+    });
+  };
+
+  const deleteRuleBlock = (blockId: string) => {
+    setPricingPolicy((prev) => ({
+      ...prev,
+      ruleBlocks: (prev?.ruleBlocks || []).filter((b) => b.id !== blockId),
+      updatedAt: new Date().toISOString().slice(0, 10),
+    }));
+    addAuditLog({
+      eventType: 'policy.changed',
+      objectRef: `RuleBlock[${blockId}]`,
+      actorName: userName,
+      actorRole: userRole,
+      details: { action: 'حذف بلوک قاعده', blockId },
+    });
+  };
+
+  const toggleRuleBlock = (blockId: string) => {
+    setPricingPolicy((prev) => ({
+      ...prev,
+      ruleBlocks: (prev?.ruleBlocks || []).map((b) => (b.id === blockId ? { ...b, enabled: !b.enabled } : b)),
+      updatedAt: new Date().toISOString().slice(0, 10),
+    }));
+  };
+
+  const addRouteMatrixCell = (cell: RouteMatrixCell) => {
+    setRouteMatrix((prev) => [
+      {
+        ...cell,
+        updatedAt: new Date().toISOString().slice(0, 10),
+        lastChangedBy: userName,
+      },
+      ...prev.filter(
+        (c) =>
+          !(
+            c.originCity === cell.originCity &&
+            c.destinationCity === cell.destinationCity &&
+            c.vehicleType === cell.vehicleType
+          )
+      ),
+    ]);
+    addAuditLog({
+      eventType: 'policy.changed',
+      objectRef: `MatrixCell[${cell.originCity}->${cell.destinationCity}]`,
+      actorName: userName,
+      actorRole: userRole,
+      details: { action: 'افزودن سلول ماتریس', baseRateToman: cell.baseRateToman },
+    });
+  };
+
+  const deleteRouteMatrixCell = (originCity: string, destinationCity: string, vehicleType: string) => {
+    setRouteMatrix((prev) =>
+      prev.filter(
+        (c) =>
+          !(
+            c.originCity === originCity &&
+            c.destinationCity === destinationCity &&
+            c.vehicleType === vehicleType
+          )
+      )
+    );
   };
 
   const createStrategyPackage = (pkg: Partial<StrategyPackage>): StrategyPackage => {
@@ -865,6 +980,14 @@ export const PricingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         products,
         routeMatrix,
         pricingPolicy,
+        setPricingPolicy,
+        updatePricingPolicy,
+        updateRuleBlock,
+        addRuleBlock,
+        deleteRuleBlock,
+        toggleRuleBlock,
+        addRouteMatrixCell,
+        deleteRouteMatrixCell,
         discountPolicies,
         offers,
         contracts,

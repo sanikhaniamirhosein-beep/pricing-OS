@@ -27,10 +27,10 @@ export const IRAN_LOGISTICS_FLEET: VehicleOption[] = [
   {
     id: 'tent_trailer',
     nameFa: 'تریلی چادری',
-    categoryFa: 'ترانزیت استاندارد (چادری)',
+    categoryFa: 'ترانزیت استاندارد و صادراتی',
     capacityTon: 24,
     axles: 5,
-    descriptionFa: 'حمل کالای تجاری، بسته‌بندی، کارتن و صادراتی با حفاظت در برابر باران و گردوغبار',
+    descriptionFa: 'حمل انواع کالای تجاری، کارتن و محموله‌های بسته‌بندی',
     tagColor: 'amber',
   },
   {
@@ -39,53 +39,53 @@ export const IRAN_LOGISTICS_FLEET: VehicleOption[] = [
     categoryFa: 'کفی صنعتی و کانتینری',
     capacityTon: 25,
     axles: 5,
-    descriptionFa: 'مناسب کویل و رول فولادی، میلگرد، شمش، پالت سنگین و کانتینرهای ۲۰ و ۴۰ فوت',
+    descriptionFa: 'حمل آهن‌آلات، میلگرد، شمش، رول فولادی و کانتینر',
     tagColor: 'blue',
   },
   {
     id: 'reefer_trailer',
     nameFa: 'کشنده یخچال‌دار',
-    categoryFa: 'کنترل فعال دما (سردخانه‌ای)',
+    categoryFa: 'کنترل فعال دما (-۱۸°C)',
     capacityTon: 20,
     axles: 5,
-    descriptionFa: 'مجهز به ترموگراف آنلاین، حمل فرآورده‌های پروتئینی، لبنی، دارویی و مواد غذایی (-۱۸°C)',
+    descriptionFa: 'حمل فرآورده‌های پروتئینی، لبنی، دارویی و مواد غذایی',
     isSpecialized: true,
     tagColor: 'teal',
   },
   {
     id: 'rigid_15t',
     nameFa: 'کامیون جفت ۱۵ تن',
-    categoryFa: 'کامیون ۱۰ چرخ (۶×۴)',
+    categoryFa: 'کامیون ۱۰ چرخ',
     capacityTon: 15,
     axles: 3,
-    descriptionFa: 'حمل مصالح، لوله، سرامیک، قطعات صنعتی و بارهای با تناژ متوسط بین‌استانی',
+    descriptionFa: 'حمل مصالح ساختمانی، سرامیک و بارهای صنعتی متوسط',
     tagColor: 'slate',
   },
   {
     id: 'rigid_10t',
     nameFa: 'کامیون تک ۱۰ تن',
-    categoryFa: 'کامیون ۶ چرخ (۴×۲)',
+    categoryFa: 'کامیون ۶ چرخ',
     capacityTon: 10,
     axles: 2,
-    descriptionFa: 'بارگیری شهری و بین‌شهری سریع، توزیع منطقه‌ای و کالاهای صنعتی نیمه‌سنگین',
+    descriptionFa: 'بارگیری شهری و بین‌شهری سریع و توزیع منطقه‌ای',
     tagColor: 'slate',
   },
   {
     id: 'light_5t',
-    nameFa: 'خاور مسقف / روباز ۵ تن',
-    categoryFa: 'کامیونت سبک و نیمه‌سنگین',
+    nameFa: 'خاور ۵ تن',
+    categoryFa: 'کامیونت مسقف / روباز',
     capacityTon: 5,
     axles: 2,
-    descriptionFa: 'ایده‌آل برای بارهای سبک، خرده‌بار تجاری، لوازم حساس و مبادی فاقد رمپ تریلی',
+    descriptionFa: 'بارهای سبک، لوازم حساس و خرده‌بار تجاری',
     tagColor: 'slate',
   },
   {
     id: 'heavy_bogie',
     nameFa: 'کمرشکن بوژی',
-    categoryFa: 'فوق سنگین و محموله ترافیکی',
+    categoryFa: 'فوق‌سنگین و ترافیکی',
     capacityTon: 60,
     axles: 11,
-    descriptionFa: 'حمل ترانسفورماتور، توربین‌های پالایشگاهی، سازه‌های طویل و ماشین‌آلات راه‌سازی',
+    descriptionFa: 'حمل ترانسفورماتور، توربین و ماشین‌آلات راه‌سازی',
     isSpecialized: true,
     tagColor: 'rose',
   },
@@ -162,27 +162,22 @@ export const VehiclePickerDropdown: React.FC<VehiclePickerDropdownProps> = ({
         } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
-          <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-            <Truck className="w-4 h-4" />
+          <div className="w-7 h-7 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+            <Truck className="w-3.5 h-3.5" />
           </div>
 
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-black text-slate-900 truncate">
+          <div className="min-w-0 flex-1 flex items-center justify-between">
+            <div className="flex items-center gap-2 truncate">
+              <span className="text-xs font-bold text-slate-900 truncate">
                 {selectedVehicle.nameFa}
               </span>
-              <span className="text-[10px] px-2 py-0.2 rounded-full bg-slate-100 text-slate-700 font-bold shrink-0 font-mono">
-                {selectedVehicle.capacityTon} تن
+              <span className="text-[10px] text-slate-400 font-medium truncate">
+                ({selectedVehicle.categoryFa})
               </span>
-              {selectedVehicle.isSpecialized && (
-                <span className="text-[9px] px-1.5 py-0.2 rounded bg-teal-100 text-teal-900 font-bold shrink-0">
-                  تخصصی
-                </span>
-              )}
             </div>
-            <p className="text-[10px] text-slate-400 truncate mt-0.5 font-medium leading-tight">
-              {selectedVehicle.categoryFa}
-            </p>
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-bold shrink-0 font-mono">
+              {selectedVehicle.capacityTon} تن
+            </span>
           </div>
         </div>
 

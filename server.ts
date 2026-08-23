@@ -19,7 +19,14 @@ async function startServer() {
   let aiClient: GoogleGenAI | null = null;
   function getAI(): GoogleGenAI | null {
     if (!aiClient && process.env.GEMINI_API_KEY) {
-      aiClient = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      aiClient = new GoogleGenAI({
+        apiKey: process.env.GEMINI_API_KEY,
+        httpOptions: {
+          headers: {
+            'User-Agent': 'aistudio-build',
+          },
+        },
+      });
     }
     return aiClient;
   }
@@ -47,68 +54,131 @@ async function startServer() {
     });
   });
 
-  // 3. AI Co-Pilot API (with Gemini API integration & domain fallbacks)
+  // 3. AI Co-Pilot API (Real Gemini 3.7 Flash integration)
   app.post('/api/ai/copilot', async (req: Request, res: Response) => {
     try {
-      const { prompt, mode, context } = req.body;
+      const { prompt, mode, context, history } = req.body;
       const ai = getAI();
 
-      if (ai) {
-        const systemInstruction = `
-You are the intelligent AI Co-Pilot for the Pricing Operating System (سیستم عامل قیمت‌گذاری و مدیریت تعرفه لجستیک و حمل و نقل جاده‌ای).
-You assist pricing strategists, commercial managers, and finance controllers with:
-1. Authoring pricing policies, route matrices, and discount rules for road freight (حمل و نقل جاده‌ای).
-2. Explaining calculated rates and Decision Traces (ردگیری تصمیم).
-3. Analyzing margin leakage and suggesting test simulation scenarios.
-4. Investigating corridor anomalies (e.g. diesel price hike, seasonal fruit peak, empty backhaul).
+      if (!ai) {
+        return res.status(500).json({
+          success: false,
+          error: 'کلید وب‌سرویس هوش مصنوعی (GEMINI_API_KEY) در سرور یافت نشد.',
+          reply: 'متاسفانه کلید ارتباطی با موتور هوش مصنوعی در سرور فعال نیست. لطفاً تنظیمات محیطی را بررسی فرمایید.',
+        });
+      }
 
-Always reply concisely and professionally in Persian (فارسی). Use logistics and freight terminology accurately (ناوگان, تریلی چادری, کفی, یخچال‌دار, تن/کیلومتر, بار برگشتی, گاردریل کف سود, ضریب تعدیل سوخت).
+      const systemInstruction = `
+شما «دستیار تخصصی و هوشمند سیستم عامل قیمت‌گذاری لجستیک و حمل‌ونقل جاده‌ای ایران» (Pricing OS AI Co-Pilot) هستید.
+وظیفه شما پاسخ‌گویی دقیق، پویا، تحلیلی و مستدل به تمامی سوالات، تحلیل‌ها و نیازهای مدیران بازرگانی، استراتژیست‌های قیمت‌گذاری، متصدیان بار و صاحبان کالا است.
+
+دامنه‌های تخصصی شما:
+۱. تحلیل فرمول‌های نرخ‌گذاری حمل جاده‌ای:
+- فرمول پایه بر مبنای تن/کیلومتر (Ton-Km) متناسب با نوع ناوگان (خاور ۳-۵ تن، تک ۱۰ تن ۶ چرخ، جفت ۱۵ تن ۱۰ چرخ، تریلی کفی ۲۰-۲۴ تن، تریلی لبه‌دار، ترانزیت چادری، بونکر، کمرشکن، کشنده یخچال‌دار).
+- هزینه‌های جانبی: عوارض راهداری و پایانه (معمولاً ۴٪ تا ۹٪)، بیمه مسئولیت مدنی متصدی حمل بر مبنای ارزش اظهارشده کالا، سهم باربری و کمیسیون سالن اعلام بار، بارگیری و تخلیه، خواب و توقف ناوگان.
+- ضرایب و اضافه کرایه‌ها: زنجیره سرد و یخچال (Cold-Chain ۱۵٪ تا ۳۰٪)، کالای خطرناک (ADR ۱۵٪ تا ۲۵٪)، گردنه‌ها و مسیرهای کوهستانی صعب‌العبور، شرایط بد آب‌وهوایی، ترافیک و مسیرهای یک‌سرخالی (Backhaul).
+- ضریب تعدیل شناور سوخت گازوئیل (Fuel Surcharge Hook).
+۲. مهندسی سیاست‌های تعرفه و پکیج‌های استراتژی (Strategy Packages & Pricing Policies):
+- طراحی رول‌بلاک‌ها (Rule Blocks)، انواع تخفیفات پلکانی حجم و تعهد تناژ ماهانه (Tiered Volume Discounts).
+- گاردریل‌های کف و سقف حاشیه سود ناخالص (Gross Margin Guardrails با رفتارهای Clamp، Reject، Flag).
+۳. تبارشناسی تصمیم و علت‌یابی بارنامه (Decision Traces):
+- تحلیل گام‌به‌گام نحوه رسیدن به نرخ نهایی، بررسی عدم نقض کف سود، شناسایی علل افت سود یا نشتی تخفیف.
+۴. شبیه‌سازی، تحلیل ریسک و کشف ناهنجاری در کریدورهای بار کشور:
+- کریدورهای اصلی: تهران-بندرعباس، اصفهان-بندر امام، تبریز-مشهد، رشت-تهران، شیراز-بوشهر، یزد-بندرعباس و غیره.
+
+راهنمای نحوه پاسخ‌دهی:
+- همیشه به زبان فارسی روان، شیوا، حرفه‌ای و ساختاریافته پاسخ دهید.
+- از عناوین، بالت‌پوینت‌ها و در صورت نیاز جدول و فرمول‌های شفاف استفاده کنید تا متن خوانا باشد.
+- به سوال دقیق کاربر توجه کرده و مستقیماً و با تحلیل واقعی به همان سوال پاسخ دهید. هیچ‌گاه پاسخ‌های از پیش تعیین‌شده تکراری ندهید.
+- حالت فعلی کاربر (${mode || 'عمومی'}) و اطلاعات زمینه‌ای ارسال‌شده را مد نظر قرار دهید.
 `;
 
-        const response = await ai.models.generateContent({
-          model: 'gemini-2.5-flash',
-          contents: `[Mode: ${mode || 'general'}] Context: ${JSON.stringify(context || {})} \n\nUser Query: ${prompt}`,
-          config: {
-            systemInstruction,
-            temperature: 0.3,
-          },
-        });
+      // Build chat conversation structure for Gemini
+      const contents: Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }> = [];
 
-        return res.json({
-          success: true,
-          reply: response.text || 'پاسخ هوش مصنوعی دریافت شد.',
-          source: 'gemini-2.5-flash',
-        });
+      // If previous chat history exists, include it for conversational memory
+      if (Array.isArray(history) && history.length > 0) {
+        for (const item of history.slice(-8)) { // keep last 8 turns for efficiency
+          if (item.text && item.text.trim()) {
+            contents.push({
+              role: item.sender === 'user' ? 'user' : 'model',
+              parts: [{ text: item.text }],
+            });
+          }
+        }
       }
 
-      // Fallback domain-aware responses if GEMINI_API_KEY is not set
-      let fallbackReply = '';
-      if (mode === 'authoring') {
-        fallbackReply = `پیشنهاد هوش مصنوعی برای تعریف سیاست تعرفه جدید:
-۱. اضافه کرایه مسیرهای کوهستانی: +۱۲٪ برای محورهای زاگرس و البرز
-۲. ضریب تعدیل سوخت گازوئیل: اتصال به هوک پایش سوخت با ضریب پایه ۱.۰۴
-۳. گاردریل کف حاشیه سود: حداقل ۱۵٪ با رفتار خودکار Clamp جهت جلوگیری از زیان ناوگان.`;
-      } else if (mode === 'explanation') {
-        fallbackReply = `تحلیل تبارشناسی نرخ (Decision Trace):
-کرایه بر اساس ماتریس کریدور تهران-بندرعباس ۳۸.۵ میلیون تومان محاسبه شد. ضریب تعدیل سوخت ۴٪ و تخفیف تناژ ماهانه ۸٪ اعمال گردید. گاردریل کف حاشیه سود ۱۵٪ فعال و ایمن است.`;
-      } else if (mode === 'investigation') {
-        fallbackReply = `گزارش بررسی ناهنجاری (Anomaly Investigation):
-علت اصلی کاهش حاشیه سود در محور رشت-بندرعباس، ترافیک فصلی و افزایش هزینه استهلاک کمپرسورهای یخچال‌دار است. پیشنهاد می‌شود ۵٪ به ضریب زنجیره سرد در بسته تعرفه بعدی اضافه شود.`;
-      } else {
-        fallbackReply = `دستیار هوش مصنوعی آماده است تا در طراحی فرمول‌ها، شبیه‌سازی ۱۰,۰۰۰ بارنامه و بررسی نشت تخفیف به شما کمک کند.`;
+      // Add the current prompt with context snapshot
+      const currentQuery = `[حالت کاری: ${mode || 'عمومی'}]
+[اطلاعات سیستم: پکیج فعال ${context?.activePackage || 'SP-1042'} نگارش ${context?.version || '11'} | حداقل کف حاشیه سود: ${context?.marginFloor || 15}٪]
+${context?.selectedCorridor ? `[محور انتخابی: ${context.selectedCorridor}]` : ''}
+
+پرسش کاربر:
+${prompt}`;
+
+      contents.push({
+        role: 'user',
+        parts: [{ text: currentQuery }],
+      });
+
+      // Multi-model fallback sequence to handle temporary spikes (503 / 429)
+      const candidateModels = ['gemini-3.7-flash', 'gemini-flash-latest', 'gemini-3.1-flash-lite'];
+      let generatedReply = '';
+      let usedModel = '';
+      let lastError: any = null;
+
+      for (const modelName of candidateModels) {
+        // Try up to 2 attempts per candidate model with backoff
+        for (let attempt = 1; attempt <= 2; attempt++) {
+          try {
+            const response = await ai.models.generateContent({
+              model: modelName,
+              contents,
+              config: {
+                systemInstruction,
+                temperature: 0.7,
+              },
+            });
+            if (response && response.text) {
+              generatedReply = response.text;
+              usedModel = modelName;
+              break;
+            }
+          } catch (err: any) {
+            lastError = err;
+            const errMsg = err?.message || String(err);
+            console.log(`[AI Co-Pilot Handled]: Model ${modelName} attempt ${attempt} returned status: ${errMsg.slice(0, 100)}... trying fallback`);
+            if (attempt < 2) {
+              await new Promise((resolve) => setTimeout(resolve, 500 * attempt));
+            }
+          }
+        }
+        if (generatedReply) {
+          break;
+        }
       }
 
-      res.json({
+      if (!generatedReply) {
+        throw lastError || new Error('سرویس هوش مصنوعی موقتاً در دسترس نیست.');
+      }
+
+      return res.json({
         success: true,
-        reply: fallbackReply,
-        source: 'local-logistics-ai-heuristic',
+        reply: generatedReply,
+        model: usedModel,
       });
     } catch (err: any) {
-      console.error('AI Co-Pilot Error:', err);
-      res.json({
+      console.error('[Pricing OS AI Co-Pilot Server Error]:', err);
+      // Fallback domain-intelligent response so user always receives an actionable answer
+      return res.json({
         success: true,
-        reply: 'پاسخ دستیار تحلیل تعرفه لجستیک: برای کریدورهای اصلی جنوب توصیه می‌شود تخفیف بار برگشت حداکثر روی ۱۲٪ تنظیم گردد تا کف حاشیه سود ۱۵٪ نقض نگردد.',
-        source: 'fallback',
+        reply: `⚠️ با توجه به ترافیک بالای لحظه‌ای سرویس هوش مصنوعی، تحلیل سریع زیر بر مبنای قوانین پایدار سیستم ارائه می‌شود:\n\n` +
+          `• **محاسبه نرخ تن/کیلومتر:** برای مسیرهای کوهستانی و صعب‌العبور اعمال ضریب ۱.۱۲ تا ۱.۱۵ الزامی است.\n` +
+          `• **گاردریل کف سود:** حداقل حاشیه سود ۱۵٪ پیشنهاد می‌شود تا ترکیب تخفیفات تناژ و بار برگشت منجر به زیان متصدی نگردد.\n` +
+          `• **تعدیل سوخت:** متصل به نرخ شناور پایش مصرف پایانه با ضریب ۱.۰۴.\n\n` +
+          `*لطفاً لحظاتی دیگر مجدداً تلاش فرمایید تا مدل هوش مصنوعی اختصاصی پاسخ تکمیلی را پردازش نماید.*`,
+        model: 'heuristic-logistics-engine',
+        isFallback: true,
       });
     }
   });

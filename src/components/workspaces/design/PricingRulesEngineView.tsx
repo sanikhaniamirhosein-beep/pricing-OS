@@ -19,7 +19,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { usePricing } from '../../../store/PricingContext';
-import { PricingRuleBlock } from '../../../types/pricing';
+import { RuleBlock } from '../../../types/pricing';
 
 export const PricingRulesEngineView: React.FC = () => {
   const {
@@ -29,7 +29,7 @@ export const PricingRulesEngineView: React.FC = () => {
     setFuelIndexMultiplier,
   } = usePricing();
 
-  const [ruleBlocks, setRuleBlocks] = useState<PricingRuleBlock[]>(pricingPolicy?.ruleBlocks || []);
+  const [ruleBlocks, setRuleBlocks] = useState<RuleBlock[]>(pricingPolicy?.ruleBlocks || []);
 
   useEffect(() => {
     if (pricingPolicy?.ruleBlocks) {

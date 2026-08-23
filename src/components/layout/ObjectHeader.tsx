@@ -62,37 +62,40 @@ export const ObjectHeader: React.FC<ObjectHeaderProps> = ({
     Archived: 'بایگانی‌شده',
   };
 
-  const statusColors = {
-    Active: 'bg-emerald-50 text-emerald-800 border-emerald-300',
-    Approved: 'bg-sky-50 text-sky-800 border-sky-300',
-    'In Review': 'bg-amber-50 text-amber-900 border-amber-300',
-    Draft: 'bg-blue-50 text-blue-800 border-blue-300',
-    Simulated: 'bg-indigo-50 text-indigo-800 border-indigo-300',
-    Validated: 'bg-purple-50 text-purple-800 border-purple-300',
-    Scheduled: 'bg-teal-50 text-teal-800 border-teal-300',
-    Paused: 'bg-orange-50 text-orange-800 border-orange-300',
-    Deprecated: 'bg-slate-100 text-slate-700 border-slate-300',
-    Archived: 'bg-slate-100 text-slate-600 border-slate-300',
-  }[status] || 'bg-slate-100 text-slate-700 border-slate-300';
+  const statusStyle = {
+    Active: { backgroundColor: '#EAF3DE', color: '#27500A', borderColor: '#27500A40' },
+    Approved: { backgroundColor: '#E1F5EE', color: '#04342C', borderColor: '#9FE1CB' },
+    'In Review': { backgroundColor: '#FAEEDA', color: '#633806', borderColor: '#EF9F2740' },
+    Draft: { backgroundColor: '#F1EFE8', color: '#2C2C2A', borderColor: '#D3D1C7' },
+    Simulated: { backgroundColor: '#E6F1FB', color: '#0C447C', borderColor: '#0C447C40' },
+    Validated: { backgroundColor: '#EAF3DE', color: '#27500A', borderColor: '#27500A40' },
+    Scheduled: { backgroundColor: '#E1F5EE', color: '#085041', borderColor: '#9FE1CB' },
+    Paused: { backgroundColor: '#FAEEDA', color: '#633806', borderColor: '#EF9F2740' },
+    Deprecated: { backgroundColor: '#F1EFE8', color: '#888780', borderColor: '#D3D1C7' },
+    Archived: { backgroundColor: '#F1EFE8', color: '#888780', borderColor: '#D3D1C7' },
+  }[status] || { backgroundColor: '#F1EFE8', color: '#2C2C2A', borderColor: '#D3D1C7' };
 
   return (
-    <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm mb-8 space-y-5">
+    <div className="bg-white border border-[#D3D1C7] rounded-3xl p-6 shadow-xs mb-8 space-y-5">
       {/* Top row: Title, Type, Status, Actions */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-2.5">
-            <span className="text-xs font-mono font-bold bg-amber-50 text-amber-900 border border-amber-300 px-2.5 py-1 rounded-lg">
+            <span className="text-xs font-mono font-bold bg-[#E1F5EE] text-[#04342C] border border-[#9FE1CB] px-2.5 py-1 rounded-lg">
               {displayId}@v{version}
             </span>
-            <span className="text-xs px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 border border-slate-200 font-medium">
+            <span className="text-xs px-2.5 py-1 rounded-lg bg-[#F1EFE8] text-[#2C2C2A] border border-[#D3D1C7] font-medium">
               {typeFa}
             </span>
-            <span className={`text-xs font-semibold px-3 py-1 rounded-full border ${statusColors}`}>
+            <span
+              style={statusStyle}
+              className="text-xs font-bold px-3 py-1 rounded-full border"
+            >
               وضعیت: {statusLabels[status] || status}
             </span>
             <RiskMeterBadge riskClass={riskClass} size="sm" />
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 font-display">{titleFa}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-[#2C2C2A] font-display">{titleFa}</h1>
         </div>
 
         {/* Action Buttons */}
@@ -101,9 +104,9 @@ export const ObjectHeader: React.FC<ObjectHeaderProps> = ({
             <button
               type="button"
               onClick={onSendToSimulation}
-              className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 text-xs font-semibold flex items-center gap-2 transition-colors cursor-pointer"
+              className="px-4 py-2.5 rounded-xl bg-[#FAFAF8] hover:bg-[#F1EFE8] text-[#2C2C2A] border border-[#D3D1C7] text-xs font-bold flex items-center gap-2 transition-colors cursor-pointer"
             >
-              <GitBranch className="w-4 h-4 text-amber-600" />
+              <GitBranch className="w-4 h-4 text-[#085041]" />
               ارسال به آزمایشگاه شبیه‌سازی
             </button>
           )}
@@ -113,7 +116,7 @@ export const ObjectHeader: React.FC<ObjectHeaderProps> = ({
               type="button"
               disabled={actionDisabled}
               onClick={onActionClick}
-              className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white text-xs font-bold shadow-sm flex items-center gap-2 transition-all cursor-pointer"
+              className="px-5 py-2.5 rounded-xl bg-[#085041] hover:bg-[#04342C] disabled:opacity-50 text-white text-xs font-bold shadow-xs flex items-center gap-2 transition-all cursor-pointer"
             >
               <CheckCircle2 className="w-4 h-4" />
               {actionLabelFa}
@@ -123,34 +126,32 @@ export const ObjectHeader: React.FC<ObjectHeaderProps> = ({
       </div>
 
       {/* Bottom metadata grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t border-slate-100 text-xs">
-        <div className="flex items-center gap-2.5 text-slate-500 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-          <User className="w-4 h-4 text-slate-400 shrink-0" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t border-[#F1EFE8] text-xs">
+        <div className="flex items-center gap-2.5 text-[#5F5E5A] bg-[#FAFAF8] p-2.5 rounded-xl border border-[#D3D1C7]">
+          <User className="w-4 h-4 text-[#888780] shrink-0" />
           <span>
-            مسئول سند: <strong className="text-slate-800 font-semibold">{ownerName}</strong>
+            مسئول سند: <strong className="text-[#2C2C2A] font-semibold">{ownerName}</strong>
           </span>
         </div>
 
-        <div className="flex items-center gap-2.5 text-slate-500 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-          <Calendar className="w-4 h-4 text-slate-400 shrink-0" />
+        <div className="flex items-center gap-2.5 text-[#5F5E5A] bg-[#FAFAF8] p-2.5 rounded-xl border border-[#D3D1C7]">
+          <Calendar className="w-4 h-4 text-[#888780] shrink-0" />
           <span>
-            بازه اعتبار: <strong className="text-slate-800 font-semibold">{effectiveFrom} الی {effectiveTo}</strong>
+            بازه اعتبار: <strong className="text-[#2C2C2A] font-semibold">{effectiveFrom} الی {effectiveTo}</strong>
           </span>
         </div>
 
-        <div className="flex items-center gap-2.5 text-slate-500 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-          <Clock className="w-4 h-4 text-slate-400 shrink-0" />
+        <div className="flex items-center gap-2.5 text-[#5F5E5A] bg-[#FAFAF8] p-2.5 rounded-xl border border-[#D3D1C7]">
+          <CheckCircle2 className="w-4 h-4 text-[#085041] shrink-0" />
           <span>
-            شبیه‌سازی: <strong className={simulationPassed ? 'text-emerald-700 font-semibold' : 'text-amber-700 font-semibold'}>
-              {simulationPassed ? 'تأییدشده (Pass)' : 'نیازمند اجرا'}
-            </strong>
+            شبیه‌سازی: <strong className="text-[#085041] font-semibold">{simulationPassed ? 'موفقیت‌آمیز' : 'در انتظار'}</strong>
           </span>
         </div>
 
-        <div className="flex items-center gap-2.5 text-slate-500 bg-slate-50 p-2.5 rounded-xl border border-slate-100 truncate">
-          <Layers className="w-4 h-4 text-slate-400 shrink-0" />
+        <div className="flex items-center gap-2.5 text-[#5F5E5A] bg-[#FAFAF8] p-2.5 rounded-xl border border-[#D3D1C7]">
+          <Layers className="w-4 h-4 text-[#888780] shrink-0" />
           <span className="truncate">
-            دامنه شمول: <strong className="text-slate-800 font-semibold">{impactedScopeFa}</strong>
+            حوزه شمول: <strong className="text-[#2C2C2A] font-semibold">{impactedScopeFa}</strong>
           </span>
         </div>
       </div>

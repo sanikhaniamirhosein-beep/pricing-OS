@@ -86,7 +86,7 @@ export const ContractPickerDropdown: React.FC<ContractPickerDropdownProps> = ({
                   </span>
                 </div>
                 <p className="text-[10px] text-slate-400 truncate mt-0.5 font-medium leading-tight font-mono">
-                  {selectedContract.displayId} (تعهد ماهانه: {selectedContract.monthlyCommitmentTons?.toLocaleString('fa-IR')} تن)
+                  {selectedContract.displayId} (تعهد ماهانه: {selectedContract.minimumCommitmentTons?.toLocaleString('fa-IR')} تن)
                 </p>
               </>
             ) : (
@@ -189,7 +189,7 @@ export const ContractPickerDropdown: React.FC<ContractPickerDropdownProps> = ({
                           </span>
                         </div>
                         <p className="text-[10px] text-slate-400 truncate mt-0.5 font-mono">
-                          {cnt.displayId} • تعهد ماهانه: {cnt.monthlyCommitmentTons?.toLocaleString('fa-IR')} تن
+                          {cnt.displayId} • تعهد ماهانه: {cnt.minimumCommitmentTons?.toLocaleString('fa-IR')} تن
                         </p>
                       </div>
                     </div>

@@ -5,39 +5,16 @@ import { AppSidebar } from './components/layout/AppSidebar';
 import { LoginPage } from './components/login/LoginPage';
 import { ShipperPortalLayout } from './components/shipper/ShipperPortalLayout';
 
-// 7 Pillars Workspace Views
-// 1. Commercial & Pricing Studio
-import { SchemaBuilderView } from './components/workspaces/design/SchemaBuilderView';
-import { GeoZoneMatrixView } from './components/workspaces/design/GeoZoneMatrixView';
-import { PricingRulesEngineView } from './components/workspaces/design/PricingRulesEngineView';
-
-// 2. Discounts & Contract Studio
-import { EnterprisePriceBooksView } from './components/workspaces/contracts/EnterprisePriceBooksView';
-import { DiscountStrategiesView } from './components/workspaces/contracts/DiscountStrategiesView';
-
-// 3. Validation Lab & Simulation
-import { HistoricalReplayView } from './components/workspaces/validation/HistoricalReplayView';
-import { ImpactRiskAnalysisView } from './components/workspaces/validation/ImpactRiskAnalysisView';
-
-// 4. Control Tower & Deployment
-import { MakerCheckerWorkflowView } from './components/workspaces/governance/MakerCheckerWorkflowView';
-import { StrategyPackagesDeploymentView } from './components/workspaces/governance/StrategyPackagesDeploymentView';
-
-// 5. Live Operations & Observability
-import { LiveOpsControlPanelView } from './components/workspaces/operations/LiveOpsControlPanelView';
-import { PriceTraceDebuggerView } from './components/workspaces/operations/PriceTraceDebuggerView';
-
-// 6. Financials & Settlement
-import { CommissionSplitsView } from './components/workspaces/financials/CommissionSplitsView';
-import { CreditSettlementView } from './components/workspaces/financials/CreditSettlementView';
-
-// 7. System Settings & Integrations
-import { RBACUsersView } from './components/workspaces/system/RBACUsersView';
-import { IntegrationsHubView } from './components/workspaces/system/IntegrationsHubView';
+// 5 Standard Workspaces
+import { CommercialDesignStudioView } from './components/workspaces/design/CommercialDesignStudioView';
+import { ValidationLabView } from './components/workspaces/validation/ValidationLabView';
+import { ControlTowerView } from './components/workspaces/governance/ControlTowerView';
+import { IntelligenceHubView } from './components/workspaces/intelligence/IntelligenceHubView';
+import { SystemConsoleView } from './components/workspaces/system/SystemConsoleView';
 
 import { UserRole } from './types/pricing';
 
-// Modals
+// Modals & Drawers
 import { DecisionTraceModal } from './components/common/DecisionTraceModal';
 import { StepUpMFAModal } from './components/common/StepUpMFAModal';
 import { QuickQuoteSandboxModal } from './components/common/QuickQuoteSandboxModal';
@@ -46,18 +23,16 @@ import { AICoPilotDrawer } from './components/common/AICoPilotDrawer';
 
 const AppContent: React.FC = () => {
   const { userPortalType, setUserRole, setUserName, setUserOrgName, setUserEmail, setUserPortalType } = usePricing();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
   const [isPublicQuickQuoteOpen, setIsPublicQuickQuoteOpen] = useState<boolean>(false);
   const [activeWorkspaceId, setActiveWorkspaceId] = useState<string>('design');
 
-  // Sub-tabs for each of the 7 pillars
-  const [designSubTab, setDesignSubTab] = useState<'schema' | 'geomapping' | 'rules_dsl'>('schema');
-  const [contractsSubTab, setContractsSubTab] = useState<'price_books' | 'discount_strategies'>('price_books');
-  const [validationSubTab, setValidationSubTab] = useState<'historical_replay' | 'sensitivity'>('historical_replay');
-  const [governanceSubTab, setGovernanceSubTab] = useState<'maker_checker' | 'packages_release'>('maker_checker');
-  const [operationsSubTab, setOperationsSubTab] = useState<'live_dashboard' | 'price_debugger'>('live_dashboard');
-  const [financialsSubTab, setFinancialsSubTab] = useState<'commission_splits' | 'credit_settlement'>('commission_splits');
-  const [systemSubTab, setSystemSubTab] = useState<'rbac_access' | 'integrations_hub'>('rbac_access');
+  // Sub-tabs for each of the 5 standard workspaces
+  const [designSubTab, setDesignSubTab] = useState<string>('catalog');
+  const [validationSubTab, setValidationSubTab] = useState<string>('single_quote');
+  const [governanceSubTab, setGovernanceSubTab] = useState<string>('approval_inbox');
+  const [intelligenceSubTab, setIntelligenceSubTab] = useState<string>('executive_kpis');
+  const [systemSubTab, setSystemSubTab] = useState<string>('fleet_master');
 
   const [isAiCoPilotOpen, setIsAiCoPilotOpen] = useState(false);
 
@@ -65,16 +40,12 @@ const AppContent: React.FC = () => {
     switch (activeWorkspaceId) {
       case 'design':
         return designSubTab;
-      case 'contracts':
-        return contractsSubTab;
       case 'validation':
         return validationSubTab;
       case 'governance':
         return governanceSubTab;
-      case 'operations':
-        return operationsSubTab;
-      case 'financials':
-        return financialsSubTab;
+      case 'intelligence':
+        return intelligenceSubTab;
       case 'system':
         return systemSubTab;
       default:
@@ -85,19 +56,15 @@ const AppContent: React.FC = () => {
   const handleSelectSubTab = (workspaceId: string, subTabId: string) => {
     setActiveWorkspaceId(workspaceId);
     if (workspaceId === 'design') {
-      setDesignSubTab(subTabId as any);
-    } else if (workspaceId === 'contracts') {
-      setContractsSubTab(subTabId as any);
+      setDesignSubTab(subTabId);
     } else if (workspaceId === 'validation') {
-      setValidationSubTab(subTabId as any);
+      setValidationSubTab(subTabId);
     } else if (workspaceId === 'governance') {
-      setGovernanceSubTab(subTabId as any);
-    } else if (workspaceId === 'operations') {
-      setOperationsSubTab(subTabId as any);
-    } else if (workspaceId === 'financials') {
-      setFinancialsSubTab(subTabId as any);
+      setGovernanceSubTab(subTabId);
+    } else if (workspaceId === 'intelligence') {
+      setIntelligenceSubTab(subTabId);
     } else if (workspaceId === 'system') {
-      setSystemSubTab(subTabId as any);
+      setSystemSubTab(subTabId);
     }
   };
 
@@ -126,11 +93,11 @@ const AppContent: React.FC = () => {
     setUserPortalType(portalType);
 
     if (portalType === 'shipper') {
-      setActiveWorkspaceId('contracts');
-      setContractsSubTab('price_books');
+      setActiveWorkspaceId('design');
+      setDesignSubTab('contracts');
     } else {
       setActiveWorkspaceId('design');
-      setDesignSubTab('schema');
+      setDesignSubTab('catalog');
     }
 
     setIsAuthenticated(true);
@@ -152,7 +119,7 @@ const AppContent: React.FC = () => {
     );
   }
 
-  // If user authenticated as Shipper, render the comprehensive Shipper Portal Layout
+  // If user authenticated as Shipper, render the Shipper Portal Layout
   if (userPortalType === 'shipper') {
     return (
       <>
@@ -167,7 +134,7 @@ const AppContent: React.FC = () => {
 
   // Carrier / Logistics Organization Portal Layout
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col antialiased selection:bg-amber-500/20 selection:text-amber-900">
+    <div className="min-h-screen bg-[#FAFAF8] text-[#2C2C2A] flex flex-col antialiased selection:bg-[#E1F5EE] selection:text-[#04342C]">
       {/* Header with Environment Status and Controls */}
       <Header
         onToggleAiCoPilot={() => setIsAiCoPilotOpen(!isAiCoPilotOpen)}
@@ -176,9 +143,9 @@ const AppContent: React.FC = () => {
         onLogout={() => setIsAuthenticated(false)}
       />
 
-      {/* Main Container: Wide container with right sidebar pushed to the side to give maximum space to central views */}
-      <div className="w-full max-w-[98%] 2xl:max-w-[1700px] mx-auto px-2 sm:px-4 lg:px-6 py-6 flex flex-col lg:flex-row gap-5 flex-1 items-start">
-        {/* Right Sidebar: 7 Main Workspaces with Top-to-Bottom Sub-sections */}
+      {/* Main Container */}
+      <div className="w-full max-w-[98%] 2xl:max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col lg:flex-row gap-6 flex-1 items-start">
+        {/* Right Sidebar: 5 Main Workspaces */}
         <AppSidebar
           activeWorkspaceId={activeWorkspaceId}
           onSelectWorkspace={setActiveWorkspaceId}
@@ -188,77 +155,70 @@ const AppContent: React.FC = () => {
 
         {/* Main Content Area */}
         <main className="flex-1 min-w-0 w-full space-y-6">
-          {/* Workspace 1: Commercial & Pricing Studio */}
+          {/* Workspace 1: Commercial Design Studio */}
           {activeWorkspaceId === 'design' && (
-            <div>
-              {designSubTab === 'schema' && <SchemaBuilderView />}
-              {designSubTab === 'geomapping' && <GeoZoneMatrixView />}
-              {designSubTab === 'rules_dsl' && <PricingRulesEngineView />}
-            </div>
+            <CommercialDesignStudioView
+              activeSubTab={designSubTab}
+              onSubTabChange={(tab) => setDesignSubTab(tab)}
+              onNavigateToValidation={() => {
+                setActiveWorkspaceId('validation');
+                setValidationSubTab('single_quote');
+              }}
+            />
           )}
 
-          {/* Workspace 2: Discounts & Contract Studio */}
-          {activeWorkspaceId === 'contracts' && (
-            <div>
-              {contractsSubTab === 'price_books' && <EnterprisePriceBooksView />}
-              {contractsSubTab === 'discount_strategies' && <DiscountStrategiesView />}
-            </div>
-          )}
-
-          {/* Workspace 3: Validation Lab & Simulation */}
+          {/* Workspace 2: Validation Lab */}
           {activeWorkspaceId === 'validation' && (
-            <div>
-              {validationSubTab === 'historical_replay' && <HistoricalReplayView />}
-              {validationSubTab === 'sensitivity' && <ImpactRiskAnalysisView />}
-            </div>
+            <ValidationLabView
+              activeSubTab={validationSubTab}
+              onSubTabChange={(tab) => setValidationSubTab(tab)}
+            />
           )}
 
-          {/* Workspace 4: Control Tower & Deployment */}
+          {/* Workspace 3: Control Tower */}
           {activeWorkspaceId === 'governance' && (
-            <div>
-              {governanceSubTab === 'maker_checker' && <MakerCheckerWorkflowView />}
-              {governanceSubTab === 'packages_release' && <StrategyPackagesDeploymentView />}
-            </div>
+            <ControlTowerView
+              activeSubTab={governanceSubTab}
+              onSubTabChange={(tab) => setGovernanceSubTab(tab)}
+            />
           )}
 
-          {/* Workspace 5: Live Operations & Observability */}
-          {activeWorkspaceId === 'operations' && (
-            <div>
-              {operationsSubTab === 'live_dashboard' && <LiveOpsControlPanelView />}
-              {operationsSubTab === 'price_debugger' && <PriceTraceDebuggerView />}
-            </div>
+          {/* Workspace 4: Intelligence Hub */}
+          {activeWorkspaceId === 'intelligence' && (
+            <IntelligenceHubView
+              activeSubTab={intelligenceSubTab}
+              onSubTabChange={(tab) => setIntelligenceSubTab(tab)}
+            />
           )}
 
-          {/* Workspace 6: Financials & Settlement */}
-          {activeWorkspaceId === 'financials' && (
-            <div>
-              {financialsSubTab === 'commission_splits' && <CommissionSplitsView />}
-              {financialsSubTab === 'credit_settlement' && <CreditSettlementView />}
-            </div>
-          )}
-
-          {/* Workspace 7: System Settings & Integrations */}
+          {/* Workspace 5: System Console */}
           {activeWorkspaceId === 'system' && (
-            <div>
-              {systemSubTab === 'rbac_access' && <RBACUsersView />}
-              {systemSubTab === 'integrations_hub' && <IntegrationsHubView />}
-            </div>
+            <SystemConsoleView
+              activeSubTab={systemSubTab}
+              onSubTabChange={(tab) => setSystemSubTab(tab)}
+            />
           )}
         </main>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 text-slate-500 text-xs py-6 mt-12">
+      {/* Minimalistic Clean Footer */}
+      <footer className="bg-white border-t border-[#D3D1C7] text-[#5F5E5A] text-xs py-5 mt-12">
         <div className="w-full max-w-[98%] 2xl:max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-800 font-title">سیستم عامل قیمت‌گذاری لجستیک جاده‌ای</span>
+            <span className="font-bold text-[#2C2C2A]">سامانه مدیریت و قیمت‌گذاری سازمان‌های حمل‌ونقل جاده‌ای</span>
             <span>•</span>
-            <span className="text-slate-500">Road Freight Pricing Operating System</span>
+            <span className="text-[#888780] font-mono">Road Freight Pricing & Governance Platform</span>
           </div>
-          <div className="flex flex-wrap items-center gap-3 text-slate-600 text-xs">
-            <span className="bg-slate-100 px-2 py-0.5 rounded border border-slate-200">موتور محاسباتی قطعی (Deterministic Engine)</span>
-            <span className="bg-slate-100 px-2 py-0.5 rounded border border-slate-200">تضمین گاردریل کف حاشیه سود ۱۵٪</span>
-            <span className="bg-slate-100 px-2 py-0.5 rounded border border-slate-200">تایید دوطرفه سازمانی (Maker-Checker & MFA)</span>
+          <div className="flex flex-wrap items-center gap-3 text-xs">
+            <span className="bg-[#FAFAF8] text-[#5F5E5A] px-2.5 py-0.5 rounded-lg border border-[#D3D1C7]">
+              موتور محاسباتی قطعی (Deterministic Engine)
+            </span>
+            <span className="bg-[#E1F5EE] text-[#04342C] px-2.5 py-0.5 rounded-lg border border-[#9FE1CB] font-semibold">
+              گاردریل کف سود ۱۵٪ فعال
+            </span>
+            <span className="bg-[#FAFAF8] text-[#5F5E5A] px-2.5 py-0.5 rounded-lg border border-[#D3D1C7]">
+              تفکیک وظایف Maker-Checker (BR-012)
+            </span>
           </div>
         </div>
       </footer>

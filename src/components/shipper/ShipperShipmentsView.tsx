@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Truck,
   MapPin,
@@ -18,26 +18,71 @@ import {
   ArrowUpDown,
   FileCheck,
   Shield,
+  AlertTriangle,
+  LifeBuoy,
+  MessageSquare,
+  PlusCircle,
+  XCircle,
+  Headphones,
+  CheckCircle,
+  ExternalLink,
 } from 'lucide-react';
-import { INITIAL_ACTIVE_LOADS, ShipperActiveLoad } from '../../data/mockShipperData';
+import {
+  INITIAL_ACTIVE_LOADS,
+  INITIAL_SUPPORT_TICKETS,
+  ShipperActiveLoad,
+  ShipperSupportTicket,
+} from '../../data/mockShipperData';
 import { ModernSelect } from '../common/menus/ModernSelect';
 
 interface ShipperShipmentsViewProps {
   initialSelectedShipment?: ShipperActiveLoad | null;
+  onNavigateToSupport?: (loadId: string, ticketId?: string) => void;
+  loads?: ShipperActiveLoad[];
+  onNavigateTab?: (tabId: string) => void;
 }
 
 export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
   initialSelectedShipment,
+  onNavigateToSupport,
+  loads = INITIAL_ACTIVE_LOADS,
+  onNavigateTab,
 }) => {
   const [activeTab, setActiveTab] = useState<'active' | 'live_map' | 'history' | 'edocs'>('active');
   const [selectedLoad, setSelectedLoad] = useState<ShipperActiveLoad>(
-    initialSelectedShipment || INITIAL_ACTIVE_LOADS?.[0] || ({} as ShipperActiveLoad)
+    initialSelectedShipment || loads?.[0] || INITIAL_ACTIVE_LOADS?.[0] || ({} as ShipperActiveLoad)
   );
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [ticketsList, setTicketsList] = useState<ShipperSupportTicket[]>(INITIAL_SUPPORT_TICKETS);
+
+  // Keep selected load synced if loads or initialSelectedShipment change
+  useEffect(() => {
+    if (initialSelectedShipment) {
+      setSelectedLoad(initialSelectedShipment);
+    } else if (loads.length > 0) {
+      if (!selectedLoad?.id || !loads.some((l) => l.id === selectedLoad.id)) {
+        setSelectedLoad(loads[0]);
+      }
+    }
+  }, [initialSelectedShipment, loads]);
+
+  // Quick report modal
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [incidentCategory, setIncidentCategory] = useState<ShipperSupportTicket['category']>('delay');
+  const [incidentPriority, setIncidentPriority] = useState<ShipperSupportTicket['priority']>('high');
+  const [incidentSubject, setIncidentSubject] = useState('');
+  const [incidentDescription, setIncidentDescription] = useState('');
+
+  // Find ticket associated with the currently selected load
+  const activeTicketForSelectedLoad = ticketsList.find(
+    (t) => t.loadId === selectedLoad?.id && t.status !== 'resolved'
+  );
+  const anyTicketForSelectedLoad = ticketsList.find((t) => t.loadId === selectedLoad?.id);
 
   // Filter loads
-  const filteredLoads = (INITIAL_ACTIVE_LOADS || []).filter((load) => {
+  const currentLoads = loads && loads.length > 0 ? loads : INITIAL_ACTIVE_LOADS;
+  const filteredLoads = (currentLoads || []).filter((load) => {
     const q = (searchQuery || '').toLowerCase().trim();
     const matchesSearch =
       !q ||
@@ -45,11 +90,82 @@ export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
       (load?.trackingCode || '').toLowerCase().includes(q) ||
       (load?.originCity || '').toLowerCase().includes(q) ||
       (load?.destCity || '').toLowerCase().includes(q) ||
+      (load?.cargoType || '').toLowerCase().includes(q) ||
+      (load?.truckType || '').toLowerCase().includes(q) ||
       (load?.driverName || '').toLowerCase().includes(q);
 
     if (statusFilter === 'all') return matchesSearch;
     return matchesSearch && load?.status === statusFilter;
   });
+
+  const handleCreateQuickIncident = (e: React.FormEvent) => {
+    e.preventDefault();
+    let catLabel = 'تاخیر در حمل';
+    if (incidentCategory === 'damage') catLabel = 'آسیب به بار یا نقض پلمپ';
+    if (incidentCategory === 'breakdown') catLabel = 'نقص فنی ناوگان و توقف';
+    if (incidentCategory === 'route_deviation') catLabel = 'انحراف از مسیر مجاز';
+    if (incidentCategory === 'driver_issue') catLabel = 'عدم پاسخگویی راننده';
+    if (incidentCategory === 'pricing_dispute') catLabel = 'مغایرت نرخ یا عوارض';
+    if (incidentCategory === 'other') catLabel = 'سایر فوریت‌های عملیاتی';
+
+    const prioLabel =
+      incidentPriority === 'urgent'
+        ? 'فوری / اضطراری'
+        : incidentPriority === 'high'
+        ? 'اولویت بالا'
+        : 'عادی';
+
+    const newTicket: ShipperSupportTicket = {
+      id: `INC-1403-${Math.floor(1000 + Math.random() * 9000)}`,
+      loadId: selectedLoad.id,
+      billOfLadingNo: selectedLoad.billOfLadingNo,
+      trackingCode: selectedLoad.trackingCode,
+      originCity: selectedLoad.originCity,
+      destCity: selectedLoad.destCity,
+      cargoType: `${selectedLoad.cargoType} (${selectedLoad.weightTons} تن)`,
+      driverName: selectedLoad.driverName,
+      driverPhone: selectedLoad.driverPhone,
+      truckPlate: selectedLoad.truckPlate,
+      category: incidentCategory,
+      categoryLabelFa: catLabel,
+      priority: incidentPriority,
+      priorityLabelFa: prioLabel,
+      status: 'open',
+      statusLabelFa: 'باز (در صف بررسی دیسپچینگ)',
+      subject: incidentSubject || `گزارش مشکل ${catLabel} در بارنامه ${selectedLoad.billOfLadingNo}`,
+      description: incidentDescription || 'گزارش توسط صاحب بار از صفحه رهگیری ثبت شد.',
+      createdAt: '۱۴۰۳/۰۶/۰۱ - همین الان',
+      updatedAt: 'همین الان',
+      assignedAgent: 'شیفت دیسپچینگ فوری ۲۴/۷',
+      locationAtReport: selectedLoad.currentLocation,
+      messages: [
+        {
+          id: `msg-${Date.now()}`,
+          sender: 'shipper',
+          senderName: 'مهندس اکبری (صاحب بار)',
+          text: incidentDescription || 'گزارش ثبت شد.',
+          timestamp: new Date().toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' }),
+        },
+        {
+          id: `msg-sys-${Date.now()}`,
+          sender: 'system',
+          senderName: 'سامانه دیسپچینگ هوشمند',
+          text: `تیکت فوریت مستقیم از صفحه رهگیری بارنامه ${selectedLoad.billOfLadingNo} ایجاد گردید. تیم پشتیبانی تا چند دقیقه آینده پاسخ خواهد داد.`,
+          timestamp: new Date().toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' }),
+          isSystemAction: true,
+        },
+      ],
+    };
+
+    setTicketsList([newTicket, ...ticketsList]);
+    setIsReportModalOpen(false);
+    setIncidentSubject('');
+    setIncidentDescription('');
+
+    if (onNavigateToSupport) {
+      onNavigateToSupport(selectedLoad.id, newTicket.id);
+    }
+  };
 
   const getStatusBadge = (status: ShipperActiveLoad['status']) => {
     switch (status) {
@@ -90,7 +206,7 @@ export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
       <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           {[
-            { id: 'active', label: 'بارهای فعال جاری', icon: Truck, count: (INITIAL_ACTIVE_LOADS || []).filter(l => l?.status !== 'delivered').length },
+            { id: 'active', label: 'بارهای فعال جاری', icon: Truck, count: (currentLoads || []).filter(l => l?.status !== 'delivered').length },
             { id: 'live_map', label: 'نقشه رهگیری زنده GPS', icon: Navigation },
             { id: 'history', label: 'تاریخچه سفارش‌ها', icon: Calendar },
             { id: 'edocs', label: 'اسناد الکترونیکی و POD', icon: FileCheck },
@@ -154,10 +270,10 @@ export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
                   onChange={setStatusFilter}
                   icon={<Filter className="w-3.5 h-3.5 text-slate-400" />}
                   options={[
-                    { value: 'all', label: 'همه وضعیت‌ها', badge: `${INITIAL_ACTIVE_LOADS.length}` },
-                    { value: 'in_transit', label: 'در حال حرکت', badge: 'فعال' },
-                    { value: 'loading', label: 'در حال بارگیری', badge: 'انبار' },
-                    { value: 'pending_driver', label: 'در انتظار ناوگان', badge: 'صف' },
+                    { value: 'all', label: 'همه وضعیت‌ها', badge: `${currentLoads.length}` },
+                    { value: 'in_transit', label: 'در حال حرکت', badge: `${currentLoads.filter(l => l.status === 'in_transit').length}` },
+                    { value: 'loading', label: 'در حال بارگیری', badge: `${currentLoads.filter(l => l.status === 'loading').length}` },
+                    { value: 'pending_driver', label: 'در انتظار ناوگان', badge: `${currentLoads.filter(l => l.status === 'pending_driver').length}` },
                   ]}
                   className="w-48"
                 />
@@ -221,18 +337,49 @@ export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
                         </div>
                       </td>
                       <td className="p-3.5 text-center">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedLoad(load);
-                            setActiveTab('live_map');
-                          }}
-                          className="px-2.5 py-1.5 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-lg text-xs font-bold flex items-center gap-1 mx-auto transition-colors cursor-pointer"
-                        >
-                          <Navigation className="w-3.5 h-3.5" />
-                          <span>رهگیری زنده</span>
-                        </button>
+                        <div className="flex items-center justify-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedLoad(load);
+                              setActiveTab('live_map');
+                            }}
+                            className="px-2.5 py-1.5 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-lg text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                          >
+                            <Navigation className="w-3.5 h-3.5" />
+                            <span>رهگیری</span>
+                          </button>
+
+                          {/* Quick Incident Button / Ticket Status */}
+                          {ticketsList.find((t) => t.loadId === load.id && t.status !== 'resolved') ? (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const t = ticketsList.find((tk) => tk.loadId === load.id);
+                                if (onNavigateToSupport && t) {
+                                  onNavigateToSupport(load.id, t.id);
+                                }
+                              }}
+                              className="px-2 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 rounded-lg text-[11px] font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                              title="مشاهده تیکت فعال حین حمل"
+                            >
+                              <AlertTriangle className="w-3.5 h-3.5 text-rose-600 animate-pulse" />
+                              <span>تیکت فعال</span>
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedLoad(load);
+                                setIsReportModalOpen(true);
+                              }}
+                              className="p-1.5 text-slate-400 hover:text-amber-700 hover:bg-amber-50 rounded-lg transition-colors cursor-pointer"
+                              title="گزارش مشکل این بارنامه"
+                            >
+                              <LifeBuoy className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -377,11 +524,93 @@ export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
               </div>
             </div>
 
+            {/* In-Transit Incident & 24/7 Dispatch Support Card (Crucial for Section 3!) */}
+            <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-5 rounded-2xl border border-slate-700 shadow-md space-y-3.5">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-700">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center">
+                    <LifeBuoy className="w-4 h-4" />
+                  </div>
+                  <span className="text-xs font-bold font-title">پشتیبانی و فوریت‌های حین حمل</span>
+                </div>
+                <span className="text-[10px] font-mono text-amber-300 bg-amber-500/20 px-2 py-0.5 rounded border border-amber-400/30">
+                  ۲۴/۷ دیسپچینگ
+                </span>
+              </div>
+
+              {activeTicketForSelectedLoad ? (
+                <div className="bg-slate-800/80 p-3 rounded-xl border border-amber-500/30 space-y-2 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-amber-400 font-bold text-[11px] flex items-center gap-1">
+                      <AlertTriangle className="w-3.5 h-3.5 animate-pulse" />
+                      تیکت فعال برای این بارنامه:
+                    </span>
+                    <span className="font-mono text-[11px] bg-slate-700 px-2 py-0.5 rounded text-white">
+                      {activeTicketForSelectedLoad.id}
+                    </span>
+                  </div>
+                  <p className="text-slate-300 text-[11px] line-clamp-2">
+                    {activeTicketForSelectedLoad.subject}
+                  </p>
+                  <div className="flex items-center justify-between pt-1 text-[10px] text-slate-400 border-t border-slate-700/60">
+                    <span className="text-amber-300 font-bold">{activeTicketForSelectedLoad.statusLabelFa}</span>
+                    <span>{activeTicketForSelectedLoad.updatedAt}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (onNavigateToSupport) {
+                        onNavigateToSupport(selectedLoad.id, activeTicketForSelectedLoad.id);
+                      }
+                    }}
+                    className="w-full mt-1 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-xs"
+                  >
+                    <MessageSquare className="w-3.5 h-3.5" />
+                    <span>مشاهده گفتگو و پیگیری زنده تیکت</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-2 text-xs">
+                  <p className="text-slate-300 text-[11px] leading-relaxed">
+                    در صورت بروز تاخیر، آسیب به پلمپ، توقف فنی یا هرگونه مغایرت در مسیر <strong className="text-white">{selectedLoad.originCity} به {selectedLoad.destCity}</strong>، مستقیماً تیکت ثبت فرمایید:
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setIsReportModalOpen(true)}
+                    className="w-full py-2.5 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
+                  >
+                    <AlertTriangle className="w-4 h-4 animate-pulse" />
+                    <span>گزارش سریع مشکل در این بارنامه ({selectedLoad.billOfLadingNo})</span>
+                  </button>
+                </div>
+              )}
+
+              {anyTicketForSelectedLoad && !activeTicketForSelectedLoad && (
+                <div className="flex items-center justify-between bg-slate-800/50 p-2.5 rounded-xl border border-slate-700 text-[11px] text-slate-300">
+                  <span className="flex items-center gap-1 text-emerald-400">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    تیکت قبلی این بار حل شده است
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (onNavigateToSupport) {
+                        onNavigateToSupport(selectedLoad.id, anyTicketForSelectedLoad.id);
+                      }
+                    }}
+                    className="text-amber-400 hover:underline font-bold"
+                  >
+                    مشاهده آرشیو
+                  </button>
+                </div>
+              )}
+            </div>
+
             {/* Quick Switch Shipment */}
             <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-2">
               <span className="text-xs font-bold text-slate-700 block">انتخاب سایر بارهای در حال تردد:</span>
-              <div className="space-y-1.5">
-                {INITIAL_ACTIVE_LOADS.map((load) => (
+              <div className="space-y-1.5 max-h-80 overflow-y-auto pr-1">
+                {currentLoads.map((load) => (
                   <button
                     key={load.id}
                     type="button"
@@ -413,7 +642,7 @@ export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div>
               <h3 className="font-bold text-slate-800 text-sm">آرشیو و تاریخچه تمامی بارنامه‌ها</h3>
-              <p className="text-xs text-slate-400">جستجو و فیلتر بارهای تحویل‌شده در ماه‌های گذشته</p>
+              <p className="text-xs text-slate-400">جستجو و فیلتر بارهای تحویل‌شده در ماه‌های گذشته ({currentLoads.length} بارنامه)</p>
             </div>
             <button
               type="button"
@@ -426,7 +655,7 @@ export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
           </div>
 
           <div className="divide-y divide-slate-100">
-            {INITIAL_ACTIVE_LOADS.map((load) => (
+            {currentLoads.map((load) => (
               <div key={load.id} className="py-3.5 flex flex-wrap items-center justify-between gap-3 text-xs">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
@@ -513,6 +742,134 @@ export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
               </button>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* QUICK IN-TRANSIT INCIDENT REPORT MODAL (Auto-bound to selectedLoad) */}
+      {isReportModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-150">
+          <div className="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden text-right">
+            {/* Modal Header */}
+            <div className="p-5 bg-gradient-to-r from-rose-600 to-rose-700 text-white flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center font-bold">
+                  <AlertTriangle className="w-5 h-5 text-white animate-pulse" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm font-title">گزارش فوری مشکل و ثبت تیکت حین حمل</h3>
+                  <p className="text-xs text-rose-100">اتصال خودکار به بارنامه {selectedLoad.billOfLadingNo}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsReportModalOpen(false)}
+                className="p-1.5 text-white/80 hover:text-white hover:bg-white/10 rounded-xl transition-colors cursor-pointer"
+              >
+                <XCircle className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Form */}
+            <form onSubmit={handleCreateQuickIncident} className="p-5 space-y-4 text-xs">
+              {/* Pre-filled shipment summary info badge */}
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-slate-800">بارنامه انتخابی:</span>
+                  <strong className="font-mono text-amber-900 bg-amber-100/80 px-2 py-0.5 rounded">
+                    {selectedLoad.billOfLadingNo} ({selectedLoad.trackingCode})
+                  </strong>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-600 pt-1 border-t border-slate-200">
+                  <div>مسیر: <strong>{selectedLoad.originCity} به {selectedLoad.destCity}</strong></div>
+                  <div>راننده: <strong>{selectedLoad.driverName} ({selectedLoad.truckPlate})</strong></div>
+                  <div className="col-span-2 text-slate-500">موقعیت فعلی ناوگان: <strong>{selectedLoad.currentLocation}</strong></div>
+                </div>
+              </div>
+
+              {/* Category & Priority Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <ModernSelect
+                    id="incident-category-select"
+                    value={incidentCategory}
+                    onChange={(val) => setIncidentCategory(val as any)}
+                    label="نوع فوریت / مشکل"
+                    options={[
+                      { value: 'delay', label: 'تاخیر در بارگیری / رسیدن به مقصد' },
+                      { value: 'damage', label: 'آسیب به بار / نقض پلمپ یا چادر' },
+                      { value: 'breakdown', label: 'نقص فنی ناوگان و توقف بین‌راهی' },
+                      { value: 'route_deviation', label: 'انحراف از مسیر یا تغییر مقصد' },
+                      { value: 'driver_issue', label: 'عدم پاسخگویی یا ناهماهنگی راننده' },
+                      { value: 'pricing_dispute', label: 'مغایرت نرخ، کرایه، عوارض یا توقف' },
+                      { value: 'other', label: 'سایر موارد عملیاتی' },
+                    ]}
+                  />
+                </div>
+
+                <div>
+                  <ModernSelect
+                    id="incident-priority-select"
+                    value={incidentPriority}
+                    onChange={(val) => setIncidentPriority(val as any)}
+                    label="سطح اولویت"
+                    options={[
+                      { value: 'urgent', label: 'فوری / اضطراری (اقدام کمتر از ۵ دقیقه)', badge: 'فوری' },
+                      { value: 'high', label: 'اولویت بالا (خطر توقف خط تولید)', badge: 'بالا' },
+                      { value: 'normal', label: 'عادی (پیگیری اداری)', badge: 'عادی' },
+                    ]}
+                  />
+                </div>
+              </div>
+
+              {/* Subject */}
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  عنوان مشکل:
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="مثال: تاخیر در تخلیه بار در انبار مقصد..."
+                  value={incidentSubject}
+                  onChange={(e) => setIncidentSubject(e.target.value)}
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:bg-white focus:border-rose-500 focus:outline-none"
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  شرح کامل حادثه و درخواست از دیسپچینگ:
+                </label>
+                <textarea
+                  rows={3}
+                  required
+                  placeholder="توضیحات تکمیلی را جهت رسیدگی فوری کارشناس بنویسید..."
+                  value={incidentDescription}
+                  onChange={(e) => setIncidentDescription(e.target.value)}
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:bg-white focus:border-rose-500 focus:outline-none resize-none"
+                />
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsReportModalOpen(false)}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition-colors cursor-pointer"
+                >
+                  انصراف
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                  <span>ارسال به دیسپچینگ و باز کردن تیکت</span>
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

@@ -8,30 +8,51 @@ import {
   Globe2,
   Lock,
   Fuel,
-  CloudRain,
   CreditCard,
   CheckCircle2,
   Copy,
   Zap,
+  Truck,
+  Compass,
+  PlugZap,
+  Users,
+  Database,
+  Plus,
+  Edit2,
+  Trash2,
+  Shield,
+  ShieldCheck,
+  Check,
 } from 'lucide-react';
 import { usePricing } from '../../../store/PricingContext';
+import { RBACUsersView } from './RBACUsersView';
 
 interface SystemConsoleViewProps {
   activeSubTab?: string;
-  onSubTabChange?: (tab: 'connectors' | 'api' | 'residency' | 'nodes') => void;
+  onSubTabChange?: (tab: string) => void;
 }
 
 export const SystemConsoleView: React.FC<SystemConsoleViewProps> = ({
-  activeSubTab,
+  activeSubTab = 'fleet_master',
   onSubTabChange,
 }) => {
-  const { isSovereignMode, setIsSovereignMode, environment } = usePricing();
-  const [localActiveTab, setLocalActiveTab] = useState<'connectors' | 'api' | 'residency' | 'nodes'>('connectors');
-  const activeTab = (activeSubTab as any) || localActiveTab;
-  const setActiveTab = (tab: 'connectors' | 'api' | 'residency' | 'nodes') => {
-    setLocalActiveTab(tab);
+  const {
+    isSovereignMode,
+    setIsSovereignMode,
+    fleetCategories,
+    geoZones,
+    connectors,
+    rbacRoles,
+  } = usePricing();
+
+  const [localTab, setLocalTab] = useState<string>('fleet_master');
+  const currentTab = activeSubTab || localTab;
+
+  const handleTabSelect = (tab: string) => {
+    setLocalTab(tab);
     if (onSubTabChange) onSubTabChange(tab);
   };
+
   const [apiRequestBody, setApiRequestBody] = useState(
     JSON.stringify(
       {
@@ -67,236 +88,299 @@ export const SystemConsoleView: React.FC<SystemConsoleViewProps> = ({
     }
   };
 
+  const tabs = [
+    { id: 'fleet_master', labelFa: 'داده‌های پایه ناوگان و ظرفیت‌ها', labelEn: 'Fleet Master Data', icon: Database },
+    { id: 'zones_corridors', labelFa: 'مدیریت مناطق، فواصل و عوارض', labelEn: 'Zones & Corridors', icon: Compass },
+    { id: 'connectors', labelFa: 'هاب اتصالات (سوخت، GPS، TMS، گمرک)', labelEn: 'Connectors Hub', icon: PlugZap },
+    { id: 'model_registry', labelFa: 'رجیستری مدل‌های خارجی و ML', labelEn: 'Model Registry', icon: Code2 },
+    { id: 'rbac_access', labelFa: 'مدیریت کاربران و دسترسی‌ها (RBAC)', labelEn: 'Users & Roles', icon: Users },
+  ];
+
   return (
-    <div className="space-y-6 text-xs">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white border border-slate-200 p-6 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
+      <div className="bg-white border border-[#D3D1C7] p-6 rounded-3xl shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2.5">
-            <h2 className="font-bold text-slate-900 text-base font-display">کنسول زیرساخت، اتصالات و پورتال توسعه‌دهندگان (System Console)</h2>
-            <span className="bg-amber-50 text-amber-900 border border-amber-200 px-2.5 py-0.5 rounded-lg font-mono text-xs font-bold">
-              APIs, Connectors & Sovereign Hosting
-            </span>
-          </div>
-          <p className="text-slate-500 mt-1 text-xs">
-            مدیریت کانکتورهای نرخ سوخت و عوارض آزادراهی، حاکمیت داده درون‌مرزی (OQ-02) و مستندات زنده API
-          </p>
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
-        <button
-          onClick={() => setActiveTab('connectors')}
-          className={`px-4 py-2.5 rounded-xl font-semibold transition-all cursor-pointer text-xs ${
-            activeTab === 'connectors' ? 'bg-amber-500 text-white font-bold shadow-xs' : 'text-slate-600 hover:bg-slate-100'
-          }`}
-        >
-          کانکتورهای خارجی (Connectors)
-        </button>
-        <button
-          onClick={() => setActiveTab('api')}
-          className={`px-4 py-2.5 rounded-xl font-semibold transition-all cursor-pointer text-xs ${
-            activeTab === 'api' ? 'bg-amber-500 text-white font-bold shadow-xs' : 'text-slate-600 hover:bg-slate-100'
-          }`}
-        >
-          تست زنده API و Swagger (Developer Portal)
-        </button>
-        <button
-          onClick={() => setActiveTab('residency')}
-          className={`px-4 py-2.5 rounded-xl font-semibold transition-all cursor-pointer text-xs ${
-            activeTab === 'residency' ? 'bg-amber-500 text-white font-bold shadow-xs' : 'text-slate-600 hover:bg-slate-100'
-          }`}
-        >
-          حاکمیت داده و استقرار محلی (Sovereign Mode)
-        </button>
-        <button
-          onClick={() => setActiveTab('nodes')}
-          className={`px-4 py-2.5 rounded-xl font-semibold transition-all cursor-pointer text-xs ${
-            activeTab === 'nodes' ? 'bg-amber-500 text-white font-bold shadow-xs' : 'text-slate-600 hover:bg-slate-100'
-          }`}
-        >
-          وضعیت نودهای محاسباتی (Runtime Health)
-        </button>
-      </div>
-
-      {/* Tab 1: Connectors */}
-      {activeTab === 'connectors' && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="p-3 rounded-2xl bg-amber-50 text-amber-900 border border-amber-200">
-                <Fuel className="w-6 h-6" />
-              </div>
-              <span className="text-xs text-emerald-800 font-bold bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-                متصل (Online)
-              </span>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-[#E1F5EE] border border-[#9FE1CB] flex items-center justify-center text-[#085041]">
+              <Sliders className="w-5 h-5" />
             </div>
-            <h4 className="font-bold text-slate-900 text-base font-display">شاخص سوخت گازوئیل ناوگان</h4>
-            <p className="text-slate-600 text-xs leading-relaxed">
-              استعلام آنلاین ضریب تعدیل سوخت از سامانه شرکت ملی پخش فرآورده‌های نفتی.
-            </p>
-            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs font-mono space-y-2 shadow-xs">
-              <div className="flex justify-between">
-                <span className="text-slate-500 font-sans">ضریب اعمالی:</span>
-                <span className="text-amber-900 font-bold">1.04x</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500 font-sans">آخرین پایش:</span>
-                <span className="text-slate-700 font-medium">۵ دقیقه قبل</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="p-3 rounded-2xl bg-sky-50 text-sky-800 border border-sky-200">
-                <CreditCard className="w-6 h-6" />
-              </div>
-              <span className="text-xs text-emerald-800 font-bold bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-                متصل (Online)
-              </span>
-            </div>
-            <h4 className="font-bold text-slate-900 text-base font-display">عوارض الکترونیکی آزادراه‌ها (ETC)</h4>
-            <p className="text-slate-600 text-xs leading-relaxed">
-              محاسبه اتوماتیک عوارض مسیر بر اساس دسته‌بندی اکسل و کلاس خودروهای سنگین.
-            </p>
-            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs font-mono space-y-2 shadow-xs">
-              <div className="flex justify-between">
-                <span className="text-slate-500 font-sans">تعرفه عوارض:</span>
-                <span className="text-sky-800 font-bold">نسخه ۱۴۰۵ مصوب</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500 font-sans">نرخ موفقیت فراخوانی:</span>
-                <span className="text-emerald-700 font-bold">۹۹.۹۸٪</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="p-3 rounded-2xl bg-indigo-50 text-indigo-700 border border-indigo-200">
-                <CloudRain className="w-6 h-6" />
-              </div>
-              <span className="text-xs text-emerald-800 font-bold bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-                متصل (Online)
-              </span>
-            </div>
-            <h4 className="font-bold text-slate-900 text-base font-display">راهداری و وضعیت جوی گردنه‌ها</h4>
-            <p className="text-slate-600 text-xs leading-relaxed">
-              پایش برخط وضعیت راه‌های کوهستانی و فعال‌سازی خودکار ضریب برف‌گیر.
-            </p>
-            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs font-mono space-y-2 shadow-xs">
-              <div className="flex justify-between">
-                <span className="text-slate-500 font-sans">گردنه‌های بحرانی:</span>
-                <span className="text-indigo-800 font-bold">گردنه اسدآباد، حیران، زاغه</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Tab 2: Live API Tester */}
-      {activeTab === 'api' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <span className="font-bold text-slate-900 font-display text-sm flex items-center gap-2">
-                <Code2 className="w-5 h-5 text-amber-600" />
-                درخواست استعلام قیمت (POST /api/quote)
-              </span>
-              <span className="text-emerald-700 font-mono text-xs font-bold bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-200">REST JSON</span>
-            </div>
-
-            <textarea
-              rows={12}
-              value={apiRequestBody}
-              onChange={(e) => setApiRequestBody(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 font-mono text-xs text-slate-900 focus:outline-none focus:bg-white focus:border-amber-500"
-            />
-
-            <button
-              type="button"
-              onClick={handleTestApi}
-              disabled={isCallingApi}
-              className="w-full py-3 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer text-xs shadow-sm"
-            >
-              {isCallingApi ? 'در حال ارسال درخواست...' : 'ارسال درخواست به موتور قیمت‌گذاری'}
-            </button>
-          </div>
-
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <span className="font-bold text-slate-900 font-display text-sm">پاسخ سرور و ردگیری تصمیم (Response & Trace):</span>
-              <span className="text-sky-800 font-mono text-xs font-bold bg-sky-50 px-2.5 py-0.5 rounded border border-sky-200">200 OK</span>
-            </div>
-
-            <pre className="bg-slate-50 border border-slate-200 rounded-2xl p-4 font-mono text-xs text-slate-800 overflow-y-auto max-h-[300px] leading-relaxed">
-              {apiResponse || '// برای مشاهده خروجی قطعی، دکمه ارسال را کلیک کنید.'}
-            </pre>
-          </div>
-        </div>
-      )}
-
-      {/* Tab 3: Sovereign Mode (OQ-02) */}
-      {activeTab === 'residency' && (
-        <div className="max-w-2xl bg-white border border-slate-200 rounded-3xl p-6 shadow-xs space-y-5">
-          <div className="flex items-center gap-2.5 text-indigo-800 font-bold text-base font-display">
-            <Cpu className="w-5 h-5" />
-            <span>حاکمیت داده و استقرار تمام‌محلی درون‌مرزی (Sovereign Residency - OQ-02)</span>
-          </div>
-
-          <p className="text-slate-600 text-xs leading-relaxed">
-            بر اساس الزامات پدافند غیرعامل و قوانین داده‌های لجستیک کشوری، کلیه محاسبات نرخ، پایگاه‌های داده و مدل‌های هوش مصنوعی
-            می‌توانند در حالت کاملاً ایزوله (Air-gapped) روی زیرساخت محلی مراکز داده داخلی اجرا گردند.
-          </p>
-
-          <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <span className="font-bold text-slate-900 block text-xs font-display">وضعیت حالت حاکمیت داده (Sovereign Mode):</span>
-              <span className="text-slate-500 text-xs mt-1 block">
-                {isSovereignMode
-                  ? 'فعال: تمامی ترافیک و مدل‌ها روی سرورهای داخلی مسیریابی می‌شوند.'
-                  : 'غیرفعال: حالت ابری هیبرید با همگام‌سازی توزیع‌شده.'}
-              </span>
+              <div className="flex items-center gap-2">
+                <h1 className="font-bold text-[#2C2C2A] text-lg font-display">
+                  کنسول سیستم و داده‌های پایه (System Console)
+                </h1>
+                <span className="bg-[#E1F5EE] text-[#04342C] border border-[#9FE1CB] px-2.5 py-0.5 rounded-full text-xs font-mono font-bold">
+                  APIs, Connectors & Fleet Master
+                </span>
+              </div>
+              <p className="text-[#5F5E5A] mt-0.5 text-xs">
+                مدیریت انواع ناوگان جاده‌ای، مناطق و کریدورها، اتصالات آنلاین (سوخت/ETC/GPS)، مدل‌های ML و دسترسی‌های کاربران
+              </p>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation Subtabs */}
+      <div className="flex flex-wrap gap-2 border-b border-[#D3D1C7] pb-3">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const isActive = currentTab === tab.id;
+          return (
             <button
+              key={tab.id}
               type="button"
-              onClick={() => setIsSovereignMode(!isSovereignMode)}
-              className={`px-5 py-2.5 rounded-xl font-bold transition-all cursor-pointer text-xs shrink-0 ${
-                isSovereignMode
-                  ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm'
-                  : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+              onClick={() => handleTabSelect(tab.id)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-xs transition-all cursor-pointer ${
+                isActive
+                  ? 'bg-[#085041] text-white shadow-xs font-bold'
+                  : 'text-[#5F5E5A] bg-[#FAFAF8] hover:bg-[#F1EFE8] hover:text-[#2C2C2A] border border-[#D3D1C7]'
               }`}
             >
-              {isSovereignMode ? 'فعال (Sovereign)' : 'غیرفعال (Hybrid)'}
+              <Icon className={`w-4 h-4 ${isActive ? 'text-[#9FE1CB]' : 'text-[#888780]'}`} />
+              <span>{tab.labelFa}</span>
             </button>
+          );
+        })}
+      </div>
+
+      {/* Subtab 1: Fleet Master Data */}
+      {currentTab === 'fleet_master' && (
+        <div className="space-y-6">
+          <div className="bg-white border border-[#D3D1C7] p-6 rounded-3xl shadow-xs space-y-4">
+            <div className="flex items-center justify-between border-b border-[#D3D1C7] pb-4">
+              <div>
+                <h3 className="font-bold text-[#2C2C2A] text-base font-display">
+                  دسته‌بندی و مشخصات فنی ناوگان حمل‌ونقل (Fleet Master Data)
+                </h3>
+                <p className="text-[#5F5E5A] text-xs mt-1">
+                  مشخصات ظرفیت وزنی، حجم محفظه، تعداد محور و ضرایب پایه استهلاک انواع کشنده و تریلر
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 font-mono text-xs">
+              {(fleetCategories || []).map((fleet, idx) => (
+                <div
+                  key={idx}
+                  className="bg-[#FAFAF8] border border-[#D3D1C7] p-5 rounded-2xl space-y-3 shadow-xs flex flex-col justify-between"
+                >
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-[#2C2C2A] font-sans text-sm">{fleet.nameFa}</span>
+                      <span className="bg-[#E1F5EE] text-[#04342C] px-2 py-0.5 rounded border border-[#9FE1CB] font-mono font-bold text-[11px]">
+                        {fleet.code}
+                      </span>
+                    </div>
+                    <p className="text-[#888780] font-sans text-xs">{fleet.nameEn}</p>
+                  </div>
+
+                    <div className="bg-white p-3 rounded-xl border border-[#D3D1C7] space-y-2 text-xs">
+                      <div className="flex justify-between">
+                        <span className="text-[#5F5E5A] font-sans">ظرفیت ناخالص مجاز:</span>
+                        <span className="font-bold text-[#2C2C2A]">{fleet.maxWeightTons || fleet.capacityTons || 22} تن</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-[#5F5E5A] font-sans">تعداد محور و کلاس عوارض:</span>
+                        <span className="font-bold text-[#085041]">{fleet.axleCount || 4} محور</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-[#5F5E5A] font-sans">مصرف گازوئیل در ۱۰۰ کیلومتر:</span>
+                        <span className="font-bold text-[#2C2C2A]">{fleet.fuelConsumptionLitersPer100Km || 32} لیتر</span>
+                      </div>
+                    </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
 
-      {/* Tab 4: Nodes Health */}
-      {activeTab === 'nodes' && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 font-mono">
-          <div className="bg-white border border-slate-200 p-5 rounded-3xl shadow-xs">
-            <span className="text-slate-500 font-sans block text-xs font-medium">تاخیر پاسخگویی موتور (Latency P99)</span>
-            <span className="text-xl font-bold text-emerald-700 mt-2 block font-display">۲۸ میلی‌ثانیه</span>
-            <span className="text-xs text-slate-500 font-sans mt-1 block">هدف SLA: کمتر از ۸۰ms</span>
-          </div>
+      {/* Subtab 2: Zones & Corridors */}
+      {currentTab === 'zones_corridors' && (
+        <div className="space-y-6">
+          <div className="bg-white border border-[#D3D1C7] p-6 rounded-3xl shadow-xs space-y-4">
+            <div className="flex items-center justify-between border-b border-[#D3D1C7] pb-4">
+              <div>
+                <h3 className="font-bold text-[#2C2C2A] text-base font-display">
+                  مدیریت زون‌ها، ماتریس فواصل و عوارض آزادراهی (Zones & Corridors)
+                </h3>
+                <p className="text-[#5F5E5A] text-xs mt-1">
+                  پیکربندی پهنه‌های ترانزیتی، بنادر اصلی، قطب‌های صنعتی و عوارض ETC
+                </p>
+              </div>
+            </div>
 
-          <div className="bg-white border border-slate-200 p-5 rounded-3xl shadow-xs">
-            <span className="text-slate-500 font-sans block text-xs font-medium">نرخ موفقیت کش توزیع‌شده</span>
-            <span className="text-xl font-bold text-sky-800 mt-2 block font-display">۹۸.۶٪</span>
-            <span className="text-xs text-slate-500 font-sans mt-1 block">تخلیه آنی در زمان انتشار پکیج</span>
-          </div>
-
-          <div className="bg-white border border-slate-200 p-5 rounded-3xl shadow-xs">
-            <span className="text-slate-500 font-sans block text-xs font-medium">پایداری سرویس (Uptime)</span>
-            <span className="text-xl font-bold text-emerald-700 mt-2 block font-display">۹۹.۹۹٪</span>
-            <span className="text-xs text-slate-500 font-sans mt-1 block">بدون وقفه عملیاتی</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 font-mono text-xs">
+              {(geoZones || []).map((zone, idx) => (
+                <div
+                  key={idx}
+                  className="bg-[#FAFAF8] border border-[#D3D1C7] p-5 rounded-2xl space-y-3 shadow-xs"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-[#2C2C2A] font-sans text-sm">{zone.nameFa || zone.provinceFa}</span>
+                    <span className="bg-[#E1F5EE] text-[#04342C] px-2 py-0.5 rounded border border-[#9FE1CB] font-mono font-bold text-[11px]">
+                      {zone.zoneCode || zone.code || zone.id}
+                    </span>
+                  </div>
+                  <p className="text-[#5F5E5A] font-sans text-xs">{zone.descriptionFa || zone.nameEn || zone.provinceFa}</p>
+                  <div className="bg-white p-3 rounded-xl border border-[#D3D1C7] space-y-1.5 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-[#5F5E5A] font-sans">استان و مرکز زون:</span>
+                      <span className="font-bold text-[#2C2C2A]">{zone.provinceFa} {zone.cityFa ? `(${zone.cityFa})` : ''}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-[#5F5E5A] font-sans">ضریب سختی کوهستانی:</span>
+                      <span className="font-bold text-[#085041]">{zone.difficultyMultiplier ? `${zone.difficultyMultiplier}x` : '1.0x'}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
+
+      {/* Subtab 3: Connectors Hub */}
+      {currentTab === 'connectors' && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white border border-[#D3D1C7] rounded-3xl p-6 shadow-xs space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="p-3 rounded-2xl bg-[#E1F5EE] text-[#085041] border border-[#9FE1CB]">
+                  <Fuel className="w-6 h-6" />
+                </div>
+                <span className="text-xs text-[#04342C] font-bold bg-[#E1F5EE] px-3 py-1 rounded-full border border-[#9FE1CB]">
+                  متصل (Online)
+                </span>
+              </div>
+              <h4 className="font-bold text-[#2C2C2A] text-base font-display">فید نرخ سوخت و گازوئیل ناوگان</h4>
+              <p className="text-[#5F5E5A] text-xs leading-relaxed">
+                استعلام آنلاین ضریب تعدیل سوخت از سامانه شرکت ملی پخش با مکانیزم خودکار Fallback.
+              </p>
+              <div className="bg-[#FAFAF8] p-4 rounded-2xl border border-[#D3D1C7] text-xs font-mono space-y-2 shadow-xs">
+                <div className="flex justify-between">
+                  <span className="text-[#5F5E5A] font-sans">ضریب جاری سوخت:</span>
+                  <span className="text-[#04342C] font-bold">1.04x</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[#5F5E5A] font-sans">آخرین پایش:</span>
+                  <span className="text-[#2C2C2A] font-medium">۵ دقیقه قبل</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white border border-[#D3D1C7] rounded-3xl p-6 shadow-xs space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="p-3 rounded-2xl bg-[#E1F5EE] text-[#085041] border border-[#9FE1CB]">
+                  <CreditCard className="w-6 h-6" />
+                </div>
+                <span className="text-xs text-[#04342C] font-bold bg-[#E1F5EE] px-3 py-1 rounded-full border border-[#9FE1CB]">
+                  متصل (Online)
+                </span>
+              </div>
+              <h4 className="font-bold text-[#2C2C2A] text-base font-display">عوارض الکترونیکی آزادراه‌ها (ETC)</h4>
+              <p className="text-[#5F5E5A] text-xs leading-relaxed">
+                محاسبه اتوماتیک عوارض مسیر بر اساس دسته‌بندی اکسل و کلاس خودروهای سنگین.
+              </p>
+              <div className="bg-[#FAFAF8] p-4 rounded-2xl border border-[#D3D1C7] text-xs font-mono space-y-2 shadow-xs">
+                <div className="flex justify-between">
+                  <span className="text-[#5F5E5A] font-sans">تعرفه عوارض:</span>
+                  <span className="text-[#085041] font-bold">مصوب سازمان راهداری</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[#5F5E5A] font-sans">نرخ موفقیت فراخوانی:</span>
+                  <span className="text-[#085041] font-bold">۹۹.۹۸٪</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white border border-[#D3D1C7] rounded-3xl p-6 shadow-xs space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="p-3 rounded-2xl bg-[#E1F5EE] text-[#085041] border border-[#9FE1CB]">
+                  <Server className="w-6 h-6" />
+                </div>
+                <span className="text-xs text-[#04342C] font-bold bg-[#E1F5EE] px-3 py-1 rounded-full border border-[#9FE1CB]">
+                  متصل (Online)
+                </span>
+              </div>
+              <h4 className="font-bold text-[#2C2C2A] text-base font-display">سامانه تله‌ماتیک و ردیابی GPS</h4>
+              <p className="text-[#5F5E5A] text-xs leading-relaxed">
+                دریافت موقعیت مکانی ناوگان جهت تخمین دقیق زمان انتظار در بارگیری و تخلیه.
+              </p>
+              <div className="bg-[#FAFAF8] p-4 rounded-2xl border border-[#D3D1C7] text-xs font-mono space-y-2 shadow-xs">
+                <div className="flex justify-between">
+                  <span className="text-[#5F5E5A] font-sans">نودهای فعال:</span>
+                  <span className="text-[#085041] font-bold">۱,۴۲۰ کشنده</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[#5F5E5A] font-sans">تاخیر داده:</span>
+                  <span className="text-[#2C2C2A] font-medium">&lt; ۲ ثانیه</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Subtab 4: Model Registry */}
+      {currentTab === 'model_registry' && (
+        <div className="space-y-6">
+          <div className="bg-white border border-[#D3D1C7] p-6 rounded-3xl shadow-xs space-y-6">
+            <div className="flex items-center justify-between border-b border-[#D3D1C7] pb-4">
+              <div>
+                <h3 className="font-bold text-[#2C2C2A] text-base font-display">
+                  رجیستری مدل‌های هوشمند و پیش‌بینی تقاضا (External Model Registry)
+                </h3>
+                <p className="text-[#5F5E5A] text-xs mt-1">
+                  مدل‌های هوش مصنوعی پیش‌بینی تقاضای فصلی و بهینه‌سازی بار برگشت با سوئیچ ایمن قطعی (Deterministic Fallback)
+                </p>
+              </div>
+              <span className="text-xs bg-[#E1F5EE] text-[#04342C] px-3 py-1 rounded-full border border-[#9FE1CB] font-mono font-bold">
+                حاکمیت کامل حاشیه سود فعال
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="p-5 bg-[#FAFAF8] border border-[#D3D1C7] rounded-2xl space-y-3">
+                <div className="flex justify-between items-center">
+                  <h4 className="font-bold text-[#2C2C2A] text-xs">مدل ML پیش‌بینی تقاضای کریدور جنوب:</h4>
+                  <span className="bg-[#E1F5EE] text-[#04342C] px-2 py-0.5 rounded text-[10px] font-mono font-bold">Active v2.4</span>
+                </div>
+                <p className="text-[#5F5E5A] text-xs">
+                  تنظیم خودکار ضریب تقاضا در زمان ورود کشتی‌های فله به بنادر شهید رجایی و امام خمینی.
+                </p>
+                <div className="p-3 bg-white border border-[#D3D1C7] rounded-xl text-xs space-y-1 font-mono">
+                  <div className="flex justify-between">
+                    <span className="text-[#5F5E5A] font-sans">وضعیت Fallback:</span>
+                    <span className="text-[#085041] font-bold">سیاست تعرفه مصوب (Base Matrix)</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-5 bg-[#FAFAF8] border border-[#D3D1C7] rounded-2xl space-y-3">
+                <div className="flex justify-between items-center">
+                  <h4 className="font-bold text-[#2C2C2A] text-xs">مدل هوشمند تخمین زمان معطلی گمرک:</h4>
+                  <span className="bg-[#E1F5EE] text-[#04342C] px-2 py-0.5 rounded text-[10px] font-mono font-bold">Active v1.8</span>
+                </div>
+                <p className="text-[#5F5E5A] text-xs">
+                  محاسبه حق توقف (Demurrage) پیش از ارسال بارنامه بر اساس ترافیک گمرکات مرزی.
+                </p>
+                <div className="p-3 bg-white border border-[#D3D1C7] rounded-xl text-xs space-y-1 font-mono">
+                  <div className="flex justify-between">
+                    <span className="text-[#5F5E5A] font-sans">دقت پیش‌بینی:</span>
+                    <span className="text-[#085041] font-bold">۹۴.۲٪</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Subtab 5: RBAC & Permissions */}
+      {currentTab === 'rbac_access' && <RBACUsersView />}
     </div>
   );
 };

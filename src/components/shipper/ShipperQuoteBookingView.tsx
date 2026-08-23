@@ -443,7 +443,7 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
     slaSpeed: urgencyLevel,
   });
 
-  const basePriceRials = engineResult.totalPriceRials || (weightTons * 6500000 + 45000000);
+  const basePriceRials = (engineResult?.finalPriceToman ? engineResult.finalPriceToman * 10 : 0) || (weightTons * 6500000 + 45000000);
   const insuranceRials = includeFullInsurance ? Math.round((cargoValueToman * 10) * 0.0015) : 15000000;
   const loadingFeeRials = includeLoadingService ? 18000000 : 0;
   const taxAndRoadTollRials = Math.round((basePriceRials + insuranceRials + loadingFeeRials) * 0.09);

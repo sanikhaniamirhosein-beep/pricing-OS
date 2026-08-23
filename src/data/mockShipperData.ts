@@ -455,9 +455,418 @@ export const ROUTE_ANALYTICS_DATA = [
   { route: 'سایر مسیرها', spendMillionRials: 80, sharePercent: 6, count: 7 },
 ];
 
+export interface ShipperTicketMessage {
+  id: string;
+  sender: 'shipper' | 'support' | 'driver' | 'system';
+  senderName: string;
+  text: string;
+  timestamp: string;
+  attachments?: string[];
+  isSystemAction?: boolean;
+}
+
+export interface ShipperSupportTicket {
+  id: string;
+  loadId: string;
+  billOfLadingNo: string;
+  trackingCode: string;
+  originCity: string;
+  destCity: string;
+  cargoType: string;
+  driverName: string;
+  driverPhone: string;
+  truckPlate: string;
+  category: 'delay' | 'damage' | 'breakdown' | 'route_deviation' | 'driver_issue' | 'pricing_dispute' | 'other';
+  categoryLabelFa: string;
+  priority: 'urgent' | 'high' | 'normal';
+  priorityLabelFa: string;
+  status: 'open' | 'in_progress' | 'resolved';
+  statusLabelFa: string;
+  subject: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+  assignedAgent: string;
+  locationAtReport: string;
+  estimatedResolutionTime?: string;
+  resolutionNotes?: string;
+  messages: ShipperTicketMessage[];
+}
+
 export const FLEET_USAGE_DATA = [
   { truck: 'تریلی کفی ۱۸ چرخ', count: 42, percentage: 52 },
   { truck: 'تریلی چادری ترانزیت', count: 20, percentage: 25 },
   { truck: 'کامیون جفت (۱۰ چرخ)', count: 12, percentage: 15 },
   { truck: 'خاور و کامیونت', count: 7, percentage: 8 },
 ];
+
+export const INITIAL_SUPPORT_TICKETS: ShipperSupportTicket[] = [
+  {
+    id: 'INC-1403-902',
+    loadId: 'SHP-10491',
+    billOfLadingNo: 'BL-1403-9941',
+    trackingCode: 'TRK-882194',
+    originCity: 'اصفهان',
+    destCity: 'تهران',
+    cargoType: 'شمش و رول فولادی صنعتی (۲۲.۵ تن)',
+    driverName: 'رسول اکبریان',
+    driverPhone: '۰۹۱۲۴۴۵۸۹۱۲',
+    truckPlate: '۶۸ ع ۹۴۱ ایران ۴۳',
+    category: 'delay',
+    categoryLabelFa: 'تاخیر در رسیدن به انبار مقصد',
+    priority: 'high',
+    priorityLabelFa: 'اولویت بالا (ترافیک شدید)',
+    status: 'in_progress',
+    statusLabelFa: 'در حال پیگیری تیم دیسپچینگ',
+    subject: 'تاخیر در ورود به مقصد به دلیل انسداد مقطعی محور کاشان-قم',
+    description: 'طبق برنامه زمان‌بندی ورود بار باید ساعت ۱۶:۴۵ می‌بود اما به دلیل تعمیرات راه و ترافیک سنگین، راننده با تاخیر مواجه است. نیاز به هماهنگی با انبار شمس‌آباد برای نوبت تخلیه شیفت شب.',
+    createdAt: '۱۴۰۳/۰۶/۰۱ - ۱۱:۳۰',
+    updatedAt: '۱۴۰۳/۰۶/۰۱ - ۱۲:۴۰',
+    assignedAgent: 'مهندس حسینی (دیسپچینگ ۲۴ ساعته)',
+    locationAtReport: 'کیلومتر ۴۵ اتوبان کاشان - قم',
+    estimatedResolutionTime: '۱۴۰۳/۰۶/۰۱ - ۱۸:۰۰',
+    messages: [
+      {
+        id: 'msg-1',
+        sender: 'shipper',
+        senderName: 'مهندس اکبری (صاحب بار)',
+        text: 'سلام و احترام، با توجه به حساسیت زمان‌بندی خط تولید کارخانه شمس‌آباد، راننده اعلام کرد به دلیل ترافیک تاخیر دارد. لطفاً با مسئول نوبت‌دهی انبار هماهنگ فرمایید تا پس از ساعت اداری نیز پذیرش انجام شود.',
+        timestamp: '۱۱:۳۰',
+      },
+      {
+        id: 'msg-2',
+        sender: 'system',
+        senderName: 'سامانه هوشمند دیسپچینگ',
+        text: 'تیکت فوریت حمل به شماره INC-1403-902 ثبت و به کارشناس شیفت دیسپچینگ (مهندس حسینی) ارجاع گردید.',
+        timestamp: '۱۱:۳۲',
+        isSystemAction: true,
+      },
+      {
+        id: 'msg-3',
+        sender: 'support',
+        senderName: 'مهندس حسینی (پشتیبانی عملیات)',
+        text: 'سلام جناب مهندس اکبری. با راننده آقای اکبریان تماس گرفته شد؛ موقعیت GPS ایشان تایید شد. هم‌اکنون با سرپرست انبار مقصد (آقای مهندس کمالی) تماس گرفتیم و تاییدیه تخلیه تا ساعت ۱۹:۳۰ بدون جریمه توقف اخذ گردید.',
+        timestamp: '۱۲:۱۵',
+      },
+      {
+        id: 'msg-4',
+        sender: 'driver',
+        senderName: 'رسول اکبریان (راننده ناوگان)',
+        text: 'سلام خدمت صاحب بار محترم. ترافیک در حال باز شدن است و تا حدود ساعت ۱۸ وارد شهرک صنعتی شمس‌آباد می‌شوم. پلمپ و برزنت کاملاً سالم است.',
+        timestamp: '۱۲:۴۰',
+      },
+    ],
+  },
+  {
+    id: 'INC-1403-903',
+    loadId: 'SHP-10492',
+    billOfLadingNo: 'BL-1403-9942',
+    trackingCode: 'TRK-882195',
+    originCity: 'بندرعباس',
+    destCity: 'اصفهان',
+    cargoType: 'بشکه پلی‌اتیلن پتروشیمی (۱۶ تن)',
+    driverName: 'منصور شریفی',
+    driverPhone: '۰۹۱۳۲۲۱۸۷۴۴',
+    truckPlate: '۵۴ ب ۳۱۲ ایران ۷۲',
+    category: 'damage',
+    categoryLabelFa: 'بررسی پلمپ گمرکی و سلامت بشکه‌ها',
+    priority: 'urgent',
+    priorityLabelFa: 'فوری / اضطراری',
+    status: 'open',
+    statusLabelFa: 'باز (در صف بررسی کارشناس)',
+    subject: 'درخواست بازبینی پلمپ قبل از خروج از محوطه اسکله شهید رجایی',
+    description: 'هنگام بارگیری ۲ عدد بشکه پلی‌اتیلن دارای خراشیدگی سطحی روی پالت مشاهده شده است. نیاز به ثبت صورتجلسه بارگیری جهت عدم تداخل با بیمه مسئولیت حمل‌ونقل.',
+    createdAt: '۱۴۰۳/۰۶/۰۱ - ۱۲:۱۰',
+    updatedAt: '۱۴۰۳/۰۶/۰۱ - ۱۲:۱۵',
+    assignedAgent: 'واحد خسارت و ارزیابی بیمه باربری',
+    locationAtReport: 'اسکله شهید رجایی - پایانه لجستیک بندرعباس',
+    estimatedResolutionTime: '۱۴۰۳/۰۶/۰۱ - ۱۴:۰۰',
+    messages: [
+      {
+        id: 'msg-201',
+        sender: 'shipper',
+        senderName: 'مهندس اکبری (صاحب بار)',
+        text: 'با سلام، لطفا پیش از حرکت تریلی از بندرعباس، عکس‌های بارگیری و سلامت پلمپ‌ها در سامانه ضمیمه شود تا در زمان تحویل در اصفهان مغایرتی پیش نیاید.',
+        timestamp: '۱۲:۱۰',
+      },
+      {
+        id: 'msg-202',
+        sender: 'system',
+        senderName: 'سامانه ثبت خسارت',
+        text: 'درخواست ثبت صورتجلسه سلامت بار به نمایندگی بندرعباس ارسال شد. مامور ارزیابی در محل اسکله حاضر خواهد شد.',
+        timestamp: '۱۲:۱۵',
+        isSystemAction: true,
+      },
+    ],
+  },
+  {
+    id: 'INC-1403-889',
+    loadId: 'SHP-10488',
+    billOfLadingNo: 'BL-1403-9930',
+    trackingCode: 'TRK-882180',
+    originCity: 'تبریز',
+    destCity: 'مشهد',
+    cargoType: 'قطعات و یراق‌آلات ساختمانی (۴.۸ تن)',
+    driverName: 'قاسم حیدری',
+    driverPhone: '۰۹۱۴۷۸۵۹۶۳۲',
+    truckPlate: '۱۸ د ۶۴۵ ایران ۱۵',
+    category: 'pricing_dispute',
+    categoryLabelFa: 'توقفگاه و هزینه دیرکرد تخلیه',
+    priority: 'normal',
+    priorityLabelFa: 'عادی',
+    status: 'resolved',
+    statusLabelFa: 'حل‌شده و مختومه',
+    subject: 'محاسبه هزینه حق توقف ۲ ساعته در انبار خاوران مشهد',
+    description: 'به علت قطعی موقت سامانه انبارداری در مقصد، تخلیه ۲ ساعت با تاخیر مواجه گردید. هزینه توقف بر اساس تعرفه مصوب راهداری محاسبه و در فاکتور نهایی منظور شد.',
+    createdAt: '۱۴۰۳/۰۵/۳۱ - ۱۵:۰۰',
+    updatedAt: '۱۴۰۳/۰۵/۳۱ - ۱۸:۳۰',
+    assignedAgent: 'امور قراردادها و مالی لجستیک',
+    locationAtReport: 'انبار مرکزی پخش خاوران مشهد',
+    resolutionNotes: 'مبلغ ۲,۴۰۰,۰۰۰ ریال به عنوان هزینه توقف مجاز طبق آیین‌نامه راهداری برای راننده واریز شد و رسید POD با امضای انباردار ثبت گردید.',
+    messages: [
+      {
+        id: 'msg-301',
+        sender: 'driver',
+        senderName: 'قاسم حیدری (راننده)',
+        text: 'سلام، در انبار مشهد اعلام کردند به دلیل ارتقای نرم‌افزار، تخلیه ۲ ساعت طول می‌کشد.',
+        timestamp: '۱۵:۰۰',
+      },
+      {
+        id: 'msg-302',
+        sender: 'support',
+        senderName: 'کارشناس حل اختلاف (مهندس راد)',
+        text: 'سلام. توقف ثبت گردید و با انبار مقصد هماهنگ شد. ساعت ۱۷:۰۰ تخلیه با موفقیت تکمیل شد و فرم تسویه امضا شد.',
+        timestamp: '۱۷:۱۵',
+      },
+      {
+        id: 'msg-303',
+        sender: 'system',
+        senderName: 'سیستم تسویه مالی',
+        text: 'تیکت با تایید طرفین و ثبت سند POD مختومه اعلام گردید.',
+        timestamp: '۱۸:۳۰',
+        isSystemAction: true,
+      },
+    ],
+  },
+  {
+    id: 'INC-1403-880',
+    loadId: 'SHP-10495',
+    billOfLadingNo: 'BL-1403-9950',
+    trackingCode: 'TRK-882200',
+    originCity: 'قزوین',
+    destCity: 'شیراز',
+    cargoType: 'پالت کاشی و سرامیک درجه یک (۱۴.۵ تن)',
+    driverName: 'حمید کمالی',
+    driverPhone: '۰۹۱۷۶۵۴۳۲۱۰',
+    truckPlate: '۲۴ ص ۸۱۱ ایران ۶۳',
+    category: 'route_deviation',
+    categoryLabelFa: 'هماهنگی مسیر جایگزین به دلیل شرایط جوی',
+    priority: 'high',
+    priorityLabelFa: 'اولویت بالا',
+    status: 'resolved',
+    statusLabelFa: 'حل‌شده و مختومه',
+    subject: 'تغییر مسیر حرکت از گردنه به دلیل بارش و اعلام راهداری',
+    description: 'با هماهنگی مرکز مدیریت راه‌های کشور، ناوگان از مسیر اتوبان اصفهان-شیراز عبور نموده و هزینه مازاد عوارض توسط سیستم تعدیل شد.',
+    createdAt: '۱۴۰۳/۰۵/۲۸ - ۰۹:۰۰',
+    updatedAt: '۱۴۰3/05/29 - 10:00',
+    assignedAgent: 'مرکز مانیتورینگ مسیر',
+    locationAtReport: 'محور قزوین - سلفچگان',
+    resolutionNotes: 'مسیر جایگزین با موفقیت طی شد و بار سالم تحویل گردید.',
+    messages: [
+      {
+        id: 'msg-401',
+        sender: 'support',
+        senderName: 'مرکز مانیتورینگ',
+        text: 'اطلاعیه راهداری: انسداد موقت گردنه به دلیل عملیات عمرانی. مسیر جایگزین به راننده ابلاغ شد.',
+        timestamp: '۰۹:۰۰',
+      },
+      {
+        id: 'msg-402',
+        sender: 'shipper',
+        senderName: 'مهندس اکبری (صاحب بار)',
+        text: 'متشکرم، مسیر جایگزین مورد تایید است.',
+        timestamp: '۰۹:۳۰',
+      },
+    ],
+  },
+];
+
+export interface BatchShipmentRow {
+  id: string;
+  rowNumber: number;
+  originCity: string;
+  destCity: string;
+  originHub?: string;
+  destHub?: string;
+  cargoType: string;
+  cargoTitle: string;
+  weightTons: number;
+  truckType: string;
+  cargoValueToman: number;
+  estimatedPriceRials: number;
+  discountRials: number;
+  finalPriceRials: number;
+  loadingDate: string;
+  status: 'valid' | 'warning' | 'error';
+  validationMessage?: string;
+  senderName?: string;
+  receiverName?: string;
+  notes?: string;
+}
+
+export interface BatchUploadHistory {
+  id: string;
+  fileName: string;
+  fileSizeKb: number;
+  uploadDate: string;
+  totalRows: number;
+  validRows: number;
+  totalPriceRials: number;
+  status: 'draft' | 'submitted' | 'processing' | 'completed';
+  batchCode: string;
+}
+
+export const SAMPLE_BATCH_SHIPMENTS: BatchShipmentRow[] = [
+  {
+    id: 'row-1',
+    rowNumber: 1,
+    originCity: 'اصفهان',
+    destCity: 'تهران',
+    originHub: 'مجتمع فولاد مبارکه - انبار نورد',
+    destHub: 'شهرک صنعتی شمس‌آباد - فاز ۳',
+    cargoType: 'صنعتی و فلزی',
+    cargoTitle: 'کویل ورق فولادی ST37 (۲۲ تن)',
+    weightTons: 22.0,
+    truckType: 'تریلر کفی ۱۸ چرخ',
+    cargoValueToman: 350000000,
+    estimatedPriceRials: 145000000,
+    discountRials: 12000000,
+    finalPriceRials: 133000000,
+    loadingDate: '۱۴۰۳/۰۶/۰۵',
+    status: 'valid',
+    validationMessage: 'اطلاعات کامل و آماده تخصیص ناوگان',
+    senderName: 'فولاد مبارکه',
+    receiverName: 'ایران خودرو دیزل',
+  },
+  {
+    id: 'row-2',
+    rowNumber: 2,
+    originCity: 'بندرعباس',
+    destCity: 'اصفهان',
+    originHub: 'اسکله شهید رجایی - پایانه ۲',
+    destHub: 'انبار مرکزی ذوب‌آهن',
+    cargoType: 'مواد اولیه پتروشیمی',
+    cargoTitle: 'پالت مواد پلی‌اتیلن سنگین (۱۸ تن)',
+    weightTons: 18.0,
+    truckType: 'تریلی چادری ترانزیت',
+    cargoValueToman: 280000000,
+    estimatedPriceRials: 198000000,
+    discountRials: 16000000,
+    finalPriceRials: 182000000,
+    loadingDate: '۱۴۰۳/۰۶/۰۶',
+    status: 'valid',
+    validationMessage: 'مجوز ترانزیت و پلمپ تایید شد',
+    senderName: 'پتروشیمی خلیج فارس',
+    receiverName: 'صنایع پلاستیک اصفهان',
+  },
+  {
+    id: 'row-3',
+    rowNumber: 3,
+    originCity: 'تبریز',
+    destCity: 'مشهد',
+    originHub: 'شهرک صنعتی رجایی تبریز',
+    destHub: 'انبار پخش خاوران مشهد',
+    cargoType: 'قطعات و لوازم صنعتی',
+    cargoTitle: 'جعبه قطعات یدکی پمپ و اتصالات (۱۲ تن)',
+    weightTons: 12.0,
+    truckType: 'کامیون جفت ۱۰ چرخ',
+    cargoValueToman: 190000000,
+    estimatedPriceRials: 135000000,
+    discountRials: 10000000,
+    finalPriceRials: 125000000,
+    loadingDate: '۱۴۰۳/۰۶/۰۷',
+    status: 'valid',
+    validationMessage: 'آماده بارگیری طبق نوبت',
+    senderName: 'موتوژن تبریز',
+    receiverName: 'پارس پمپ مشهد',
+  },
+  {
+    id: 'row-4',
+    rowNumber: 4,
+    originCity: 'قزوین',
+    destCity: 'شیراز',
+    originHub: 'شهرک صنعتی کاسپین',
+    destHub: 'منطقه ویژه اقتصادی شیراز',
+    cargoType: 'کاشی و سرامیک',
+    cargoTitle: 'پالت سرامیک پرسلان صادراتی (۱۵ تن)',
+    weightTons: 15.0,
+    truckType: 'کامیون تک ۶ چرخ',
+    cargoValueToman: 160000000,
+    estimatedPriceRials: 110000000,
+    discountRials: 8000000,
+    finalPriceRials: 102000000,
+    loadingDate: '۱۴۰۳/۰۶/۰۸',
+    status: 'warning',
+    validationMessage: 'وزن نزدیک سقف مجاز کارت ماشین است (بررسی مجدد)',
+    senderName: 'سرامیک البرز',
+    receiverName: 'بازرگانی فارس',
+  },
+  {
+    id: 'row-5',
+    rowNumber: 5,
+    originCity: 'اهواز',
+    destCity: 'تهران',
+    originHub: 'لوله و نورد اهواز',
+    destHub: 'انبار آهن مکان شادآباد',
+    cargoType: 'لوله فولادی',
+    cargoTitle: 'شاخه لوله بدون درز مانیسمان (۲۴ تن)',
+    weightTons: 24.0,
+    truckType: 'تریلر کفی ۱۸ چرخ',
+    cargoValueToman: 420000000,
+    estimatedPriceRials: 175000000,
+    discountRials: 15000000,
+    finalPriceRials: 160000000,
+    loadingDate: '۱۴۰۳/۰۶/۰۸',
+    status: 'valid',
+    validationMessage: 'تاییدیه ابعاد ترافیکی و مهار بار دریافت شد',
+    senderName: 'لوله اهواز',
+    receiverName: 'تهران پایپ',
+  },
+];
+
+export const INITIAL_BATCH_HISTORIES: BatchUploadHistory[] = [
+  {
+    id: 'batch-1403-101',
+    fileName: 'MSC_Orders_Week36_Production.xlsx',
+    fileSizeKb: 148,
+    uploadDate: '۱۴۰۳/۰۶/۰۱ - ۱۰:۱۵',
+    totalRows: 5,
+    validRows: 5,
+    totalPriceRials: 702000000,
+    status: 'draft',
+    batchCode: 'BAT-1403-0991',
+  },
+  {
+    id: 'batch-1403-100',
+    fileName: 'Dispatch_August_Consignments.csv',
+    fileSizeKb: 92,
+    uploadDate: '۱۴۰۳/۰۵/۲۵ - ۱۶:۴۰',
+    totalRows: 12,
+    validRows: 12,
+    totalPriceRials: 1540000000,
+    status: 'completed',
+    batchCode: 'BAT-1403-0870',
+  },
+  {
+    id: 'batch-1403-099',
+    fileName: 'Esfahan_Tehran_SteelRolls_Daily.xlsx',
+    fileSizeKb: 110,
+    uploadDate: '۱۴۰۳/۰۵/۱۸ - ۰۸:۲۰',
+    totalRows: 8,
+    validRows: 8,
+    totalPriceRials: 1080000000,
+    status: 'completed',
+    batchCode: 'BAT-1403-0742',
+  },
+];
+
