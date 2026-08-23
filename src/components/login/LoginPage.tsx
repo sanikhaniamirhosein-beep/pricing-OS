@@ -27,7 +27,7 @@ import {
   TrendingUp,
   Award,
 } from 'lucide-react';
-import { UserRole } from '../../types/pricing';
+import { UserRole, ShipperUserRole } from '../../types/pricing';
 import { CarrierAuthModal } from './CarrierAuthModal';
 import { ShipperAuthModal } from './ShipperAuthModal';
 
@@ -35,7 +35,14 @@ interface LoginPageProps {
   onLogin: (
     portalType: 'carrier' | 'shipper',
     role?: UserRole,
-    details?: { orgName?: string; userName?: string; userEmail?: string }
+    details?: {
+      orgName?: string;
+      userName?: string;
+      userEmail?: string;
+      shipperRole?: ShipperUserRole;
+      locationScope?: string;
+      approvalLimitToman?: number;
+    }
   ) => void;
   onOpenQuickQuote: () => void;
 }
@@ -568,6 +575,9 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onOpenQuickQuote 
             orgName: userData.orgName,
             userName: userData.userName,
             userEmail: userData.userEmail,
+            shipperRole: userData.shipperRole,
+            locationScope: userData.locationScope,
+            approvalLimitToman: userData.approvalLimitToman,
           });
         }}
       />

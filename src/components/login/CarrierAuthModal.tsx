@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { UserRole } from '../../types/pricing';
 import { ModernSelect } from '../common/menus/ModernSelect';
+import { CARRIER_ROLE_DETAILS, getRoleDetail } from '../../data/carrierRolesConfig';
 
 interface CarrierAuthModalProps {
   isOpen: boolean;
@@ -51,21 +52,22 @@ export const CarrierAuthModal: React.FC<CarrierAuthModalProps> = ({
   const [loginStep, setLoginStep] = useState<1 | 2>(1);
   const [loginOrgName, setLoginOrgName] = useState('شرکت حمل و نقل سراسری خلیج فارس');
   const [loginOrgPassword, setLoginOrgPassword] = useState('carrier@1403');
-  const [loginSelectedRole, setLoginSelectedRole] = useState<UserRole>('Pricing Strategist');
-  const [loginRolePassword, setLoginRolePassword] = useState('pass@123');
+  const [loginSelectedRole, setLoginSelectedRole] = useState<UserRole>('System Admin / Fleet Director');
+  const [loginRolePassword, setLoginRolePassword] = useState('admin@1403');
   const [loginError, setLoginError] = useState<string | null>(null);
 
   // Register Form States (Multi-step)
   const [regStep, setRegStep] = useState<1 | 2>(1);
   const [regOrgName, setRegOrgName] = useState('');
   const [regOrgEmail, setRegOrgEmail] = useState('');
+  const [regNationalId, setRegNationalId] = useState('');
   const [regAdminName, setRegAdminName] = useState('');
   const [regAdminEmail, setRegAdminEmail] = useState('');
   const [regOrgPassword, setRegOrgPassword] = useState('');
   const [regError, setRegError] = useState<string | null>(null);
 
   // Register Step 2: Team Members
-  const [memberRole, setMemberRole] = useState<UserRole>('Commercial Manager');
+  const [memberRole, setMemberRole] = useState<UserRole>('Pricing & Yield Manager');
   const [memberName, setMemberName] = useState('');
   const [memberEmail, setMemberEmail] = useState('');
   const [memberPassword, setMemberPassword] = useState('');
@@ -73,38 +75,7 @@ export const CarrierAuthModal: React.FC<CarrierAuthModalProps> = ({
 
   if (!isOpen) return null;
 
-  const roleOptions: { role: UserRole; titleFa: string; descFa: string }[] = [
-    {
-      role: 'Pricing Strategist',
-      titleFa: 'استراتژیست و طراح تعرفه',
-      descFa: 'طراحی رول‌بلاک‌ها، ماتریس کریدورها و فرمول‌های پایه',
-    },
-    {
-      role: 'Commercial Manager',
-      titleFa: 'مدیر تجاری و قراردادها',
-      descFa: 'تنظیم قراردادهای اختصاصی، تخفیفات حجمی و مشتریان کلیدی',
-    },
-    {
-      role: 'Finance Controller',
-      titleFa: 'معاونت مالی و کنترل سود',
-      descFa: 'پایش گاردریل کف سود ۱۵٪، نشت درآمد و گزارشات مالی',
-    },
-    {
-      role: 'Governance Approver',
-      titleFa: 'کمیته حاکمیت و تصویب پکیج',
-      descFa: 'ممیزی، تصویب دوطرفه (Maker-Checker) و انتشار نهایی',
-    },
-    {
-      role: 'Key Account Manager',
-      titleFa: 'مدیر حساب مشتریان عمده',
-      descFa: 'استعلام تعرفه قراردادهای خاص و پیگیری سفارشات عمده',
-    },
-    {
-      role: 'System Admin',
-      titleFa: 'ادمین ارشد زیرساخت',
-      descFa: 'مدیریت وب‌سرویس‌های API، امنیت داده و اتصالات بیرونی',
-    },
-  ];
+  const roleOptions = CARRIER_ROLE_DETAILS;
 
   // Handle Login Step 1 (Company credentials validation)
   const handleLoginStep1Next = (e: React.FormEvent) => {
@@ -134,24 +105,13 @@ export const CarrierAuthModal: React.FC<CarrierAuthModalProps> = ({
     }
 
     // Role display name mapper
-    const roleInfo = roleOptions.find((r) => r.role === loginSelectedRole);
-    const resolvedName =
-      loginSelectedRole === 'Pricing Strategist'
-        ? 'سارا رضایی (استراتژیست تعرفه)'
-        : loginSelectedRole === 'Finance Controller'
-        ? 'دکتر علی بهرامی (معاونت مالی)'
-        : loginSelectedRole === 'Governance Approver'
-        ? 'دکتر علی بهرامی (کمیته حاکمیت)'
-        : loginSelectedRole === 'Commercial Manager'
-        ? 'مهندس کامران رستمی (مدیر تجاری)'
-        : loginSelectedRole === 'Key Account Manager'
-        ? 'مریم عباسی (مدیر حساب مشتریان)'
-        : 'ادمین ارشد سامانه';
+    const roleInfo = getRoleDetail(loginSelectedRole);
+    const resolvedName = `${roleInfo.defaultUserName} (${roleInfo.titleFa})`;
 
     onSuccessLogin({
       orgName: loginOrgName,
       userName: resolvedName,
-      userEmail: `user@${loginOrgName.replace(/\s+/g, '').toLowerCase()}.ir`,
+      userEmail: roleInfo.defaultUserEmail,
       role: loginSelectedRole,
     });
   };
@@ -162,7 +122,7 @@ export const CarrierAuthModal: React.FC<CarrierAuthModalProps> = ({
     setRegError(null);
 
     if (!regOrgName.trim()) {
-      setRegError('لطفاً نام شرکت را وارد نمایید.');
+      setRegError('لطفاً نام شرکت حمل‌ونقل را وارد نمایید.');
       return;
     }
     if (!regOrgEmail.trim() || !regOrgEmail.includes('@')) {
@@ -170,7 +130,7 @@ export const CarrierAuthModal: React.FC<CarrierAuthModalProps> = ({
       return;
     }
     if (!regAdminName.trim()) {
-      setRegError('لطفاً نام و نام خانوادگی مدیر ارشد را وارد نمایید.');
+      setRegError('لطفاً نام و نام خانوادگی مدیر ارشد / مدیر سیستم را وارد نمایید.');
       return;
     }
     if (!regAdminEmail.trim() || !regAdminEmail.includes('@')) {
@@ -215,9 +175,9 @@ export const CarrierAuthModal: React.FC<CarrierAuthModalProps> = ({
   const handleFinishRegistration = () => {
     onSuccessLogin({
       orgName: regOrgName,
-      userName: `${regAdminName} (مدیر ارشد سازمان)`,
+      userName: `${regAdminName} (مدیر ارشد / مدیر سیستم)`,
       userEmail: regAdminEmail,
-      role: 'Pricing Strategist',
+      role: 'System Admin / Fleet Director',
     });
   };
 
@@ -498,7 +458,7 @@ export const CarrierAuthModal: React.FC<CarrierAuthModalProps> = ({
                               </span>
                             </div>
                             <span className="text-[10px] text-slate-500 line-clamp-1">
-                              {item.descFa}
+                              {item.accessScopeFa}
                             </span>
                           </button>
                         );

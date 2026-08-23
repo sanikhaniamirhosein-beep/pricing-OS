@@ -75,10 +75,12 @@ export interface ShipperTeamMember {
   fullName: string;
   email: string;
   phone: string;
-  role: 'مدیر ارشد تدارکات' | 'کارشناس بارنامه' | 'مسئول انبار' | 'مدیر مالی و حسابداری' | 'مدیر بازرگانی';
-  accessLevel: 'مدیر کل' | 'ثبت و رهگیری' | 'صرفاً مشاهده و گزارش' | 'امور مالی';
+  role: string;
+  accessLevel: string;
   lastActive: string;
   status: 'active' | 'suspended';
+  locationScope?: string;
+  approvalLimitToman?: number;
 }
 
 export interface ShipperTierInfo {

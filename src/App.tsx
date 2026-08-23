@@ -12,7 +12,7 @@ import { ControlTowerView } from './components/workspaces/governance/ControlTowe
 import { IntelligenceHubView } from './components/workspaces/intelligence/IntelligenceHubView';
 import { SystemConsoleView } from './components/workspaces/system/SystemConsoleView';
 
-import { UserRole } from './types/pricing';
+import { UserRole, ShipperUserRole } from './types/pricing';
 
 // Modals & Drawers
 import { DecisionTraceModal } from './components/common/DecisionTraceModal';
@@ -22,7 +22,17 @@ import { PublicQuickQuoteModal } from './components/login/PublicQuickQuoteModal'
 import { AICoPilotDrawer } from './components/common/AICoPilotDrawer';
 
 const AppContent: React.FC = () => {
-  const { userPortalType, setUserRole, setUserName, setUserOrgName, setUserEmail, setUserPortalType } = usePricing();
+  const {
+    userPortalType,
+    setUserRole,
+    setUserName,
+    setUserOrgName,
+    setUserEmail,
+    setUserPortalType,
+    setShipperUserRole,
+    setShipperLocationScope,
+    setShipperApprovalLimitToman,
+  } = usePricing();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
   const [isPublicQuickQuoteOpen, setIsPublicQuickQuoteOpen] = useState<boolean>(false);
   const [activeWorkspaceId, setActiveWorkspaceId] = useState<string>('design');
@@ -71,14 +81,31 @@ const AppContent: React.FC = () => {
   const handleLogin = (
     portalType: 'carrier' | 'shipper',
     role?: UserRole,
-    details?: { orgName?: string; userName?: string; userEmail?: string }
+    details?: {
+      orgName?: string;
+      userName?: string;
+      userEmail?: string;
+      shipperRole?: ShipperUserRole;
+      locationScope?: string;
+      approvalLimitToman?: number;
+    }
   ) => {
     if (role) {
       setUserRole(role);
     } else if (portalType === 'carrier') {
       setUserRole('Pricing Strategist');
     } else {
-      setUserRole('Key Account Manager');
+      setUserRole('Supply Chain Manager / Admin');
+    }
+
+    if (details?.shipperRole) {
+      setShipperUserRole(details.shipperRole);
+    }
+    if (details?.locationScope) {
+      setShipperLocationScope(details.locationScope);
+    }
+    if (details?.approvalLimitToman !== undefined) {
+      setShipperApprovalLimitToman(details.approvalLimitToman);
     }
 
     if (details?.userName) {

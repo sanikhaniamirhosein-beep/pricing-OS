@@ -38,6 +38,8 @@ import {
 } from 'lucide-react';
 import { usePricing } from '../../../store/PricingContext';
 import { ApprovalRequest, DiffItem, RiskClass } from '../../../types/pricing';
+import { PackageReferenceDropdown, PackageOption } from '../../common/menus/PackageReferenceDropdown';
+import { BusinessRiskDropdown } from '../../common/menus/BusinessRiskDropdown';
 
 /**
  * Pre-defined fast rejection reasons for audit checkers
@@ -78,31 +80,13 @@ export const MakerCheckerWorkflowView: React.FC = () => {
   const [newRequestTitle, setNewRequestTitle] = useState('');
   const [newRequestDesc, setNewRequestDesc] = useState('');
   const [selectedPackageRef, setSelectedPackageRef] = useState<string>('SP-1043@v1');
-  const [isPackageDropdownOpen, setIsPackageDropdownOpen] = useState(false);
   const [selectedRiskClass, setSelectedRiskClass] = useState<RiskClass>('medium');
-  const [isRiskDropdownOpen, setIsRiskDropdownOpen] = useState(false);
 
   const [newRequestDiffs, setNewRequestDiffs] = useState<DiffItem[]>([
     { fieldNameFa: 'سقف تخفیف کریدور جنوب', fieldPath: 'policies.discounts.DP-22.cap', oldValue: '۸٪', newValue: '۱۲٪' },
     { fieldNameFa: 'کف حاشیه سود ناخالص', fieldPath: 'policies.guardrails.minGrossMargin', oldValue: '۱۴٪', newValue: '۱۵.۵٪' },
     { fieldNameFa: 'ضریب تعدیل سوخت گازوئیل', fieldPath: 'policies.fuelIndexMultiplier', oldValue: '۱.۰۴', newValue: '۱.۰۶' },
   ]);
-
-  const packageDropdownRef = useRef<HTMLDivElement>(null);
-  const riskDropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (packageDropdownRef.current && !packageDropdownRef.current.contains(e.target as Node)) {
-        setIsPackageDropdownOpen(false);
-      }
-      if (riskDropdownRef.current && !riskDropdownRef.current.contains(e.target as Node)) {
-        setIsRiskDropdownOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const showToast = (text: string, type: 'success' | 'info' | 'error' = 'success') => {
     setToastMessage({ text, type });
@@ -251,60 +235,6 @@ export const MakerCheckerWorkflowView: React.FC = () => {
       },
     ];
   }, [strategyPackages]);
-
-  const selectedPackageData = packageOptions.find((p) => p.id === selectedPackageRef) || packageOptions[0];
-
-  const RISK_TIERS: {
-    key: RiskClass;
-    titleFa: string;
-    badgeText: string;
-    colorClass: string;
-    bgClass: string;
-    borderClass: string;
-    badgeStyle: { backgroundColor: string; color: string };
-    score: string;
-    descFa: string;
-    gateFa: string;
-  }[] = [
-    {
-      key: 'low',
-      titleFa: 'ریسک تجاری پایین (Low Impact)',
-      badgeText: 'ریسک پایین',
-      colorClass: 'text-[#173404]',
-      bgClass: 'bg-[#97C459]',
-      borderClass: 'border-[#97C459]',
-      badgeStyle: { backgroundColor: '#97C459', color: '#173404' },
-      score: '۰.۱۵ (امن)',
-      descFa: 'تعدیلات جزئی زیر ۳٪، بدون تغییر در کف حاشیه سود، مناسب اصلاحات محلی کریدورها',
-      gateFa: 'تایید کارشناس ارشد تعرفه',
-    },
-    {
-      key: 'medium',
-      titleFa: 'ریسک تجاری متوسط (Standard Impact)',
-      badgeText: 'ریسک متوسط',
-      colorClass: 'text-[#412402]',
-      bgClass: 'bg-[#EF9F27]',
-      borderClass: 'border-[#EF9F27]',
-      badgeStyle: { backgroundColor: '#EF9F27', color: '#412402' },
-      score: '۰.۴۵ (متوسط)',
-      descFa: 'تغییرات کریدورهای اصلی، بازنگری تخفیفات تا ۸٪ و نیازمند شبیه‌سازی موفق ۱۰K بارنامه',
-      gateFa: 'تایید مدیر ارشد تعرفه + شبیه‌سازی پایداری',
-    },
-    {
-      key: 'high',
-      titleFa: 'ریسک تجاری بالا / بحرانی (Critical High Impact)',
-      badgeText: 'ریسک بالا',
-      colorClass: 'text-[#501313]',
-      bgClass: 'bg-[#E24B4A]',
-      borderClass: 'border-[#E24B4A]',
-      badgeStyle: { backgroundColor: '#E24B4A', color: '#501313' },
-      score: '۰.۸۲ (حساس)',
-      descFa: 'بازنگری ساختاری کف حاشیه سود، تغییر سراسری ضرایب پایه و تخفیفات بالای ۱۰٪',
-      gateFa: 'تصویب معاونت مالی + امضای احراز هویت دوعاملی (MFA OTP)',
-    },
-  ];
-
-  const currentRiskData = RISK_TIERS.find((r) => r.key === selectedRiskClass) || RISK_TIERS[1];
 
   return (
     <div className="space-y-6 font-sans text-slate-800" id="maker-checker-container">
@@ -1020,158 +950,19 @@ export const MakerCheckerWorkflowView: React.FC = () => {
               </div>
 
               {/* 1. DEDICATED PACKAGE REFERENCE SELECTOR MENU */}
-              <div className="space-y-1.5" ref={packageDropdownRef}>
-                <label className="block text-slate-700 font-bold flex items-center justify-between">
-                  <span className="flex items-center gap-1.5">
-                    <Layers className="w-3.5 h-3.5 text-amber-600" />
-                    <span>منوی انتخاب بسته مرجع (Reference Package):</span>
-                  </span>
-                  <span className="text-[10px] text-slate-400 font-normal">بسته مبنا جهت مقایسه تغییرات (Baseline Diff)</span>
-                </label>
-
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => setIsPackageDropdownOpen(!isPackageDropdownOpen)}
-                    className="w-full p-3 bg-slate-50 hover:bg-slate-100/80 border border-slate-200 rounded-2xl text-right transition-all flex items-center justify-between gap-2.5 cursor-pointer shadow-2xs focus:ring-2 focus:ring-amber-400/20 focus:border-amber-400"
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <span className="text-xs font-mono font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded-lg border border-amber-200 shrink-0">
-                        {selectedPackageData.displayId}
-                      </span>
-                      <div className="min-w-0">
-                        <span className="text-xs font-bold text-slate-900 block truncate">
-                          {selectedPackageData.title}
-                        </span>
-                        <span className="text-[10px] text-slate-500 font-mono">
-                          نسخه {selectedPackageData.version} • وضعیت: {selectedPackageData.status === 'Active' ? 'پایدار در پروداکشن' : selectedPackageData.status === 'In Review' ? 'محیط آزمایشی Staging' : 'پیش‌نویس'}
-                        </span>
-                      </div>
-                    </div>
-                    <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isPackageDropdownOpen ? 'rotate-180 text-amber-600' : ''}`} />
-                  </button>
-
-                  {isPackageDropdownOpen && (
-                    <div className="absolute top-full right-0 left-0 mt-1.5 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 p-2 space-y-1 animate-in fade-in duration-100 max-h-60 overflow-y-auto">
-                      {packageOptions.map((pkg) => {
-                        const isSelected = selectedPackageRef === pkg.id;
-                        return (
-                          <div
-                            key={pkg.id}
-                            onClick={() => {
-                              setSelectedPackageRef(pkg.id);
-                              setIsPackageDropdownOpen(false);
-                            }}
-                            className={`p-2.5 rounded-xl cursor-pointer transition-colors flex items-center justify-between gap-2 ${
-                              isSelected
-                                ? 'bg-amber-50 border border-amber-200/90 text-amber-950 font-bold'
-                                : 'hover:bg-slate-50 text-slate-800'
-                            }`}
-                          >
-                            <div className="space-y-0.5 min-w-0">
-                              <div className="flex items-center gap-1.5">
-                                <span className="font-mono text-[11px] font-bold bg-slate-100 px-1.5 py-0.2 rounded text-slate-700">
-                                  {pkg.displayId}
-                                </span>
-                                <span className="text-xs truncate">{pkg.title}</span>
-                              </div>
-                              <span className="text-[10px] text-slate-500 font-mono block">
-                                طراح: {pkg.author} | نسخه: {pkg.version}
-                              </span>
-                            </div>
-                            <span
-                              className={`text-[9px] px-2 py-0.5 rounded-full font-bold shrink-0 ${
-                                pkg.status === 'Active'
-                                  ? 'bg-emerald-100 text-emerald-800'
-                                  : pkg.status === 'In Review'
-                                  ? 'bg-amber-100 text-amber-900'
-                                  : 'bg-slate-100 text-slate-700'
-                              }`}
-                            >
-                              {pkg.status === 'Active' ? 'پایدار' : pkg.status === 'In Review' ? 'آزمایشی' : 'پیش‌نویس'}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              </div>
+              <PackageReferenceDropdown
+                id="modal-package-reference-dropdown"
+                value={selectedPackageRef}
+                options={packageOptions}
+                onChange={(newId) => setSelectedPackageRef(newId)}
+              />
 
               {/* 2. DEDICATED BUSINESS RISK ASSESSMENT SELECTOR MENU */}
-              <div className="space-y-1.5" ref={riskDropdownRef}>
-                <label className="block text-slate-700 font-bold flex items-center justify-between">
-                  <span className="flex items-center gap-1.5">
-                    <Shield className="w-3.5 h-3.5 text-amber-600" />
-                    <span>منوی ارزیابی سطح ریسک تجاری (Business Risk Assessment):</span>
-                  </span>
-                  <span className="text-[10px] text-slate-400 font-normal">بر اساس دستورالعمل حاکمیت داده و کنترل سود</span>
-                </label>
-
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => setIsRiskDropdownOpen(!isRiskDropdownOpen)}
-                    className={`w-full p-3 rounded-2xl border text-right transition-all flex items-center justify-between gap-2.5 cursor-pointer shadow-2xs ${currentRiskData.bgClass} ${currentRiskData.borderClass}`}
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${selectedRiskClass === 'high' ? 'bg-rose-500 animate-ping' : selectedRiskClass === 'medium' ? 'bg-amber-500' : 'bg-emerald-500'}`} />
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className={`text-xs font-bold ${currentRiskData.colorClass}`}>
-                            {currentRiskData.titleFa}
-                          </span>
-                          <span className="text-[10px] font-mono font-bold bg-white/80 px-2 py-0.5 rounded-md border border-slate-200">
-                            امتیاز ریسک: {currentRiskData.score}
-                          </span>
-                        </div>
-                        <span className="text-[10px] text-slate-600 block mt-0.5 truncate">
-                          {currentRiskData.descFa}
-                        </span>
-                      </div>
-                    </div>
-                    <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isRiskDropdownOpen ? 'rotate-180' : ''}`} />
-                  </button>
-
-                  {isRiskDropdownOpen && (
-                    <div className="absolute top-full right-0 left-0 mt-1.5 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 p-2 space-y-1.5 animate-in fade-in duration-100">
-                      {RISK_TIERS.map((tier) => {
-                        const isSelected = selectedRiskClass === tier.key;
-                        return (
-                          <div
-                            key={tier.key}
-                            onClick={() => {
-                              setSelectedRiskClass(tier.key);
-                              setIsRiskDropdownOpen(false);
-                            }}
-                            className={`p-3 rounded-xl cursor-pointer transition-all border ${
-                              isSelected
-                                ? `${tier.bgClass} ${tier.borderClass} ring-1 ring-amber-400/30`
-                                : 'bg-white border-slate-100 hover:bg-slate-50'
-                            }`}
-                          >
-                            <div className="flex items-center justify-between mb-1">
-                              <span className={`text-xs font-bold ${tier.colorClass}`}>
-                                {tier.titleFa}
-                              </span>
-                              <span className="text-[10px] font-mono font-bold bg-white px-2 py-0.5 rounded border border-slate-200">
-                                ضریب ریسک: {tier.score}
-                              </span>
-                            </div>
-                            <p className="text-[11px] text-slate-600 leading-relaxed mb-1.5">
-                              {tier.descFa}
-                            </p>
-                            <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 bg-white/70 px-2 py-1 rounded-lg border border-slate-200/60">
-                              <Lock className="w-3 h-3 text-amber-600" />
-                              <span>گیت تصویب الزامی: {tier.gateFa}</span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              </div>
+              <BusinessRiskDropdown
+                id="modal-business-risk-dropdown"
+                value={selectedRiskClass}
+                onChange={(newRisk) => setSelectedRiskClass(newRisk)}
+              />
 
               {/* Description Field */}
               <div>

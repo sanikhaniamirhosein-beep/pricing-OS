@@ -267,7 +267,7 @@ export const IntegrationsHubView: React.FC = () => {
             success: true,
             executionTimeMs: 11.8,
             quoteId: 'Q-2026-99410',
-            currency: 'IRR',
+            currency: 'TOMAN',
             pricing: {
               baseFreightToman: 38500000,
               fuelSurchargeToman: 3080000,

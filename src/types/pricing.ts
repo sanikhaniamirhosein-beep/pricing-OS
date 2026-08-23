@@ -6,7 +6,28 @@
 
 export type Environment = 'draft' | 'staging' | 'production';
 
+export type ShipperUserRole =
+  | 'Supply Chain Manager / Admin'
+  | 'Logistics Specialist / Coordinator'
+  | 'Warehouse / Dispatch Operator'
+  | 'Finance Manager / Billing Specialist';
+
 export type UserRole =
+  // نقش‌های اصلی سازمان حمل‌ونقل (Carrier Primary Roles)
+  | 'System Admin / Fleet Director'
+  | 'Pricing & Yield Manager'
+  | 'Dispatcher / Operations Specialist'
+  | 'Sales & Customer Support'
+  | 'Finance & Billing Specialist'
+  // نقش‌های سازمان صاحب بار (Shipper Roles)
+  | 'Supply Chain Manager / Admin'
+  | 'Logistics Specialist / Coordinator'
+  | 'Warehouse / Dispatch Operator'
+  | 'Finance Manager / Billing Specialist'
+  // نقش‌های خاص یا ثانویه - اختیاری بر اساس اندازه شرکت (Secondary Roles)
+  | 'Fleet & Safety Manager'
+  | 'Auditor / Read-Only'
+  // نام‌های قبلی جهت سازگاری سیستم (Legacy Aliases)
   | 'Pricing Strategist'
   | 'Commercial Manager'
   | 'Contract Manager'
@@ -152,6 +173,10 @@ export interface RBACRoleDefinition {
   departmentFa?: string;
   levelBadge?: string;
   descriptionFa: string;
+  category?: 'primary' | 'secondary';
+  isMandatory?: boolean;
+  accessScopeFa?: string;
+  dutiesFa?: string[];
   userCount?: number;
   allowedModules?: string[];
   canApproveDeployment?: boolean;

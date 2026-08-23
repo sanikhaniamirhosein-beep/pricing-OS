@@ -7,6 +7,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
   Environment,
   UserRole,
+  ShipperUserRole,
   RiskClass,
   StrategyPackage,
   PricingPolicy,
@@ -32,6 +33,8 @@ import {
   RBACRoleDefinition,
   ApprovalRequest,
 } from '../types/pricing';
+import { getRoleDetail } from '../data/carrierRolesConfig';
+import { getShipperRoleDetail, SHIPPER_AVAILABLE_LOCATIONS } from '../data/shipperRolesConfig';
 import {
   INITIAL_SCHEMA,
   INITIAL_SERVICES,
@@ -75,6 +78,12 @@ interface PricingContextType {
   setUserEmail: (email: string) => void;
   userPortalType: 'carrier' | 'shipper' | 'retail';
   setUserPortalType: (type: 'carrier' | 'shipper' | 'retail') => void;
+  shipperUserRole: ShipperUserRole;
+  setShipperUserRole: (role: ShipperUserRole) => void;
+  shipperLocationScope: string;
+  setShipperLocationScope: (loc: string) => void;
+  shipperApprovalLimitToman: number;
+  setShipperApprovalLimitToman: (limit: number) => void;
   lang: 'fa' | 'en';
   setLang: (lang: 'fa' | 'en') => void;
   isSovereignMode: boolean;
@@ -179,11 +188,14 @@ const PricingContext = createContext<PricingContextType | undefined>(undefined);
 
 export const PricingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [environment, setEnvironment] = useState<Environment>('production');
-  const [userRole, setUserRole] = useState<UserRole>('Pricing Strategist');
-  const [userName, setUserName] = useState<string>('سارا رضایی (مدیر ارشد قیمت‌گذاری)');
+  const [userRole, setUserRole] = useState<UserRole>('System Admin / Fleet Director');
+  const [userName, setUserName] = useState<string>('مهندس محمدرضا شایگان (مدیر ارشد سیستم)');
   const [userOrgName, setUserOrgName] = useState<string>('شرکت حمل و نقل سراسری خلیج فارس');
-  const [userEmail, setUserEmail] = useState<string>('sara.rezaei@pg-logistics.ir');
+  const [userEmail, setUserEmail] = useState<string>('admin@pg-logistics.ir');
   const [userPortalType, setUserPortalType] = useState<'carrier' | 'shipper' | 'retail'>('carrier');
+  const [shipperUserRole, setShipperUserRole] = useState<ShipperUserRole>('Supply Chain Manager / Admin');
+  const [shipperLocationScope, setShipperLocationScope] = useState<string>('همه انبارها و کارخانجات');
+  const [shipperApprovalLimitToman, setShipperApprovalLimitToman] = useState<number>(100000000);
   const [lang, setLang] = useState<'fa' | 'en'>('fa');
   const [isSovereignMode, setIsSovereignMode] = useState<boolean>(true); // Default to in-boundary / sovereign
   const [fuelIndexMultiplier, setFuelIndexMultiplier] = useState<number>(1.04);
@@ -191,12 +203,42 @@ export const PricingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // Multi-Tenancy & Isolation State
   const [carrierOrganizations] = useState<CarrierOrgProfile[]>(CARRIER_ORGANIZATIONS);
   const [shipperOrganizations] = useState<ShipperOrgProfile[]>(SHIPPER_ORGANIZATIONS);
-  const [currentCarrierOrgId, setCurrentCarrierOrgId] = useState<string>('CARRIER-PG-01');
-  const [currentShipperOrgId, setCurrentShipperOrgId] = useState<string>('SHP-MSC-01');
+  const [currentCarrierOrgId, setCurrentCarrierOrgId] = useState<string>('org-carrier-pg-freight');
+  const [currentShipperOrgId, setCurrentShipperOrgId] = useState<string>('org-shipper-mobarakeh');
   const [isOrgSwitcherOpen, setIsOrgSwitcherOpen] = useState<boolean>(false);
 
-  const currentCarrierOrg = carrierOrganizations.find((c) => c.id === currentCarrierOrgId) || carrierOrganizations[0];
-  const currentShipperOrg = shipperOrganizations.find((s) => s.id === currentShipperOrgId) || shipperOrganizations[0];
+  const currentCarrierOrg = carrierOrganizations.find((c) => c.id === currentCarrierOrgId || c.nameFa === userOrgName) || carrierOrganizations[0];
+  
+  const currentShipperOrg = React.useMemo(() => {
+    if (userOrgName) {
+      const nameMatch = shipperOrganizations.find(
+        (s) =>
+          s.nameFa.trim().toLowerCase() === userOrgName.trim().toLowerCase() ||
+          s.nameFa.includes(userOrgName.trim()) ||
+          userOrgName.includes(s.nameFa.trim()) ||
+          s.nameEn.toLowerCase() === userOrgName.toLowerCase()
+      );
+      if (nameMatch) return nameMatch;
+    }
+
+    const idMatch = shipperOrganizations.find((s) => s.id === currentShipperOrgId);
+    if (idMatch) return idMatch;
+
+    if (userOrgName) {
+      const base = shipperOrganizations[0];
+      return {
+        ...base,
+        id: `org-shipper-dyn-${userOrgName.replace(/\s+/g, '')}`,
+        nameFa: userOrgName,
+        nameEn: userOrgName,
+        industry: 'صنایع تولیدی و بازرگانی صنعتی',
+        contactPerson: userName || 'مدیریت لجستیک و زنجیره تأمین',
+        email: userEmail || `logistics@${userOrgName.replace(/\s+/g, '').toLowerCase()}.ir`,
+      };
+    }
+
+    return shipperOrganizations[0];
+  }, [shipperOrganizations, currentShipperOrgId, userOrgName, userName, userEmail]);
 
   // Domain Collections
   const [schema, setSchema] = useState<SchemaDefinition>(INITIAL_SCHEMA);
@@ -369,28 +411,10 @@ export const PricingProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // Sync user name on role change
   useEffect(() => {
-    switch (userRole) {
-      case 'Pricing Strategist':
-        setUserName('سارا رضایی (مدیر ارشد تعرفه)');
-        break;
-      case 'Finance Controller':
-        setUserName('دکتر علی بهرامی (معاونت مالی و کنترل سود)');
-        break;
-      case 'Governance Approver':
-        setUserName('دکتر علی بهرامی (کمیته حاکمیت و ریسک)');
-        break;
-      case 'Commercial Manager':
-        setUserName('مهندس کامران رستمی (مدیر تجاری و قراردادها)');
-        break;
-      case 'Key Account Manager':
-        setUserName('مریم عباسی (مدیر حساب مشتریان عمده)');
-        break;
-      case 'Contract Manager':
-        setUserName('امیرحسین ثانی‌خانی (مدیر امور قراردادها)');
-        break;
-      case 'System Admin':
-        setUserName('ادمین ارشد زیرساخت (SysAdmin)');
-        break;
+    const detail = getRoleDetail(userRole);
+    if (detail) {
+      setUserName(detail.defaultUserName);
+      setUserEmail(detail.defaultUserEmail);
     }
   }, [userRole]);
 
@@ -1009,6 +1033,12 @@ export const PricingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setUserEmail,
         userPortalType,
         setUserPortalType,
+        shipperUserRole,
+        setShipperUserRole,
+        shipperLocationScope,
+        setShipperLocationScope,
+        shipperApprovalLimitToman,
+        setShipperApprovalLimitToman,
         lang,
         setLang,
         isSovereignMode,

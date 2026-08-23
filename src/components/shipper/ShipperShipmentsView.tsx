@@ -33,7 +33,10 @@ import {
   ShipperActiveLoad,
   ShipperSupportTicket,
 } from '../../data/mockShipperData';
+import { usePricing } from '../../store/PricingContext';
+import { getShipperRoleDetail } from '../../data/shipperRolesConfig';
 import { ModernSelect } from '../common/menus/ModernSelect';
+import { Warehouse, CheckSquare, Upload, FileBadge, ShieldAlert, Stamp } from 'lucide-react';
 
 interface ShipperShipmentsViewProps {
   initialSelectedShipment?: ShipperActiveLoad | null;

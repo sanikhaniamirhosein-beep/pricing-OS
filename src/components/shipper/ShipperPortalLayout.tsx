@@ -25,9 +25,23 @@ import {
   Clock,
   PanelLeftClose,
   PanelLeftOpen,
+  Warehouse,
+  DollarSign,
+  Briefcase,
+  AlertTriangle,
+  FileSpreadsheet,
+  LifeBuoy,
+  Lock,
+  Users,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { usePricing } from '../../store/PricingContext';
+import {
+  SHIPPER_ROLE_DETAILS,
+  SHIPPER_AVAILABLE_LOCATIONS,
+  ShipperUserRole,
+  getShipperRoleDetail,
+} from '../../data/shipperRolesConfig';
 import { ShipperDashboardView } from './ShipperDashboardView';
 import { ShipperQuoteBookingView } from './ShipperQuoteBookingView';
 import { ShipperShipmentsView } from './ShipperShipmentsView';
@@ -39,8 +53,8 @@ import { ShipperSettingsView } from './ShipperSettingsView';
 import { ShipperSupportIncidentsView } from './ShipperSupportIncidentsView';
 import { ShipperBatchOrdersView } from './ShipperBatchOrdersView';
 import { AICoPilotDrawer } from '../common/AICoPilotDrawer';
+import { RoleAccessGuard } from '../common/RoleAccessGuard';
 import { ShipperActiveLoad } from '../../data/mockShipperData';
-import { LifeBuoy, FileSpreadsheet } from 'lucide-react';
 
 interface ShipperPortalLayoutProps {
   onLogout: () => void;
@@ -52,10 +66,21 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
 }) => {
   const {
     userName,
+    setUserName,
     userOrgName,
     userEmail,
+    setUserEmail,
     currentShipperOrg,
+    shipperUserRole,
+    setShipperUserRole,
+    shipperLocationScope,
+    setShipperLocationScope,
+    shipperApprovalLimitToman,
+    setShipperApprovalLimitToman,
   } = usePricing();
+
+  const currentRoleDetail = getShipperRoleDetail(shipperUserRole);
+
   const [activeTab, setActiveTab] = useState<
     'dashboard' | 'quote' | 'batch_orders' | 'shipments' | 'support' | 'contracts' | 'billing' | 'master_data' | 'analytics' | 'settings'
   >('dashboard');
@@ -68,6 +93,7 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
       setActiveLoads(currentShipperOrg.activeLoads);
     }
   }, [currentShipperOrg]);
+
   const [selectedShipmentForTracking, setSelectedShipmentForTracking] = useState<ShipperActiveLoad | null>(null);
   const [selectedLoadForSupport, setSelectedLoadForSupport] = useState<string | null>(null);
   const [selectedTicketForSupport, setSelectedTicketForSupport] = useState<string | null>(null);
@@ -87,6 +113,28 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const handleRoleSwitch = (newRole: ShipperUserRole) => {
+    const detail = getShipperRoleDetail(newRole);
+    setShipperUserRole(newRole);
+    setUserName(detail.defaultUserName);
+    setUserEmail(detail.defaultUserEmail);
+    if (detail.locationScoped) {
+      setShipperLocationScope(detail.defaultLocation);
+    } else {
+      setShipperLocationScope('همه انبارها و کارخانجات');
+    }
+    if (detail.hasApprovalLimit) {
+      setShipperApprovalLimitToman(detail.defaultApprovalLimitToman);
+    } else {
+      setShipperApprovalLimitToman(0);
+    }
+
+    // Auto navigate to a valid tab if current tab is not allowed for this role
+    if (!detail.allowedTabs.includes(activeTab)) {
+      setActiveTab(detail.allowedTabs[0] as any);
+    }
+  };
+
   const navigationItems = [
     { id: 'dashboard', label: 'داشبورد اصلی', icon: LayoutDashboard, badge: undefined },
     { id: 'quote', label: 'استعلام و ثبت سفارش', icon: Calculator, badge: 'نرخ آنی' },
@@ -97,17 +145,34 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
     { id: 'billing', label: 'امور مالی و صورتحساب‌ها', icon: Receipt, badge: undefined },
     { id: 'master_data', label: 'اطلاعات پایه و انبارها', icon: BookOpen, badge: undefined },
     { id: 'analytics', label: 'گزارش‌ها و تحلیل‌ها', icon: BarChart3, badge: undefined },
-    { id: 'settings', label: 'تنظیمات و کاربران', icon: Settings, badge: undefined },
+    { id: 'settings', label: 'تنظیمات و تیم سازمانی', icon: Settings, badge: undefined },
   ];
 
+  // Allowed roles dictionary for each tab to inform users who can access locked tabs
+  const tabAllowedRolesMap: Record<string, string[]> = {
+    dashboard: ['مدیر ارشد زنجیره تامین و لجستیک', 'کارشناس لجستیک و هماهنگی بار', 'مدیر مالی و امور حسابداری'],
+    quote: ['مدیر ارشد زنجیره تامین و لجستیک', 'کارشناس لجستیک و هماهنگی بار'],
+    batch_orders: ['مدیر ارشد زنجیره تامین و لجستیک', 'کارشناس لجستیک و هماهنگی بار'],
+    shipments: ['مدیر ارشد زنجیره تامین و لجستیک', 'کارشناس لجستیک و هماهنگی بار', 'مسئول انبار / اپراتور اعزام بار'],
+    support: ['مدیر ارشد زنجیره تامین و لجستیک', 'کارشناس لجستیک و هماهنگی بار', 'مسئول انبار / اپراتور اعزام بار'],
+    contracts: ['مدیر ارشد زنجیره تامین و لجستیک', 'مدیر مالی و امور حسابداری'],
+    billing: ['مدیر ارشد زنجیره تامین و لجستیک', 'مدیر مالی و امور حسابداری'],
+    master_data: ['مدیر ارشد زنجیره تامین و لجستیک', 'کارشناس لجستیک و هماهنگی بار', 'مسئول انبار / اپراتور اعزام بار'],
+    analytics: ['مدیر ارشد زنجیره تامین و لجستیک', 'مدیر مالی و امور حسابداری'],
+    settings: ['مدیر ارشد زنجیره تامین و لجستیک', 'مدیر مالی و امور حسابداری'],
+  };
+
+  const isCurrentTabAllowed = currentRoleDetail.allowedTabs.includes(activeTab);
+  const currentTabItem = navigationItems.find((item) => item.id === activeTab);
+
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-800 flex flex-col antialiased selection:bg-teal-500/20 selection:text-teal-900">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-800 flex flex-col antialiased selection:bg-sky-500/20 selection:text-sky-900">
       {/* 1. Shipper Minimal Header */}
       <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-sky-100 shadow-xs">
         <div className="w-full max-w-[98%] 2xl:max-w-[1700px] mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
           {/* Logo & Portal Identity */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-sky-500 to-teal-600 text-white flex items-center justify-center font-black text-base shadow-xs">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-sky-600 to-teal-600 text-white flex items-center justify-center font-black text-base shadow-xs">
               <Truck className="w-5 h-5" />
             </div>
             <div>
@@ -120,53 +185,72 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
                 </span>
               </div>
               <p className="text-[11px] text-slate-500">
-                {currentShipperOrg?.nameFa || userOrgName || 'شرکت فولاد مبارکه اصفهان'} • سامانه لجستیک شرکتی
+                {userOrgName || currentShipperOrg?.nameFa || 'شرکت صاحب بار'} • سامانه مدیریت لجستیک شرکتی
               </p>
             </div>
           </div>
 
-          {/* Center: Quick Credit Badge & Org Identity Badge (Static - Isolated Data) */}
-          <div className="hidden md:flex items-center gap-3 bg-slate-50/80 px-3 py-1.5 rounded-xl border border-sky-100">
+          {/* Center: Org & Active Role Badge */}
+          <div className="hidden md:flex items-center gap-3 bg-slate-50/90 px-3.5 py-1.5 rounded-2xl border border-sky-100/80">
             <div
               id="shipper-header-org-identity"
-              className="flex items-center gap-1.5 px-2.5 py-1 bg-white text-slate-800 text-xs font-bold rounded-lg border border-slate-200"
+              className="flex items-center gap-1.5 px-2.5 py-1 bg-white text-slate-800 text-xs font-bold rounded-xl border border-slate-200"
               title="شرکت صاحب بار فعال احراز هویت شده"
             >
               <Building2 className="w-3.5 h-3.5 text-sky-600 shrink-0" />
-              <span className="truncate max-w-[160px]">{currentShipperOrg?.nameFa || userOrgName || 'شرکت صاحب بار'}</span>
+              <span className="truncate max-w-[180px]">{userOrgName || currentShipperOrg?.nameFa || 'شرکت صاحب بار'}</span>
             </div>
+
             <span className="text-slate-300">|</span>
-            <div className="flex items-center gap-1.5 text-xs text-slate-600">
-              <Wallet className="w-4 h-4 text-sky-600" />
-              <span>اعتبار فعال:</span>
-              <strong className="font-mono text-slate-900 font-bold">
-                {((currentShipperOrg?.tierInfo?.availableCreditRials || 0) / 10).toLocaleString('fa-IR')} تومان
-              </strong>
+
+            {/* Active Role Indicator */}
+            <div className="flex items-center gap-1.5 text-xs text-sky-900 bg-sky-50 px-2.5 py-1 rounded-xl border border-sky-200">
+              <Briefcase className="w-3.5 h-3.5 text-sky-600" />
+              <span className="font-bold">{currentRoleDetail.titleFa}</span>
             </div>
-            <span className="text-slate-300">|</span>
-            <div className="flex items-center gap-1 text-[11px] text-emerald-700 font-bold">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>تخفیف {currentShipperOrg?.tierInfo?.currentDiscountPercent || 8.5}٪</span>
-            </div>
+
+            {/* Location Scope Indicator for Warehouse Operator */}
+            {currentRoleDetail.locationScoped && (
+              <>
+                <span className="text-slate-300">|</span>
+                <div className="flex items-center gap-1 text-[11px] text-amber-900 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-200 font-bold truncate max-w-[200px]">
+                  <Warehouse className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span className="truncate">{shipperLocationScope}</span>
+                </div>
+              </>
+            )}
+
+            {/* Financial Approval Limit for Specialist */}
+            {currentRoleDetail.hasApprovalLimit && (
+              <>
+                <span className="text-slate-300">|</span>
+                <div className="flex items-center gap-1 text-[11px] text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200 font-mono font-bold">
+                  <DollarSign className="w-3 h-3 text-emerald-600" />
+                  <span>سقف: {(shipperApprovalLimitToman / 1000000).toLocaleString('fa-IR')} م تومان</span>
+                </div>
+              </>
+            )}
           </div>
 
-          {/* Right Controls: Quick Quote + AI CoPilot Button + Minimal User Menu */}
+          {/* Right Controls: Quick Quote + AI CoPilot Button + User Menu */}
           <div className="flex items-center gap-3 shrink-0">
-            {/* Quick Price Inquiry Button - Emerald Green CTA */}
-            <button
-              type="button"
-              id="btn-shipper-header-quote"
-              onClick={() => setActiveTab('quote')}
-              className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl border transition-all duration-150 cursor-pointer shadow-2xs hover:shadow-xs ${
-                activeTab === 'quote'
-                  ? 'bg-emerald-600 text-white border-emerald-700 shadow-xs'
-                  : 'bg-white hover:bg-emerald-50/70 text-slate-700 hover:text-emerald-900 border-slate-200 hover:border-emerald-300'
-              }`}
-              title="استعلام فوری نرخ کرایه و ثبت سفارش حمل بار"
-            >
-              <Calculator className={`w-4 h-4 ${activeTab === 'quote' ? 'text-white' : 'text-emerald-600'}`} />
-              <span className="hidden sm:inline">استعلام قیمت</span>
-            </button>
+            {/* Quick Price Inquiry Button */}
+            {currentRoleDetail.canCreateOrders && (
+              <button
+                type="button"
+                id="btn-shipper-header-quote"
+                onClick={() => setActiveTab('quote')}
+                className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl border transition-all duration-150 cursor-pointer shadow-2xs hover:shadow-xs ${
+                  activeTab === 'quote'
+                    ? 'bg-emerald-600 text-white border-emerald-700 shadow-xs'
+                    : 'bg-white hover:bg-emerald-50/70 text-slate-700 hover:text-emerald-900 border-slate-200 hover:border-emerald-300'
+                }`}
+                title="استعلام فوری نرخ کرایه و ثبت سفارش حمل بار"
+              >
+                <Calculator className={`w-4 h-4 ${activeTab === 'quote' ? 'text-white' : 'text-emerald-600'}`} />
+                <span className="hidden sm:inline">استعلام قیمت</span>
+              </button>
+            )}
 
             {/* AI Assistant Button */}
             <div className="relative group">
@@ -180,17 +264,11 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
                 <Bot className="w-4.5 h-4.5 text-white" />
                 <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-white" />
               </button>
-
-              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 hidden group-hover:flex flex-col items-center z-50 pointer-events-none">
-                <div className="bg-slate-900 text-white text-[11px] font-medium px-2.5 py-1 rounded-lg shadow-lg whitespace-nowrap">
-                  دستیار هوشمند استعلام بار
-                </div>
-              </div>
             </div>
 
             <div className="h-5 w-px bg-slate-200" />
 
-            {/* Minimal User Profile Dropdown */}
+            {/* User Profile & Role Switcher Dropdown */}
             <div className="relative" ref={userDropdownRef}>
               <button
                 type="button"
@@ -207,10 +285,10 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
                 </div>
                 <div className="text-right hidden sm:block">
                   <div className="font-bold text-slate-800 text-xs leading-tight">
-                    {userName || 'مهندس اکبری'}
+                    {userName || currentRoleDetail.defaultUserName}
                   </div>
                   <div className="text-[10px] text-sky-800 font-medium leading-tight">
-                    مدیر ارشد تدارکات
+                    {currentRoleDetail.titleFa}
                   </div>
                 </div>
                 <motion.div
@@ -230,41 +308,84 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 6, scale: 0.97 }}
                     transition={{ duration: 0.18, ease: 'easeOut' }}
-                    className="absolute left-0 mt-2.5 w-84 sm:w-92 bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-2xl shadow-xl p-3.5 z-50 space-y-3"
+                    className="absolute left-0 mt-2.5 w-88 sm:w-96 bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-3xl shadow-2xl p-4 z-50 space-y-3.5 text-xs"
                   >
                     {/* User Identity Card */}
-                    <div className="p-3 bg-slate-50/90 rounded-xl border border-slate-200/80 space-y-2">
+                    <div className="p-3.5 bg-[#F8FAFC] rounded-2xl border border-sky-100 space-y-2.5">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-teal-600 text-white font-bold text-base flex items-center justify-center shrink-0 shadow-xs">
+                        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-sky-600 to-teal-600 text-white font-bold text-base flex items-center justify-center shrink-0 shadow-xs">
                           {userName ? userName.substring(0, 1) : 'ص'}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="text-xs font-bold text-slate-900 truncate">
-                            {userName || 'مهندس جواد اکبری'}
+                            {userName || currentRoleDetail.defaultUserName}
                           </div>
-                          <div className="text-[11px] text-sky-800 font-medium truncate mt-0.5">
-                            مدیر ارشد تدارکات و لجستیک سازمانی
+                          <div className="text-[11px] text-sky-800 font-bold truncate mt-0.5">
+                            {currentRoleDetail.titleFa}
                           </div>
                           <div className="text-[10px] text-slate-500 font-mono truncate mt-0.5 flex items-center gap-1">
                             <Mail className="w-3 h-3 text-slate-400 shrink-0" />
-                            <span>{userEmail || 'j.akbari@steel-msc.ir'}</span>
+                            <span>{userEmail || currentRoleDetail.defaultUserEmail}</span>
                           </div>
                         </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200/70 text-[10px]">
-                        <div className="bg-white p-2 rounded-lg border border-slate-100">
+                        <div className="bg-white p-2 rounded-xl border border-slate-100">
                           <span className="text-slate-400 block font-medium">سازمان:</span>
                           <span className="text-slate-800 font-bold block truncate">
-                            {userOrgName || 'فولاد مبارکه اصفهان'}
+                            {userOrgName || currentShipperOrg?.nameFa || 'شرکت صاحب بار'}
                           </span>
                         </div>
-                        <div className="bg-white p-2 rounded-lg border border-slate-100">
-                          <span className="text-slate-400 block font-medium">رده تخفیف:</span>
-                          <span className="text-emerald-700 font-bold block truncate">
-                            پله طلایی (۸.۵٪)
+                        <div className="bg-white p-2 rounded-xl border border-slate-100">
+                          <span className="text-slate-400 block font-medium">سطح دسترسی:</span>
+                          <span className="text-sky-800 font-bold block truncate">
+                            {currentRoleDetail.levelBadge}
                           </span>
                         </div>
+                      </div>
+                    </div>
+
+                    {/* Quick Role Switcher (Persona Testing) */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="font-bold text-slate-800 flex items-center gap-1">
+                          <Users className="w-3.5 h-3.5 text-sky-600" />
+                          تغییر نقش کاربری جهت شبیه‌سازی دسترسی‌ها:
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-1.5">
+                        {SHIPPER_ROLE_DETAILS.map((r) => {
+                          const isCurrent = shipperUserRole === r.role;
+                          return (
+                            <button
+                              key={r.id}
+                              type="button"
+                              onClick={() => handleRoleSwitch(r.role)}
+                              className={`w-full p-2 rounded-xl border text-right transition-all flex items-center justify-between cursor-pointer ${
+                                isCurrent
+                                  ? 'bg-sky-50 border-sky-400 font-bold text-sky-950 shadow-2xs'
+                                  : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2">
+                                <div
+                                  className={`w-2 h-2 rounded-full ${
+                                    isCurrent ? 'bg-sky-600 ring-2 ring-sky-300' : 'bg-slate-300'
+                                  }`}
+                                />
+                                <div>
+                                  <div className="text-xs">{r.titleFa}</div>
+                                  <div className="text-[10px] text-slate-400 font-mono">{r.titleEn}</div>
+                                </div>
+                              </div>
+                              <span className="text-[9px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">
+                                {r.levelBadge}
+                              </span>
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
 
@@ -279,7 +400,7 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
                         className="flex-1 py-2 px-3 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                       >
                         <Settings className="w-3.5 h-3.5 text-slate-500" />
-                        <span>تنظیمات حساب</span>
+                        <span>مدیریت تیم و دسترسی‌ها</span>
                       </button>
 
                       <button
@@ -302,6 +423,32 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
             </div>
           </div>
         </div>
+
+        {/* Top Role Governance Banner */}
+        <div className="w-full bg-gradient-to-r from-sky-50 via-teal-50 to-sky-50 border-t border-b border-sky-100/80 px-4 py-1.5 text-xs flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-sky-950 flex items-center gap-1">
+              <ShieldCheck className="w-4 h-4 text-sky-600" />
+              نقش فعال: {currentRoleDetail.titleFa}
+            </span>
+            <span className="text-slate-400">•</span>
+            <span className="text-slate-600 text-[11px]">{currentRoleDetail.accessScopeFa}</span>
+          </div>
+
+          {currentRoleDetail.locationScoped && (
+            <div className="flex items-center gap-1.5 text-amber-900 bg-amber-100/70 px-2 py-0.5 rounded-lg font-medium text-[11px]">
+              <Warehouse className="w-3.5 h-3.5 text-amber-700" />
+              <span>موقعیت تحت نظارت: <strong>{shipperLocationScope}</strong> (تنها بارهای این انبار فیلتر و نمایش داده می‌شوند)</span>
+            </div>
+          )}
+
+          {currentRoleDetail.hasApprovalLimit && (
+            <div className="flex items-center gap-1.5 text-emerald-900 bg-emerald-100/70 px-2 py-0.5 rounded-lg font-medium text-[11px]">
+              <DollarSign className="w-3.5 h-3.5 text-emerald-700" />
+              <span>سقف تصویب مستقیم: <strong>{(shipperApprovalLimitToman / 1000000).toLocaleString('fa-IR')} میلیون تومان</strong> (مبالغ بالاتر نیازمند تایید مدیر است)</span>
+            </div>
+          )}
+        </div>
       </header>
 
       {/* 2. Main Body with Navigation Sidebar + Central Views */}
@@ -312,11 +459,11 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
             isSidebarCompact ? 'w-full lg:w-20' : 'w-full lg:w-68'
           }`}
         >
-          <div className="bg-white rounded-3xl border border-slate-200/90 shadow-xs p-3 space-y-2 sticky top-20 backdrop-blur-xs">
+          <div className="bg-white rounded-3xl border border-slate-200/90 shadow-xs p-3 space-y-2 sticky top-28 backdrop-blur-xs">
             <div className="px-2 py-1.5 flex items-center justify-between border-b border-slate-100 mb-1">
               {!isSidebarCompact ? (
                 <span className="text-[11px] font-bold text-sky-900/60 uppercase tracking-wider font-mono">
-                  بخش‌های پرتال صاحب بار
+                  بخش‌های پورتال صاحب بار
                 </span>
               ) : (
                 <span className="text-[10px] font-bold font-mono text-slate-400 mx-auto">منو</span>
@@ -335,23 +482,58 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
               {navigationItems.map((item) => {
                 const Icon = item.icon;
                 const isSelected = activeTab === item.id;
+                const isAllowed = currentRoleDetail.allowedTabs.includes(item.id);
+
                 return (
                   <button
                     key={item.id}
                     type="button"
                     onClick={() => setActiveTab(item.id as any)}
-                    title={isSidebarCompact ? item.label : undefined}
+                    title={
+                      isSidebarCompact
+                        ? isAllowed
+                          ? item.label
+                          : `${item.label} (قفل برای نقش ${currentRoleDetail.titleFa})`
+                        : undefined
+                    }
                     className={`w-full flex items-center justify-between p-2.5 rounded-2xl text-xs font-bold transition-all duration-150 cursor-pointer text-right ${
                       isSelected
-                        ? 'bg-gradient-to-r from-sky-600 to-teal-600 text-white shadow-xs'
-                        : 'text-slate-600 hover:bg-sky-50/60 hover:text-sky-950'
+                        ? isAllowed
+                          ? 'bg-gradient-to-r from-sky-600 to-teal-600 text-white shadow-xs'
+                          : 'bg-slate-800 text-amber-300 shadow-xs border border-slate-700'
+                        : isAllowed
+                        ? 'text-slate-700 hover:bg-sky-50/60 hover:text-sky-950'
+                        : 'text-slate-400 hover:bg-slate-100/80 hover:text-slate-600 opacity-75'
                     }`}
                   >
                     <div className={`flex items-center ${isSidebarCompact ? 'justify-center w-full' : 'gap-2.5'}`}>
-                      <Icon className={`w-4 h-4 shrink-0 ${isSelected ? 'text-white' : 'text-sky-700'}`} />
-                      {!isSidebarCompact && <span>{item.label}</span>}
+                      <Icon
+                        className={`w-4 h-4 shrink-0 ${
+                          isSelected
+                            ? isAllowed
+                              ? 'text-white'
+                              : 'text-amber-400'
+                            : isAllowed
+                            ? 'text-sky-700'
+                            : 'text-slate-400'
+                        }`}
+                      />
+                      {!isSidebarCompact && (
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="truncate">{item.label}</span>
+                          {!isAllowed && (
+                            <span
+                              title={`دسترسی برای نقش ${currentRoleDetail.titleFa} قفل است`}
+                              className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-700 border border-amber-500/20 font-normal shrink-0"
+                            >
+                              <Lock className="w-2.5 h-2.5" />
+                              قفل
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
-                    {!isSidebarCompact && item.badge && (
+                    {!isSidebarCompact && item.badge && isAllowed && (
                       <span
                         className={`text-[10px] px-2 py-0.5 rounded-full font-mono ${
                           isSelected
@@ -367,17 +549,22 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
               })}
             </nav>
 
-            {/* Quick Support Call Box */}
+            {/* Active User Persona Widget in Sidebar Bottom */}
             {!isSidebarCompact && (
-              <div className="mt-4 pt-3 border-t border-slate-100 px-1 space-y-1.5">
-                <div className="text-[11px] text-slate-400 font-medium">پشتیبانی اختصاصی لجستیک:</div>
-                <a
-                  href="tel:02188000000"
-                  className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 hover:bg-sky-50 text-slate-700 hover:text-sky-950 border border-slate-200/80 text-xs font-bold transition-colors"
-                >
-                  <Phone className="w-3.5 h-3.5 text-sky-600" />
-                  <span className="font-mono">۰۲۱-۸۸۰۰۰۰۰۰</span>
-                </a>
+              <div className="mt-4 pt-3 border-t border-slate-100 px-2 space-y-2">
+                <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center justify-between">
+                  <span>نقش و اختیارات جاری</span>
+                  <span className="text-sky-700 font-mono text-[9px] font-bold">
+                    {currentRoleDetail.allowedTabs.length}/{navigationItems.length} بخش مجاز
+                  </span>
+                </div>
+                <div className="p-2.5 bg-[#F8FAFC] border border-sky-100 rounded-2xl space-y-1 text-xs">
+                  <div className="font-bold text-slate-800 truncate">{currentRoleDetail.titleFa}</div>
+                  <div className="text-[10px] text-slate-500 font-mono">{currentRoleDetail.titleEn}</div>
+                  <div className="text-[10px] text-sky-800 font-medium mt-1">
+                    {currentRoleDetail.departmentFa}
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -385,74 +572,90 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
 
         {/* Central View Switcher */}
         <main className="flex-1 min-w-0 w-full">
-          {activeTab === 'dashboard' && (
-            <ShipperDashboardView
-              onNavigateTab={(tab) => setActiveTab(tab as any)}
-              onSelectShipmentToTrack={(shipment) => {
-                setSelectedShipmentForTracking(shipment);
-                setActiveTab('shipments');
-              }}
-              activeLoads={activeLoads}
+          {!isCurrentTabAllowed ? (
+            <RoleAccessGuard
+              sectionTitleFa={currentTabItem?.label || activeTab}
+              currentRoleTitleFa={currentRoleDetail.titleFa}
+              currentRoleTitleEn={currentRoleDetail.titleEn}
+              departmentFa={currentRoleDetail.departmentFa}
+              dutiesFa={currentRoleDetail.dutiesFa}
+              allowedRolesForSection={tabAllowedRolesMap[activeTab] || []}
+              onBackToAllowed={() => setActiveTab(currentRoleDetail.allowedTabs[0] as any)}
+              onOpenRoleSwitcher={() => setIsUserDropdownOpen(true)}
+              isShipper={true}
             />
+          ) : (
+            <>
+              {activeTab === 'dashboard' && (
+                <ShipperDashboardView
+                  onNavigateTab={(tab) => setActiveTab(tab as any)}
+                  onSelectShipmentToTrack={(shipment) => {
+                    setSelectedShipmentForTracking(shipment);
+                    setActiveTab('shipments');
+                  }}
+                  activeLoads={activeLoads}
+                />
+              )}
+
+              {activeTab === 'quote' && (
+                <ShipperQuoteBookingView
+                  onOrderCreated={(newLoad) => {
+                    if (newLoad) {
+                      setActiveLoads((prev) => [newLoad, ...prev]);
+                      setSelectedShipmentForTracking(newLoad);
+                    }
+                  }}
+                  onNavigateTab={(tab) => setActiveTab(tab as any)}
+                />
+              )}
+
+              {activeTab === 'batch_orders' && (
+                <ShipperBatchOrdersView
+                  onNavigateTab={(tab) => setActiveTab(tab as any)}
+                  onBatchSubmitted={(count, createdLoads) => {
+                    if (createdLoads && createdLoads.length > 0) {
+                      setActiveLoads((prev) => [...createdLoads, ...prev]);
+                      setSelectedShipmentForTracking(createdLoads[0]);
+                    }
+                  }}
+                />
+              )}
+
+              {activeTab === 'shipments' && (
+                <ShipperShipmentsView
+                  initialSelectedShipment={selectedShipmentForTracking}
+                  loads={activeLoads}
+                  onNavigateTab={(tab) => setActiveTab(tab as any)}
+                  onNavigateToSupport={(loadId, ticketId) => {
+                    setSelectedLoadForSupport(loadId);
+                    setSelectedTicketForSupport(ticketId || null);
+                    setActiveTab('support');
+                  }}
+                />
+              )}
+
+              {activeTab === 'support' && (
+                <ShipperSupportIncidentsView
+                  initialPreselectedLoadId={selectedLoadForSupport}
+                  initialSelectedTicketId={selectedTicketForSupport}
+                  onNavigateToTracking={(load) => {
+                    setSelectedShipmentForTracking(load);
+                    setActiveTab('shipments');
+                  }}
+                />
+              )}
+
+              {activeTab === 'contracts' && <ShipperContractsView />}
+
+              {activeTab === 'billing' && <ShipperBillingView />}
+
+              {activeTab === 'master_data' && <ShipperMasterDataView />}
+
+              {activeTab === 'analytics' && <ShipperAnalyticsView />}
+
+              {activeTab === 'settings' && <ShipperSettingsView />}
+            </>
           )}
-
-          {activeTab === 'quote' && (
-            <ShipperQuoteBookingView
-              onOrderCreated={(newLoad) => {
-                if (newLoad) {
-                  setActiveLoads((prev) => [newLoad, ...prev]);
-                  setSelectedShipmentForTracking(newLoad);
-                }
-              }}
-              onNavigateTab={(tab) => setActiveTab(tab as any)}
-            />
-          )}
-
-          {activeTab === 'batch_orders' && (
-            <ShipperBatchOrdersView
-              onNavigateTab={(tab) => setActiveTab(tab as any)}
-              onBatchSubmitted={(count, createdLoads) => {
-                if (createdLoads && createdLoads.length > 0) {
-                  setActiveLoads((prev) => [...createdLoads, ...prev]);
-                  setSelectedShipmentForTracking(createdLoads[0]);
-                }
-              }}
-            />
-          )}
-
-          {activeTab === 'shipments' && (
-            <ShipperShipmentsView
-              initialSelectedShipment={selectedShipmentForTracking}
-              loads={activeLoads}
-              onNavigateTab={(tab) => setActiveTab(tab as any)}
-              onNavigateToSupport={(loadId, ticketId) => {
-                setSelectedLoadForSupport(loadId);
-                setSelectedTicketForSupport(ticketId || null);
-                setActiveTab('support');
-              }}
-            />
-          )}
-
-          {activeTab === 'support' && (
-            <ShipperSupportIncidentsView
-              initialPreselectedLoadId={selectedLoadForSupport}
-              initialSelectedTicketId={selectedTicketForSupport}
-              onNavigateToTracking={(load) => {
-                setSelectedShipmentForTracking(load);
-                setActiveTab('shipments');
-              }}
-            />
-          )}
-
-          {activeTab === 'contracts' && <ShipperContractsView />}
-
-          {activeTab === 'billing' && <ShipperBillingView />}
-
-          {activeTab === 'master_data' && <ShipperMasterDataView />}
-
-          {activeTab === 'analytics' && <ShipperAnalyticsView />}
-
-          {activeTab === 'settings' && <ShipperSettingsView />}
         </main>
       </div>
 

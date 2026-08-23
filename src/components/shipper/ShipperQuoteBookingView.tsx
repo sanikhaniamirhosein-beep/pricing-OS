@@ -19,8 +19,10 @@ import {
 } from 'lucide-react';
 import { usePricing } from '../../store/PricingContext';
 import { INITIAL_SAVED_LOCATIONS, INITIAL_SAVED_COMMODITIES, ShipperActiveLoad } from '../../data/mockShipperData';
+import { getShipperRoleDetail } from '../../data/shipperRolesConfig';
 import { CityPickerDropdown } from '../common/menus/CityPickerDropdown';
 import { CommodityPickerDropdown } from '../common/menus/CommodityPickerDropdown';
+import { AlertTriangle, Lock, Users, Warehouse } from 'lucide-react';
 
 interface ShipperQuoteBookingViewProps {
   onOrderCreated?: (newLoad: ShipperActiveLoad) => void;
@@ -31,7 +33,16 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
   onOrderCreated,
   onNavigateTab,
 }) => {
-  const { calculatePrice, userName, userOrgName } = usePricing();
+  const {
+    calculatePrice,
+    userName,
+    userOrgName,
+    shipperUserRole,
+    shipperLocationScope,
+    shipperApprovalLimitToman,
+  } = usePricing();
+
+  const currentRoleDetail = getShipperRoleDetail(shipperUserRole);
 
   // Route specs
   const [originCity, setOriginCity] = useState('اصفهان');
@@ -476,12 +487,19 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
     setDestPostalCode(loc.postalCode);
   };
 
+  // Financial Approval logic check
+  const requiresApproval =
+    currentRoleDetail.hasApprovalLimit &&
+    shipperApprovalLimitToman > 0 &&
+    finalPayableToman > shipperApprovalLimitToman;
+
   // Handle Book Now Finalization
   const handleFinalizeBooking = () => {
     setIsSubmitting(true);
     setTimeout(() => {
       const newTracking = `TRK-${Math.floor(100000 + Math.random() * 900000)}`;
       const newBL = `BL-1403-${Math.floor(1000 + Math.random() * 9000)}`;
+      
       const newLoad: ShipperActiveLoad = {
         id: `SHP-${Math.floor(10000 + Math.random() * 90000)}`,
         trackingCode: newTracking,
@@ -493,11 +511,13 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
         cargoType: cargoTitle,
         weightTons,
         truckType: selectedTruck,
-        driverName: 'در حال تخصیص راننده خودکار',
-        driverPhone: '۰۹۱۲۰۰۰۰۰۰۰',
-        truckPlate: 'پلاک در حال صدور',
-        status: 'pending_driver',
-        statusLabelFa: 'سفارش قطعی ثبت شد (در صف تخصیص)',
+        driverName: requiresApproval ? 'در انتظار تأیید مدیریت' : 'در حال تخصیص راننده خودکار',
+        driverPhone: requiresApproval ? '-' : '۰۹۱۲۰۰۰۰۰۰۰',
+        truckPlate: requiresApproval ? 'پس از تایید مالی' : 'پلاک در حال صدور',
+        status: requiresApproval ? ('pending_approval' as any) : 'pending_driver',
+        statusLabelFa: requiresApproval
+          ? `نیازمند تایید مدیر ارشد (مبلغ > ${(shipperApprovalLimitToman / 1000000).toLocaleString('fa-IR')} م)`
+          : 'سفارش قطعی ثبت شد (در صف تخصیص)',
         departureTime: '۱۴۰۳/۰۶/۰۲ - ۰۹:۰۰',
         estimatedArrival: '۱۴۰۳/۰۶/۰۲ - ۱۸:۰۰',
         progressPercent: 0,
@@ -1110,18 +1130,40 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
               </div>
             </div>
 
-            {/* Action Buttons: Book Now - Emerald Green CTA */}
+            {/* Financial Approval Warning if exceeds limit */}
+            {requiresApproval && (
+              <div className="p-3 bg-amber-50 rounded-2xl border border-amber-300 text-amber-900 space-y-1 text-xs">
+                <div className="flex items-center gap-1.5 font-bold text-amber-950">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>نیازمند گردش‌کار تأیید مدیریت (Approval Workflow)</span>
+                </div>
+                <p className="text-[11px] leading-relaxed text-amber-800">
+                  مبلغ این استعلام بالاتر از سقف تایید مستقیم نقش شما ({(shipperApprovalLimitToman / 1000000).toLocaleString('fa-IR')} میلیون تومان) است. سفارش پس از ثبت به کارتابل مدیر ارشد لجستیک ارسال می‌گردد.
+                </p>
+              </div>
+            )}
+
+            {/* Action Buttons: Book Now */}
             <div className="space-y-2 pt-2">
               <button
                 type="button"
                 onClick={handleFinalizeBooking}
                 disabled={isSubmitting}
-                className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white rounded-2xl font-bold flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20 transition-all cursor-pointer text-sm disabled:opacity-50"
+                className={`w-full py-3.5 ${
+                  requiresApproval
+                    ? 'bg-amber-600 hover:bg-amber-700 shadow-amber-600/20'
+                    : 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/20'
+                } active:scale-[0.99] text-white rounded-2xl font-bold flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer text-sm disabled:opacity-50`}
               >
                 {isSubmitting ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>در حال صدور بارنامه الکترونیک...</span>
+                    <span>در حال پردازش سفارش...</span>
+                  </>
+                ) : requiresApproval ? (
+                  <>
+                    <Send className="w-4 h-4" />
+                    <span>ارسال جهت بررسی و تایید مدیر ارشد لجستیک</span>
                   </>
                 ) : (
                   <>

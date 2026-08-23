@@ -28,6 +28,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { usePricing } from '../../store/PricingContext';
 import { UserRole } from '../../types/pricing';
+import { CARRIER_ROLE_DETAILS, getRoleDetail } from '../../data/carrierRolesConfig';
 
 interface HeaderProps {
   onToggleAiCoPilot: () => void;
@@ -107,97 +108,30 @@ export const Header: React.FC<HeaderProps> = ({
     descFa: '',
   };
 
-  const roleDetails: Record<
-    UserRole,
-    {
-      titleFa: string;
-      departmentFa: string;
-      permissionLevelFa: string;
-      accessBadge: string;
-      governanceScope: string;
-      levelBadge: string;
-    }
-  > = {
-    'Pricing Strategist': {
-      titleFa: 'مدیر ارشد قیمت‌گذاری و استراتژی تعرفه',
-      departmentFa: 'معاونت بازرگانی و حمل‌ونقل',
-      permissionLevelFa: 'دسترسی ایجاد، ویرایش و کالیبراسیون فرمول‌های تعرفه',
-      accessBadge: 'طراح تعرفه (Maker)',
-      governanceScope: 'طراحی بسته تعرفه، شبیه‌سازی ماتریس و ایجاد پیشنهاد',
-      levelBadge: 'سطح ۴ ارشد',
-    },
-    'Commercial Manager': {
-      titleFa: 'مدیر تجاری و قراردادهای لجستیک',
-      departmentFa: 'واحد بازرگانی و فروش سازمانی',
-      permissionLevelFa: 'تایید شرایط اختصاصی، پلن تخفیفات و قراردادهای حجمی',
-      accessBadge: 'ناظر تجاری',
-      governanceScope: 'تخفیف‌های مشتریان خاص و تایید سبد خدمات',
-      levelBadge: 'سطح ۳ مدیر',
-    },
-    'Contract Manager': {
-      titleFa: 'مدیر امور قراردادها و تعهدات تناژ',
-      departmentFa: 'امور حقوقی و قراردادهای عمده',
-      permissionLevelFa: 'تنظیم و نظارت بر تعهدات تناژ ماهانه مشتریان الماس و پلاتین',
-      accessBadge: 'قراردادها',
-      governanceScope: 'ثبت و پایش SLA و جرائم تاخیر بارگیری',
-      levelBadge: 'سطح ۳ مدیر',
-    },
-    'Finance Controller': {
-      titleFa: 'معاونت مالی و کنترل سود عملیاتی',
-      departmentFa: 'معاونت مالی و کنترل ریسک سازمانی',
-      permissionLevelFa: 'نظارت بر کف حاشیه سود ۱۵٪، ضریب گازوئیل و جلوگیری از زیان',
-      accessBadge: 'کنترلر مالی',
-      governanceScope: 'اعمال گاردریل حاشیه سود و بررسی نشت تخفیف',
-      levelBadge: 'سطح ۵ ارشد مالی',
-    },
-    'Governance Approver': {
-      titleFa: 'کمیته حاکمیت و تصویب نهایی استراتژی',
-      departmentFa: 'هیئت‌مدیره و کمیته ریسک راهبردی',
-      permissionLevelFa: 'تصویب دوطرفه و انتشار بسته تعرفه به پروداکشن (Checker)',
-      accessBadge: 'تصویب‌کننده نهایی (Checker)',
-      governanceScope: 'بررسی ایمپکت سیستمی، گیت ارزیابی و استقرار نهایی',
-      levelBadge: 'سطح ۶ حاکمیتی',
-    },
-    'Key Account Manager': {
-      titleFa: 'مدیر حساب مشتریان کلیدی و بنادر',
-      departmentFa: 'واحد پشتیبانی و مدیریت مشتریان استراتژیک',
-      permissionLevelFa: 'مدیریت سفارشات پتروشیمی، صنایع فولاد و بنادر اصلی',
-      accessBadge: 'مشتریان عمده',
-      governanceScope: 'ارائه نرخ‌های سفارشی و رزرواسیون ناوگان خطی',
-      levelBadge: 'سطح ۲ کارشناس',
-    },
-    'System Admin': {
-      titleFa: 'راهبر ارشد زیرساخت و امنیت سیستم',
-      departmentFa: 'مدیریت فناوری اطلاعات و زیرساخت سرورها',
-      permissionLevelFa: 'مدیریت کلیدهای API، کانکتورهای دولتی و استقرار بومی',
-      accessBadge: 'ادمین سیستم (SysAdmin)',
-      governanceScope: 'مدیریت کاربران، لاگ‌های تغییرات و دسترسی‌های امنیتی',
-      levelBadge: 'سطح ۷ دسترسی کل',
-    },
-  };
+  const currentRoleInfo = getRoleDetail(userRole);
 
-  const rolesList: UserRole[] = [
-    'Pricing Strategist',
-    'Commercial Manager',
-    'Contract Manager',
-    'Finance Controller',
-    'Governance Approver',
-    'Key Account Manager',
-    'System Admin',
-  ];
+  const primaryRoles = CARRIER_ROLE_DETAILS.filter((r) => r.category === 'primary');
+  const secondaryRoles = CARRIER_ROLE_DETAILS.filter((r) => r.category === 'secondary');
 
-  const filteredRoles = rolesList.filter((r) => {
+  const filteredPrimary = primaryRoles.filter((r) => {
     if (!roleSearch.trim()) return true;
-    const query = roleSearch.toLowerCase();
-    const info = roleDetails[r];
+    const q = roleSearch.toLowerCase();
     return (
-      r.toLowerCase().includes(query) ||
-      info.titleFa.toLowerCase().includes(query) ||
-      info.accessBadge.toLowerCase().includes(query)
+      r.titleFa.toLowerCase().includes(q) ||
+      r.titleEn.toLowerCase().includes(q) ||
+      r.accessScopeFa.toLowerCase().includes(q)
     );
   });
 
-  const currentRoleInfo = roleDetails[userRole];
+  const filteredSecondary = secondaryRoles.filter((r) => {
+    if (!roleSearch.trim()) return true;
+    const q = roleSearch.toLowerCase();
+    return (
+      r.titleFa.toLowerCase().includes(q) ||
+      r.titleEn.toLowerCase().includes(q) ||
+      r.accessScopeFa.toLowerCase().includes(q)
+    );
+  });
 
   return (
     <header className="relative bg-white border-b border-slate-200 text-slate-800 z-40 shadow-xs">
@@ -426,7 +360,7 @@ export const Header: React.FC<HeaderProps> = ({
                     {userName || 'کاربر سیستم'}
                   </div>
                   <div className="text-[10px] text-slate-500 font-medium leading-tight">
-                    {currentRoleInfo?.accessBadge || 'دسترسی سازمانی'}
+                    {currentRoleInfo?.levelBadge || 'دسترسی سازمانی'}
                   </div>
                 </div>
                 <motion.div
@@ -508,46 +442,112 @@ export const Header: React.FC<HeaderProps> = ({
                           />
                         </div>
 
-                        <div className="space-y-1 max-h-48 overflow-y-auto pr-0.5">
-                          {filteredRoles.map((role) => {
-                            const info = roleDetails[role];
-                            const isSelected = userRole === role;
-                            return (
-                              <button
-                                key={role}
-                                type="button"
-                                onClick={() => {
-                                  setUserRole(role);
-                                  setIsRoleDropdownOpen(false);
-                                }}
-                                className={`w-full text-right p-2 rounded-xl transition-all flex items-center justify-between cursor-pointer border ${
-                                  isSelected
-                                    ? 'bg-slate-900 text-white border-slate-800 font-bold shadow-xs'
-                                    : 'bg-white text-slate-800 border-transparent hover:bg-slate-50 hover:border-slate-200'
-                                }`}
-                              >
-                                <div className="space-y-0.5 min-w-0 flex-1">
-                                  <div className="flex items-center gap-1.5">
-                                    <span className="text-xs font-bold truncate">{info.titleFa}</span>
-                                    <span
-                                      className={`text-[9px] px-1.5 py-0.2 rounded font-medium shrink-0 ${
-                                        isSelected ? 'bg-amber-500 text-slate-950 font-bold' : 'bg-slate-100 text-slate-600'
-                                      }`}
-                                    >
-                                      {info.accessBadge}
-                                    </span>
-                                  </div>
-                                  <span className={`text-[10px] block truncate ${isSelected ? 'text-slate-300' : 'text-slate-500'}`}>
-                                    {info.permissionLevelFa}
-                                  </span>
-                                </div>
+                        <div className="space-y-3 max-h-64 overflow-y-auto pr-0.5">
+                          {/* Primary Roles Group */}
+                          {filteredPrimary.length > 0 && (
+                            <div className="space-y-1">
+                              <div className="flex items-center justify-between px-1 text-[10px] font-bold text-slate-500">
+                                <span>نقش‌های اصلی سازمان (الزامی)</span>
+                                <span className="bg-slate-200 text-slate-700 px-1.5 py-0.2 rounded text-[9px] font-mono">
+                                  {filteredPrimary.length} نقش
+                                </span>
+                              </div>
+                              {filteredPrimary.map((role) => {
+                                const isSelected = userRole === role.role;
+                                return (
+                                  <button
+                                    key={role.id}
+                                    type="button"
+                                    onClick={() => {
+                                      setUserRole(role.role);
+                                      setIsRoleDropdownOpen(false);
+                                    }}
+                                    className={`w-full text-right p-2 rounded-xl transition-all flex items-start justify-between cursor-pointer border ${
+                                      isSelected
+                                        ? 'bg-slate-900 text-white border-slate-800 font-bold shadow-xs'
+                                        : 'bg-white text-slate-800 border-slate-200 hover:bg-slate-50'
+                                    }`}
+                                  >
+                                    <div className="space-y-0.5 min-w-0 flex-1">
+                                      <div className="flex items-center gap-1.5">
+                                        <span className="text-xs font-bold truncate">{role.titleFa}</span>
+                                        <span
+                                          className={`text-[9px] px-1.5 py-0.2 rounded font-medium shrink-0 ${
+                                            isSelected ? 'bg-amber-500 text-slate-950 font-bold' : 'bg-slate-100 text-slate-600'
+                                          }`}
+                                        >
+                                          {role.levelBadge}
+                                        </span>
+                                      </div>
+                                      <span className={`text-[10px] block truncate ${isSelected ? 'text-slate-300' : 'text-slate-500'}`}>
+                                        دسترسی: {role.accessScopeFa}
+                                      </span>
+                                    </div>
 
-                                {isSelected && (
-                                  <Check className="w-4 h-4 text-amber-400 shrink-0 mr-1.5" />
-                                )}
-                              </button>
-                            );
-                          })}
+                                    {isSelected && (
+                                      <Check className="w-4 h-4 text-amber-400 shrink-0 mr-1.5 mt-0.5" />
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
+
+                          {/* Secondary Roles Group */}
+                          {filteredSecondary.length > 0 && (
+                            <div className="space-y-1 pt-1 border-t border-slate-100">
+                              <div className="flex items-center justify-between px-1 text-[10px] font-bold text-slate-500">
+                                <span>نقش‌های خاص و ثانویه (اختیاری)</span>
+                                <span className="bg-amber-100 text-amber-900 px-1.5 py-0.2 rounded text-[9px] font-mono">
+                                  {filteredSecondary.length} نقش
+                                </span>
+                              </div>
+                              {filteredSecondary.map((role) => {
+                                const isSelected = userRole === role.role;
+                                return (
+                                  <button
+                                    key={role.id}
+                                    type="button"
+                                    onClick={() => {
+                                      setUserRole(role.role);
+                                      setIsRoleDropdownOpen(false);
+                                    }}
+                                    className={`w-full text-right p-2 rounded-xl transition-all flex items-start justify-between cursor-pointer border ${
+                                      isSelected
+                                        ? 'bg-slate-900 text-white border-slate-800 font-bold shadow-xs'
+                                        : 'bg-white text-slate-800 border-slate-200 hover:bg-slate-50'
+                                    }`}
+                                  >
+                                    <div className="space-y-0.5 min-w-0 flex-1">
+                                      <div className="flex items-center gap-1.5">
+                                        <span className="text-xs font-bold truncate">{role.titleFa}</span>
+                                        <span
+                                          className={`text-[9px] px-1.5 py-0.2 rounded font-medium shrink-0 ${
+                                            isSelected ? 'bg-amber-500 text-slate-950 font-bold' : 'bg-slate-100 text-slate-600'
+                                          }`}
+                                        >
+                                          {role.levelBadge}
+                                        </span>
+                                      </div>
+                                      <span className={`text-[10px] block truncate ${isSelected ? 'text-slate-300' : 'text-slate-500'}`}>
+                                        دسترسی: {role.accessScopeFa}
+                                      </span>
+                                    </div>
+
+                                    {isSelected && (
+                                      <Check className="w-4 h-4 text-amber-400 shrink-0 mr-1.5 mt-0.5" />
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
+
+                          {filteredPrimary.length === 0 && filteredSecondary.length === 0 && (
+                            <div className="text-center py-4 text-xs text-slate-400">
+                              نقشی با این عنوان یافت نشد.
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}
@@ -564,22 +564,29 @@ export const Header: React.FC<HeaderProps> = ({
                           </div>
                           <div className="flex justify-between">
                             <span className="text-slate-500">ایمیل سازمانی:</span>
-                            <span className="text-slate-900 font-mono">{userEmail || 'p.sharifi@iran-freight.ir'}</span>
+                            <span className="text-slate-900 font-mono">{userEmail || currentRoleInfo.defaultUserEmail}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-slate-500">سطح احراز هویت:</span>
-                            <span className="text-emerald-800 font-bold flex items-center gap-1">
-                              <CheckCircle2 className="w-3 h-3 text-emerald-700" />
-                              تایید MFA سازمانی
+                            <span className="text-slate-500">حوزه دسترسی:</span>
+                            <span className="text-slate-800 font-bold truncate max-w-[180px]">
+                              {currentRoleInfo.departmentFa}
                             </span>
                           </div>
                         </div>
 
                         <div className="p-2.5 bg-slate-100 rounded-xl border border-slate-200 space-y-1">
-                          <span className="text-slate-900 font-bold block">قلمرو اختیارات در سامانه:</span>
-                          <p className="text-slate-700 leading-relaxed text-[10px]">
-                            {currentRoleInfo.governanceScope}
+                          <span className="text-slate-900 font-bold block">دامنه دسترسی و وظایف این نقش:</span>
+                          <p className="text-slate-700 leading-relaxed text-[10px] font-medium">
+                            {currentRoleInfo.accessScopeFa}
                           </p>
+                          <div className="pt-1.5 space-y-1 border-t border-slate-200/60">
+                            {currentRoleInfo.dutiesFa.map((duty, idx) => (
+                              <div key={idx} className="flex items-start gap-1.5 text-[10px] text-slate-600">
+                                <span className="w-1.5 h-1.5 rounded-full bg-slate-600 shrink-0 mt-1" />
+                                <span>{duty}</span>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     )}
