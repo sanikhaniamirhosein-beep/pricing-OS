@@ -70,7 +70,7 @@ export const CreditSettlementView: React.FC = () => {
                 )}
               </div>
               <p className="text-sm text-slate-500 mt-1">
-                مدیریت سقف اعتبار ریالی، مهلت‌های پرداخت ۳۰ تا ۴۵ روزه، چک‌های صیادی و مسدودسازی خودکار صدور بارنامه (Auto-Blacklist)
+                مدیریت سقف اعتبار مالی (تومان)، مهلت‌های پرداخت ۳۰ تا ۴۵ روزه، چک‌های صیادی و مسدودسازی خودکار صدور بارنامه (Auto-Blacklist)
               </p>
             </div>
           </div>
@@ -156,8 +156,8 @@ export const CreditSettlementView: React.FC = () => {
               <tr>
                 <th className="py-3.5 px-4">نام مشتری سازمانی</th>
                 <th className="py-3.5 px-4">شناسه ملی</th>
-                <th className="py-3.5 px-4">سقف اعتبار ریالی</th>
-                <th className="py-3.5 px-4">مانده بدهی جاری</th>
+                <th className="py-3.5 px-4">سقف اعتبار (تومان)</th>
+                <th className="py-3.5 px-4">مانده بدهی جاری (تومان)</th>
                 <th className="py-3.5 px-4">مهلت تسویه</th>
                 <th className="py-3.5 px-4">روز معوقه</th>
                 <th className="py-3.5 px-4">وضعیت حساب</th>

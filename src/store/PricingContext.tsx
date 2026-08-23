@@ -54,6 +54,12 @@ import {
   INITIAL_RBAC_ROLES,
   INITIAL_APPROVAL_REQUESTS,
 } from '../data/mockLogisticsData';
+import {
+  CARRIER_ORGANIZATIONS,
+  SHIPPER_ORGANIZATIONS,
+  CarrierOrgProfile,
+  ShipperOrgProfile,
+} from '../data/mockOrganizationProfiles';
 import { calculateShipmentPrice, ShipmentPricingContext, EngineExecutionResult } from '../engine/pricingEngine';
 
 interface PricingContextType {
@@ -75,6 +81,18 @@ interface PricingContextType {
   setIsSovereignMode: (val: boolean) => void;
   fuelIndexMultiplier: number;
   setFuelIndexMultiplier: (val: number) => void;
+
+  // Multi-Tenancy & Isolation
+  carrierOrganizations: CarrierOrgProfile[];
+  shipperOrganizations: ShipperOrgProfile[];
+  currentCarrierOrgId: string;
+  currentShipperOrgId: string;
+  currentCarrierOrg: CarrierOrgProfile;
+  currentShipperOrg: ShipperOrgProfile;
+  switchCarrierOrg: (orgId: string) => void;
+  switchShipperOrg: (orgId: string) => void;
+  isOrgSwitcherOpen: boolean;
+  setIsOrgSwitcherOpen: (open: boolean) => void;
 
   // Domain Collections
   schema: SchemaDefinition;
@@ -170,6 +188,16 @@ export const PricingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [isSovereignMode, setIsSovereignMode] = useState<boolean>(true); // Default to in-boundary / sovereign
   const [fuelIndexMultiplier, setFuelIndexMultiplier] = useState<number>(1.04);
 
+  // Multi-Tenancy & Isolation State
+  const [carrierOrganizations] = useState<CarrierOrgProfile[]>(CARRIER_ORGANIZATIONS);
+  const [shipperOrganizations] = useState<ShipperOrgProfile[]>(SHIPPER_ORGANIZATIONS);
+  const [currentCarrierOrgId, setCurrentCarrierOrgId] = useState<string>('CARRIER-PG-01');
+  const [currentShipperOrgId, setCurrentShipperOrgId] = useState<string>('SHP-MSC-01');
+  const [isOrgSwitcherOpen, setIsOrgSwitcherOpen] = useState<boolean>(false);
+
+  const currentCarrierOrg = carrierOrganizations.find((c) => c.id === currentCarrierOrgId) || carrierOrganizations[0];
+  const currentShipperOrg = shipperOrganizations.find((s) => s.id === currentShipperOrgId) || shipperOrganizations[0];
+
   // Domain Collections
   const [schema, setSchema] = useState<SchemaDefinition>(INITIAL_SCHEMA);
   const [commodities, setCommodities] = useState<CommodityCategory[]>(INITIAL_COMMODITY_TYPES);
@@ -192,6 +220,37 @@ export const PricingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [anomalies, setAnomalies] = useState<PricingAnomaly[]>(INITIAL_ANOMALIES);
   const [auditLogs, setAuditLogs] = useState<AuditLogEvent[]>(INITIAL_AUDIT_LOGS);
   const [connectors, setConnectors] = useState<ExternalConnector[]>(INITIAL_CONNECTORS);
+
+  // Switch Carrier Org with isolated domain state update
+  const switchCarrierOrg = (orgId: string) => {
+    const targetOrg = carrierOrganizations.find((c) => c.id === orgId);
+    if (!targetOrg) return;
+    setCurrentCarrierOrgId(orgId);
+    setUserOrgName(targetOrg.nameFa);
+    if (targetOrg.contracts) setContracts(targetOrg.contracts);
+    if (targetOrg.creditAccounts) setCreditAccounts(targetOrg.creditAccounts);
+    if (targetOrg.strategyPackages) setStrategyPackages(targetOrg.strategyPackages);
+    if (targetOrg.anomalies) setAnomalies(targetOrg.anomalies);
+    if (targetOrg.auditLogs) setAuditLogs(targetOrg.auditLogs);
+    if (targetOrg.services) setServices(targetOrg.services);
+    if (targetOrg.products) setProducts(targetOrg.products);
+    if (targetOrg.routeMatrix) setRouteMatrix(targetOrg.routeMatrix);
+    if (targetOrg.fuelIndexMultiplier) setFuelIndexMultiplier(targetOrg.fuelIndexMultiplier);
+  };
+
+  // Switch Shipper Org
+  const switchShipperOrg = (orgId: string) => {
+    const targetOrg = shipperOrganizations.find((s) => s.id === orgId);
+    if (!targetOrg) return;
+    setCurrentShipperOrgId(orgId);
+    if (userPortalType === 'shipper') {
+      setUserOrgName(targetOrg.nameFa);
+      if (targetOrg.teamMembers?.[0]) {
+        setUserName(targetOrg.teamMembers[0].fullName);
+        setUserEmail(targetOrg.teamMembers[0].email);
+      }
+    }
+  };
 
   // Helper functions for new collections
   const addSchemaAttribute = (attr: SchemaAttribute) => {
@@ -956,6 +1015,16 @@ export const PricingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setIsSovereignMode,
         fuelIndexMultiplier,
         setFuelIndexMultiplier,
+        carrierOrganizations,
+        shipperOrganizations,
+        currentCarrierOrgId,
+        currentShipperOrgId,
+        currentCarrierOrg,
+        currentShipperOrg,
+        switchCarrierOrg,
+        switchShipperOrg,
+        isOrgSwitcherOpen,
+        setIsOrgSwitcherOpen,
         schema,
         setSchema,
         addSchemaAttribute,

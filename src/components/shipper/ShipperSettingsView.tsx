@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Users,
   Bell,
@@ -16,14 +16,20 @@ import {
   Building,
   UserCheck,
 } from 'lucide-react';
-import { INITIAL_SHIPPER_TEAM, ShipperTeamMember } from '../../data/mockShipperData';
+import { ShipperTeamMember } from '../../data/mockShipperData';
 import { usePricing } from '../../store/PricingContext';
 import { ModernSelect } from '../common/menus/ModernSelect';
 
 export const ShipperSettingsView: React.FC = () => {
-  const { userOrgName, userName, userEmail } = usePricing();
+  const { currentShipperOrg, userOrgName, userName, userEmail } = usePricing();
   const [activeTab, setActiveTab] = useState<'team' | 'notifications' | 'api_hub'>('team');
-  const [teamMembers, setTeamMembers] = useState<ShipperTeamMember[]>(INITIAL_SHIPPER_TEAM);
+  const [teamMembers, setTeamMembers] = useState<ShipperTeamMember[]>(currentShipperOrg.teamMembers);
+
+  useEffect(() => {
+    if (currentShipperOrg) {
+      setTeamMembers(currentShipperOrg.teamMembers);
+    }
+  }, [currentShipperOrg]);
 
   // New Team Member Form
   const [isAddingMember, setIsAddingMember] = useState(false);

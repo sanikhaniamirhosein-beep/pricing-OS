@@ -200,7 +200,7 @@ export const CommissionSplitsView: React.FC = () => {
               <div className="flex items-center gap-2">
                 <Calculator className="w-5 h-5 text-amber-600" />
                 <h3 className="text-sm font-bold text-slate-900 font-title">
-                  شبیه‌ساز و تفکیک ریالی یک بارنامه نمونه
+                  شبیه‌ساز و تفکیک مالی یک بارنامه نمونه (تومان)
                 </h3>
               </div>
             </div>

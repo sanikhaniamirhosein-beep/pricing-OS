@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   MapPin,
   Package,
@@ -13,19 +13,23 @@ import {
   Check,
   CheckCircle2,
 } from 'lucide-react';
-import {
-  INITIAL_SAVED_LOCATIONS,
-  INITIAL_SAVED_COMMODITIES,
-  SavedLocation,
-  SavedCommodity,
-} from '../../data/mockShipperData';
+import { SavedLocation, SavedCommodity } from '../../data/mockShipperData';
+import { usePricing } from '../../store/PricingContext';
 import { ModernSelect } from '../common/menus/ModernSelect';
 import { CityPickerDropdown } from '../common/menus/CityPickerDropdown';
 
 export const ShipperMasterDataView: React.FC = () => {
+  const { currentShipperOrg } = usePricing();
   const [activeTab, setActiveTab] = useState<'locations' | 'commodities'>('locations');
-  const [locations, setLocations] = useState<SavedLocation[]>(INITIAL_SAVED_LOCATIONS);
-  const [commodities, setCommodities] = useState<SavedCommodity[]>(INITIAL_SAVED_COMMODITIES);
+  const [locations, setLocations] = useState<SavedLocation[]>(currentShipperOrg.savedLocations);
+  const [commodities, setCommodities] = useState<SavedCommodity[]>(currentShipperOrg.savedCommodities);
+
+  useEffect(() => {
+    if (currentShipperOrg) {
+      setLocations(currentShipperOrg.savedLocations);
+      setCommodities(currentShipperOrg.savedCommodities);
+    }
+  }, [currentShipperOrg]);
 
   // New Location Form State
   const [isAddingLocation, setIsAddingLocation] = useState(false);
@@ -388,7 +392,7 @@ export const ShipperMasterDataView: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-slate-700 text-xs font-bold mb-1">ارزش ریالی اظهارشده (تومان):</label>
+                  <label className="block text-slate-700 text-xs font-bold mb-1">ارزش اظهارشده کالا (تومان):</label>
                   <input
                     type="number"
                     value={newComValueToman}

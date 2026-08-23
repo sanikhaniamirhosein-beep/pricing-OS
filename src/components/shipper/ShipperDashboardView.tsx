@@ -19,13 +19,6 @@ import {
   FileSpreadsheet,
 } from 'lucide-react';
 import {
-  INITIAL_ACTIVE_LOADS,
-  INITIAL_SHIPPER_TIER,
-  INITIAL_SUPPORT_TICKETS,
-  MONTHLY_SPEND_DATA,
-  ShipperActiveLoad,
-} from '../../data/mockShipperData';
-import {
   AreaChart,
   Area,
   XAxis,
@@ -34,6 +27,8 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
+import { usePricing } from '../../store/PricingContext';
+import { ShipperActiveLoad } from '../../data/mockShipperData';
 
 interface ShipperDashboardViewProps {
   onNavigateTab: (tabId: string) => void;
@@ -44,32 +39,43 @@ interface ShipperDashboardViewProps {
 export const ShipperDashboardView: React.FC<ShipperDashboardViewProps> = ({
   onNavigateTab,
   onSelectShipmentToTrack,
-  activeLoads = INITIAL_ACTIVE_LOADS,
+  activeLoads,
 }) => {
-  const currentLoads = activeLoads && activeLoads.length > 0 ? activeLoads : INITIAL_ACTIVE_LOADS;
+  const { currentShipperOrg, userOrgName } = usePricing();
+  const currentLoads = activeLoads && activeLoads.length > 0 ? activeLoads : currentShipperOrg.activeLoads;
   const inTransitCount = (currentLoads || []).filter((l) => l?.status === 'in_transit').length;
   const loadingCount = (currentLoads || []).filter((l) => l && (l.status === 'loading' || l.status === 'pending_driver')).length;
   const deliveredCount = (currentLoads || []).filter((l) => l?.status === 'delivered').length;
+
+  const tierInfo = currentShipperOrg.tierInfo;
+  const spendData = currentShipperOrg.monthlySpendData || [
+    { month: 'فروردین', amountMillionRials: 420 },
+    { month: 'اردیبهشت', amountMillionRials: 560 },
+    { month: 'خرداد', amountMillionRials: 680 },
+    { month: 'تیر', amountMillionRials: 890 },
+    { month: 'مرداد', amountMillionRials: 740 },
+    { month: 'شهریور', amountMillionRials: 980 },
+  ];
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* 1. Quick Actions Hero Banner */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Quick Action 1: استعلام جدید */}
+        {/* Quick Action 1: استعلام جدید - Dominant Ocean Blue / Teal */}
         <button
           type="button"
           onClick={() => onNavigateTab('quote')}
-          className="p-5 bg-gradient-to-br from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 text-right group cursor-pointer flex items-center justify-between"
+          className="p-5 bg-gradient-to-br from-sky-600 via-sky-700 to-teal-700 hover:from-sky-700 hover:to-teal-800 text-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 text-right group cursor-pointer flex items-center justify-between"
         >
           <div className="space-y-1">
-            <span className="text-[11px] font-medium text-amber-100 uppercase tracking-wider block">
+            <span className="text-[11px] font-medium text-sky-100 uppercase tracking-wider block">
               موتور قیمت‌گذاری آنی
             </span>
             <h3 className="text-base font-bold flex items-center gap-2">
-              <Calculator className="w-5 h-5 text-amber-100 group-hover:scale-110 transition-transform" />
+              <Calculator className="w-5 h-5 text-sky-200 group-hover:scale-110 transition-transform" />
               استعلام نرخ آنی
             </h3>
-            <p className="text-xs text-amber-100/90 font-medium line-clamp-1">
+            <p className="text-xs text-sky-100/90 font-medium line-clamp-1">
               محاسبه و دریافت پیش‌فاکتور رسمی
             </p>
           </div>
@@ -78,7 +84,7 @@ export const ShipperDashboardView: React.FC<ShipperDashboardViewProps> = ({
           </div>
         </button>
 
-        {/* Quick Action 2: ثبت دسته‌ای بار (اکسل) */}
+        {/* Quick Action 2: ثبت دسته‌ای بار (اکسل) - Emerald Green CTA */}
         <button
           type="button"
           onClick={() => onNavigateTab('batch_orders')}
@@ -101,21 +107,21 @@ export const ShipperDashboardView: React.FC<ShipperDashboardViewProps> = ({
           </div>
         </button>
 
-        {/* Quick Action 3: ثبت بار تک */}
+        {/* Quick Action 3: ثبت بار تک - Deep Navy / Indigo Card */}
         <button
           type="button"
           onClick={() => onNavigateTab('quote')}
-          className="p-5 bg-gradient-to-br from-slate-800 to-slate-900 hover:from-slate-900 hover:to-slate-950 text-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 text-right group cursor-pointer flex items-center justify-between"
+          className="p-5 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 hover:from-slate-950 hover:to-indigo-950 text-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 text-right group cursor-pointer flex items-center justify-between border border-indigo-900/50"
         >
           <div className="space-y-1">
-            <span className="text-[11px] font-medium text-slate-300 uppercase tracking-wider block">
+            <span className="text-[11px] font-medium text-indigo-200 uppercase tracking-wider block">
               درخواست ناوگان حمل
             </span>
             <h3 className="text-base font-bold flex items-center gap-2">
-              <PlusCircle className="w-5 h-5 text-amber-400 group-hover:scale-110 transition-transform" />
+              <PlusCircle className="w-5 h-5 text-teal-400 group-hover:scale-110 transition-transform" />
               ثبت سفارش تکی
             </h3>
-            <p className="text-xs text-slate-300 font-medium line-clamp-1">
+            <p className="text-xs text-indigo-200/80 font-medium line-clamp-1">
               تخصیص فوری کامیون و صدور حواله
             </p>
           </div>
@@ -124,40 +130,40 @@ export const ShipperDashboardView: React.FC<ShipperDashboardViewProps> = ({
           </div>
         </button>
 
-        {/* Quick Action 4: پیگیری و رهگیری بار */}
+        {/* Quick Action 4: پیگیری و رهگیری بار - Soft Off-White Clean */}
         <button
           type="button"
           onClick={() => onNavigateTab('shipments')}
-          className="p-5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 rounded-2xl shadow-xs hover:shadow-md transition-all duration-200 text-right group cursor-pointer flex items-center justify-between"
+          className="p-5 bg-white hover:bg-sky-50/50 border border-sky-100 hover:border-sky-200 text-slate-800 rounded-2xl shadow-xs hover:shadow-md transition-all duration-200 text-right group cursor-pointer flex items-center justify-between"
         >
           <div className="space-y-1">
             <span className="text-[11px] font-medium text-slate-400 uppercase tracking-wider block">
               ردیابی ماهواره‌ای GPS
             </span>
             <h3 className="text-base font-bold flex items-center gap-2 text-slate-900">
-              <Search className="w-5 h-5 text-amber-600 group-hover:scale-110 transition-transform" />
+              <Search className="w-5 h-5 text-sky-600 group-hover:scale-110 transition-transform" />
               رهگیری زنده بارها
             </h3>
             <p className="text-xs text-slate-500 font-medium line-clamp-1">
               مشاهده موقعیت لحظه‌ای و ETA
             </p>
           </div>
-          <div className="w-9 h-9 rounded-xl bg-slate-100 group-hover:bg-amber-100 text-slate-600 group-hover:text-amber-900 flex items-center justify-center shrink-0 transition-colors">
+          <div className="w-9 h-9 rounded-xl bg-sky-50 group-hover:bg-sky-100 text-sky-700 flex items-center justify-center shrink-0 transition-colors">
             <ChevronLeft className="w-4 h-4" />
           </div>
         </button>
       </div>
 
       {/* In-Transit Support & Active Incident Alert Bar */}
-      <div className="bg-gradient-to-r from-amber-500/10 via-slate-50 to-amber-500/10 p-3.5 sm:p-4 rounded-2xl border border-amber-300/70 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+      <div className="bg-gradient-to-r from-sky-50 via-white to-teal-50 p-3.5 sm:p-4 rounded-2xl border border-sky-200/80 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center font-bold shrink-0 shadow-2xs">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-600 to-teal-600 text-white flex items-center justify-center font-bold shrink-0 shadow-2xs">
             <LifeBuoy className="w-5 h-5" />
           </div>
           <div>
             <div className="font-bold text-slate-900 flex items-center gap-2">
               <span>پشتیبانی و رسیدگی به فوریت‌های حین حمل</span>
-              <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 font-bold text-[10px] border border-amber-300">
+              <span className="px-2 py-0.5 rounded-full bg-sky-100 text-sky-900 font-bold text-[10px] border border-sky-300">
                 ۲ تیکت فعال دیسپچینگ
               </span>
             </div>
@@ -181,11 +187,11 @@ export const ShipperDashboardView: React.FC<ShipperDashboardViewProps> = ({
       {/* 2. Active Load Status Cards & Wallet Widget */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Metric 1: بارهای در حال حمل */}
-        <div className="bg-white p-4.5 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+        <div className="bg-white p-4.5 rounded-2xl border border-slate-200/90 shadow-xs flex items-center justify-between">
           <div className="space-y-1">
             <span className="text-xs font-semibold text-slate-500">بارهای در حال حمل</span>
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold font-mono text-amber-600">{inTransitCount}</span>
+              <span className="text-2xl font-bold font-mono text-sky-600">{inTransitCount}</span>
               <span className="text-xs text-slate-400 font-medium">محموله جاده‌ای</span>
             </div>
             <span className="text-[11px] text-emerald-600 font-medium flex items-center gap-1">
@@ -193,31 +199,31 @@ export const ShipperDashboardView: React.FC<ShipperDashboardViewProps> = ({
               در حال تردد آنلاین در شبکه
             </span>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-amber-50 border border-amber-200/60 text-amber-600 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-xl bg-sky-50 border border-sky-200/60 text-sky-600 flex items-center justify-center">
             <Truck className="w-6 h-6" />
           </div>
         </div>
 
         {/* Metric 2: آماده بارگیری */}
-        <div className="bg-white p-4.5 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+        <div className="bg-white p-4.5 rounded-2xl border border-slate-200/90 shadow-xs flex items-center justify-between">
           <div className="space-y-1">
             <span className="text-xs font-semibold text-slate-500">آماده بارگیری / اعزام</span>
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold font-mono text-blue-600">{loadingCount}</span>
+              <span className="text-2xl font-bold font-mono text-teal-600">{loadingCount}</span>
               <span className="text-xs text-slate-400 font-medium">سفارش فعال</span>
             </div>
-            <span className="text-[11px] text-blue-600 font-medium flex items-center gap-1">
+            <span className="text-[11px] text-teal-600 font-medium flex items-center gap-1">
               <Clock className="w-3 h-3" />
               در انتظار بارگیری در انبار مبدا
             </span>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-200/60 text-blue-600 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-xl bg-teal-50 border border-teal-200/60 text-teal-600 flex items-center justify-center">
             <Package className="w-6 h-6" />
           </div>
         </div>
 
         {/* Metric 3: تحویل داده شده امروز */}
-        <div className="bg-white p-4.5 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+        <div className="bg-white p-4.5 rounded-2xl border border-slate-200/90 shadow-xs flex items-center justify-between">
           <div className="space-y-1">
             <span className="text-xs font-semibold text-slate-500">تحویل داده‌شده امروز</span>
             <div className="flex items-baseline gap-2">
@@ -234,32 +240,33 @@ export const ShipperDashboardView: React.FC<ShipperDashboardViewProps> = ({
           </div>
         </div>
 
-        {/* Metric 4: وضعیت اعتبار و کیف پول شرکتی */}
-        <div className="bg-gradient-to-br from-slate-900 to-slate-800 p-4.5 rounded-2xl text-white shadow-xs flex flex-col justify-between">
+        {/* Metric 4: وضعیت اعتبار و کیف پول شرکتی - Deep Purple / Navy Card */}
+        <div className="bg-gradient-to-br from-indigo-950 via-slate-900 to-indigo-950 p-4.5 rounded-2xl text-white shadow-xs flex flex-col justify-between border border-indigo-900/60">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-300 flex items-center gap-1.5">
-              <Wallet className="w-4 h-4 text-amber-400" />
+            <span className="text-xs font-medium text-indigo-200 flex items-center gap-1.5">
+              <Wallet className="w-4 h-4 text-teal-400" />
               مانده اعتبار تجاری (Credit)
             </span>
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 font-bold border border-amber-400/30">
-              سطح {INITIAL_SHIPPER_TIER.tierName}
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 font-bold border border-teal-400/30">
+              سطح {tierInfo?.tierName || 'طلایی'}
             </span>
           </div>
 
           <div className="my-2">
-            <div className="text-xl font-bold font-mono text-amber-300">
-              {(INITIAL_SHIPPER_TIER.availableCreditRials / 10).toLocaleString('fa-IR')}{' '}
+            <div className="text-xl font-bold font-mono text-teal-300">
+              {((tierInfo?.availableCreditRials || 0) / 10).toLocaleString('fa-IR')}{' '}
               <span className="text-xs font-normal text-slate-300">تومان</span>
             </div>
             <div className="text-[10px] text-slate-400 mt-0.5">
-              سقف کل اعتبار: {(INITIAL_SHIPPER_TIER.creditLimitRials / 10).toLocaleString('fa-IR')} تومان
+              سقف کل اعتبار: {((tierInfo?.creditLimitRials || 0) / 10).toLocaleString('fa-IR')} تومان
             </div>
           </div>
 
+          {/* CTA: Emerald Green button */}
           <button
             type="button"
             onClick={() => onNavigateTab('billing')}
-            className="w-full py-1.5 px-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+            className="w-full py-1.5 px-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs"
           >
             <span>مدیریت کیف پول و افزایش اعتبار</span>
             <ArrowLeft className="w-3.5 h-3.5" />
@@ -270,31 +277,31 @@ export const ShipperDashboardView: React.FC<ShipperDashboardViewProps> = ({
       {/* 3. Central Dual Panel: Monthly Spend Chart + Live Loads Monitor */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left 2 Cols: Monthly Logistics Spend Graph */}
-        <div className="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+        <div className="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-bold text-slate-800 text-sm flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-amber-600" />
-                روند هزینه‌های ماهانه حمل و نقل (۶ ماه گذشته)
+              <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-sky-600" />
+                روند هزینه‌های ماهانه حمل و نقل ({currentShipperOrg.nameFa})
               </h3>
               <p className="text-xs text-slate-400 mt-0.5">
-                بررسی مجموع صورتحساب‌ها و کرایه‌های پرداختی شرکت
+                بررسی مجموع صورتحساب‌ها و کرایه‌های پرداختی در ۶ ماه اخیر
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
-                مجموع شهریور: ۴۱,۳۰۰,۰۰۰ تومان
+              <span className="text-xs font-mono font-bold text-sky-900 bg-sky-50 px-2.5 py-1 rounded-lg border border-sky-200">
+                آخرین ماه: {(spendData[spendData.length - 1]?.amountMillionRials || 0) * 100000} تومان
               </span>
             </div>
           </div>
 
           <div className="h-64 w-full pt-2">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={MONTHLY_SPEND_DATA} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+              <AreaChart data={spendData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
                 <defs>
                   <linearGradient id="spendGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.0} />
+                    <stop offset="5%" stopColor="#0284c7" stopOpacity={0.35} />
+                    <stop offset="95%" stopColor="#0d9488" stopOpacity={0.0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
@@ -313,10 +320,10 @@ export const ShipperDashboardView: React.FC<ShipperDashboardViewProps> = ({
                   tickFormatter={(val) => `${val} م`}
                 />
                 <Tooltip
-                  formatter={(value: any) => [`${value} میلیون ریال`, 'هزینه حمل']}
+                  formatter={(value: any) => [`${value} میلیون تومان`, 'هزینه حمل']}
                   labelStyle={{ fontFamily: 'Vazirmatn', fontWeight: 'bold' }}
                   contentStyle={{
-                    backgroundColor: '#1e293b',
+                    backgroundColor: '#0f172a',
                     color: '#fff',
                     borderRadius: '12px',
                     border: 'none',
@@ -326,7 +333,7 @@ export const ShipperDashboardView: React.FC<ShipperDashboardViewProps> = ({
                 <Area
                   type="monotone"
                   dataKey="amountMillionRials"
-                  stroke="#f59e0b"
+                  stroke="#0284c7"
                   strokeWidth={2.5}
                   fillOpacity={1}
                   fill="url(#spendGradient)"
@@ -339,47 +346,47 @@ export const ShipperDashboardView: React.FC<ShipperDashboardViewProps> = ({
         {/* Right 1 Col: Live Shipments Snapshot & Tier Progress */}
         <div className="space-y-4">
           {/* Tier Progress Widget */}
-          <div className="bg-amber-50/70 border border-amber-200/80 p-4.5 rounded-2xl space-y-3">
+          <div className="bg-gradient-to-br from-sky-50/90 to-teal-50/70 border border-sky-200/80 p-4.5 rounded-2xl space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-amber-600" />
-                <span className="font-bold text-xs text-amber-950">پله وفاداری و تخفیف شرکتی</span>
+                <ShieldCheck className="w-5 h-5 text-teal-600" />
+                <span className="font-bold text-xs text-sky-950">پله وفاداری و تخفیف شرکتی</span>
               </div>
-              <span className="text-[11px] font-bold text-amber-900 bg-amber-200/80 px-2 py-0.5 rounded-md font-mono">
-                {INITIAL_SHIPPER_TIER.currentDiscountPercent}% تخفیف فعال
+              <span className="text-[11px] font-bold text-teal-900 bg-teal-100 px-2 py-0.5 rounded-md font-mono border border-teal-200">
+                {tierInfo.currentDiscountPercent}% تخفیف فعال
               </span>
             </div>
 
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs text-slate-600">
-                <span>حجم بار این ماه: <strong className="font-mono">{INITIAL_SHIPPER_TIER.monthlyVolumeTons}</strong> تن</span>
-                <span>هدف پله بعدی: <strong className="font-mono">{INITIAL_SHIPPER_TIER.targetVolumeTons}</strong> تن</span>
+                <span>حجم بار این ماه: <strong className="font-mono text-slate-800">{tierInfo.monthlyVolumeTons}</strong> تن</span>
+                <span>هدف پله بعدی: <strong className="font-mono text-slate-800">{tierInfo.targetVolumeTons}</strong> تن</span>
               </div>
-              <div className="w-full h-2.5 bg-amber-200/60 rounded-full overflow-hidden">
+              <div className="w-full h-2.5 bg-sky-100 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-amber-500 rounded-full transition-all duration-500"
+                  className="h-full bg-gradient-to-r from-sky-500 to-teal-500 rounded-full transition-all duration-500"
                   style={{
-                    width: `${(INITIAL_SHIPPER_TIER.monthlyVolumeTons / INITIAL_SHIPPER_TIER.targetVolumeTons) * 100}%`,
+                    width: `${Math.min(100, Math.round((tierInfo.monthlyVolumeTons / tierInfo.targetVolumeTons) * 100))}%`,
                   }}
                 />
               </div>
-              <p className="text-[11px] text-amber-900 font-medium">
-                تنها <strong>{INITIAL_SHIPPER_TIER.targetVolumeTons - INITIAL_SHIPPER_TIER.monthlyVolumeTons} تن</strong> تا ارتقا به پله «{INITIAL_SHIPPER_TIER.nextTierName}» و دریافت <strong>{INITIAL_SHIPPER_TIER.nextTierDiscountPercent}% تخفیف</strong>.
+              <p className="text-[11px] text-sky-950 font-medium">
+                تنها <strong>{Math.max(0, tierInfo.targetVolumeTons - tierInfo.monthlyVolumeTons)} تن</strong> تا ارتقا به پله «{tierInfo.nextTierName}» و دریافت <strong>{tierInfo.nextTierDiscountPercent}% تخفیف</strong>.
               </p>
             </div>
           </div>
 
           {/* Quick Active Loads List */}
-          <div className="bg-white p-4.5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+          <div className="bg-white p-4.5 rounded-2xl border border-slate-200/90 shadow-xs space-y-3">
             <div className="flex items-center justify-between">
               <h4 className="font-bold text-xs text-slate-800 flex items-center gap-1.5">
-                <Truck className="w-4 h-4 text-amber-600" />
+                <Truck className="w-4 h-4 text-sky-600" />
                 آخرین محموله‌های در حال حرکت
               </h4>
               <button
                 type="button"
                 onClick={() => onNavigateTab('shipments')}
-                className="text-[11px] text-amber-800 hover:text-amber-950 font-bold flex items-center gap-1 cursor-pointer"
+                className="text-[11px] text-sky-700 hover:text-sky-950 font-bold flex items-center gap-1 cursor-pointer"
               >
                 <span>مشاهده همه</span>
                 <ChevronLeft className="w-3 h-3" />
@@ -394,13 +401,13 @@ export const ShipperDashboardView: React.FC<ShipperDashboardViewProps> = ({
                     if (onSelectShipmentToTrack) onSelectShipmentToTrack(load);
                     onNavigateTab('shipments');
                   }}
-                  className="p-3 bg-slate-50 hover:bg-amber-50/60 border border-slate-200/80 hover:border-amber-200 rounded-xl transition-all cursor-pointer text-xs space-y-1.5 group"
+                  className="p-3 bg-slate-50 hover:bg-sky-50/60 border border-slate-200/80 hover:border-sky-200 rounded-xl transition-all cursor-pointer text-xs space-y-1.5 group"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-900 group-hover:text-amber-950 font-mono">
+                    <span className="font-bold text-slate-900 group-hover:text-sky-950 font-mono">
                       {load.billOfLadingNo}
                     </span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 font-bold">
+                    <span className="text-[10px] px-2 py-0.5 rounded-md bg-sky-100 text-sky-900 font-bold">
                       {load.statusLabelFa}
                     </span>
                   </div>
@@ -412,7 +419,7 @@ export const ShipperDashboardView: React.FC<ShipperDashboardViewProps> = ({
 
                   <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
                     <div
-                      className="bg-amber-500 h-full rounded-full"
+                      className="bg-gradient-to-r from-sky-500 to-teal-500 h-full rounded-full"
                       style={{ width: `${load.progressPercent}%` }}
                     />
                   </div>

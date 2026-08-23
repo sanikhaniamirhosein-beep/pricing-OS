@@ -82,7 +82,7 @@ export interface ShipperTeamMember {
 }
 
 export interface ShipperTierInfo {
-  tierName: 'برنزی' | 'نقره‌ای' | 'طلایی' | 'پلاتینیوم تجاری';
+  tierName: string;
   monthlyVolumeTons: number;
   targetVolumeTons: number;
   currentDiscountPercent: number;
@@ -622,7 +622,7 @@ export const INITIAL_SUPPORT_TICKETS: ShipperSupportTicket[] = [
     updatedAt: '۱۴۰۳/۰۵/۳۱ - ۱۸:۳۰',
     assignedAgent: 'امور قراردادها و مالی لجستیک',
     locationAtReport: 'انبار مرکزی پخش خاوران مشهد',
-    resolutionNotes: 'مبلغ ۲,۴۰۰,۰۰۰ ریال به عنوان هزینه توقف مجاز طبق آیین‌نامه راهداری برای راننده واریز شد و رسید POD با امضای انباردار ثبت گردید.',
+    resolutionNotes: 'مبلغ ۲۴۰,۰۰۰ تومان به عنوان هزینه توقف مجاز طبق آیین‌نامه راهداری برای راننده واریز شد و رسید POD با امضای انباردار ثبت گردید.',
     messages: [
       {
         id: 'msg-301',

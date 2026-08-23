@@ -134,7 +134,7 @@ export const ShipperAnalyticsView: React.FC = () => {
                   tickFormatter={(val) => `${val} م`}
                 />
                 <Tooltip
-                  formatter={(val: any) => [`${val} میلیون ریال`, 'مجموع هزینه']}
+                  formatter={(val: any) => [`${val} میلیون تومان`, 'مجموع هزینه']}
                   labelStyle={{ fontFamily: 'Vazirmatn', fontWeight: 'bold' }}
                   contentStyle={{
                     backgroundColor: '#1e293b',

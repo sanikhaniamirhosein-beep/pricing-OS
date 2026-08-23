@@ -771,9 +771,9 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
             </div>
 
             {/* Declared Value for Insurance */}
-            <div className="bg-amber-50/50 p-3.5 rounded-xl border border-amber-200/60 flex items-center justify-between gap-4">
+            <div className="bg-sky-50/60 p-3.5 rounded-xl border border-sky-200/80 flex items-center justify-between gap-4">
               <div>
-                <span className="text-xs font-bold text-amber-950 block">ارزش ریالی اظهارشده کالا (محاسبه بیمه باربری):</span>
+                <span className="text-xs font-bold text-sky-950 block">ارزش اظهارشده کالا (محاسبه بیمه باربری به تومان):</span>
                 <span className="text-[11px] text-slate-500">پوشش کامل خسارت ناشی از حوادث جاده‌ای و سرقت</span>
               </div>
               <div className="flex items-center gap-2">
@@ -781,7 +781,7 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
                   type="number"
                   value={cargoValueToman}
                   onChange={(e) => setCargoValueToman(parseInt(e.target.value, 10) || 0)}
-                  className="w-36 bg-white border border-amber-300 rounded-xl p-2 text-xs font-mono font-bold text-amber-950 text-left"
+                  className="w-36 bg-white border border-sky-300 rounded-xl p-2 text-xs font-mono font-bold text-sky-950 text-left"
                 />
                 <span className="text-xs font-bold text-slate-600">تومان</span>
               </div>
@@ -793,7 +793,7 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
               <div>
                 <h3 className="font-bold text-slate-800 text-xs flex items-center gap-2">
-                  <Truck className="w-4 h-4 text-amber-600" />
+                  <Truck className="w-4 h-4 text-sky-600" />
                   ۳. انتخاب نوع ناوگان بارگیر و خدمات تکمیلی
                 </h3>
                 <p className="text-[11px] text-slate-500 mt-0.5">
@@ -851,7 +851,7 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
             </div>
 
             {/* Smart Technical Justification Recommendation Banner */}
-            <div className="bg-gradient-to-r from-amber-50/90 via-teal-50/50 to-blue-50/70 p-3.5 rounded-2xl border border-amber-200/80 space-y-2">
+            <div className="bg-gradient-to-r from-sky-50 via-teal-50 to-sky-50 p-3.5 rounded-2xl border border-sky-200/80 space-y-2">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <span className="w-6 h-6 rounded-lg bg-teal-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
@@ -875,8 +875,8 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
                 )}
               </div>
 
-              <p className="text-[11px] text-slate-700 leading-relaxed bg-white/70 p-2.5 rounded-xl border border-amber-100/80">
-                <strong className="text-amber-900 font-bold ml-1">توجیه فنی:</strong>
+              <p className="text-[11px] text-slate-700 leading-relaxed bg-white/80 p-2.5 rounded-xl border border-sky-100">
+                <strong className="text-teal-900 font-bold ml-1">توجیه فنی:</strong>
                 {fleetRecommendation.reason}
               </p>
 
@@ -886,7 +886,7 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
                   <strong>روش بارگیری پیشنهادی:</strong> {fleetRecommendation.truck.loadingMethod}
                 </span>
                 <span className="flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                  <span className="w-2 h-2 rounded-full bg-sky-500"></span>
                   <strong>ظرفیت مجاز:</strong> {fleetRecommendation.truck.maxTon} تن
                 </span>
                 {fleetRecommendation.isOversized && (
@@ -939,7 +939,7 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
                     onClick={() => setSelectedTruck(truck.name)}
                     className={`p-3 rounded-2xl border text-right transition-all cursor-pointer relative flex flex-col justify-between gap-2 text-xs ${
                       isSelected
-                        ? 'bg-amber-50/90 border-amber-400 text-amber-950 ring-2 ring-amber-400/40 shadow-xs'
+                        ? 'bg-sky-50/90 border-sky-400 text-sky-950 ring-2 ring-sky-400/40 shadow-xs'
                         : isRec
                         ? 'bg-teal-50/40 border-teal-300 text-slate-800 hover:bg-teal-50/80'
                         : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100/80'
@@ -968,7 +968,7 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
                     {/* Title & Specs */}
                     <div>
                       <div className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
-                        <Truck className={`w-3.5 h-3.5 ${isSelected ? 'text-amber-700' : 'text-slate-400'}`} />
+                        <Truck className={`w-3.5 h-3.5 ${isSelected ? 'text-sky-700' : 'text-slate-400'}`} />
                         <span>{truck.name}</span>
                       </div>
                       <div className="text-[10px] text-slate-500 mt-1 flex items-center gap-2 font-mono">
@@ -985,7 +985,7 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
                     <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-[9px] text-slate-400">
                       <span className="truncate max-w-[170px]">{truck.loadingMethod}</span>
                       {isSelected && (
-                        <span className="text-amber-800 font-bold flex items-center gap-0.5">
+                        <span className="text-sky-800 font-bold flex items-center gap-0.5">
                           <Check className="w-3 h-3" />
                           انتخاب‌شده
                         </span>
@@ -1003,7 +1003,7 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
                   type="checkbox"
                   checked={includeLoadingService}
                   onChange={(e) => setIncludeLoadingService(e.target.checked)}
-                  className="rounded text-amber-600 focus:ring-amber-500 w-4 h-4 cursor-pointer"
+                  className="rounded text-sky-600 focus:ring-sky-500 w-4 h-4 cursor-pointer"
                 />
                 <div className="text-xs">
                   <span className="font-bold text-slate-800 block">خدمات لیفتراک و کارگر تخلیه/بارگیری در محل</span>
@@ -1016,7 +1016,7 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
                   type="checkbox"
                   checked={includeFullInsurance}
                   onChange={(e) => setIncludeFullInsurance(e.target.checked)}
-                  className="rounded text-amber-600 focus:ring-amber-500 w-4 h-4 cursor-pointer"
+                  className="rounded text-sky-600 focus:ring-sky-500 w-4 h-4 cursor-pointer"
                 />
                 <div className="text-xs">
                   <span className="font-bold text-slate-800 block">بیمه تکمیلی All-Risk با فرانشیز صفر</span>
@@ -1027,12 +1027,12 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
           </div>
         </div>
 
-        {/* Right Transparent Quote Breakdown: 5 Columns */}
+        {/* Right Transparent Quote Breakdown: 5 Columns - Deep Navy/Purple Price Card */}
         <div className="lg:col-span-5 space-y-4">
           <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm sticky top-4 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
-                <FileText className="w-5 h-5 text-amber-600" />
+                <FileText className="w-5 h-5 text-sky-600" />
                 <h3 className="font-bold text-slate-900 text-sm">پیش‌فاکتور شفاف و رسمی</h3>
               </div>
               <span className="text-[10px] font-bold px-2 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-md">
@@ -1052,7 +1052,7 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
               </div>
               <div className="flex justify-between text-slate-700">
                 <span className="text-slate-400">شرکت صاحب بار:</span>
-                <span className="font-bold text-amber-900">{userOrgName || 'فولاد مبارکه اصفهان'}</span>
+                <span className="font-bold text-sky-900">{userOrgName || 'فولاد مبارکه اصفهان'}</span>
               </div>
             </div>
 
@@ -1096,27 +1096,27 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
               </div>
             </div>
 
-            {/* Total Payable Box */}
-            <div className="p-4 bg-gradient-to-br from-amber-500/10 to-amber-600/5 border border-amber-300 rounded-2xl space-y-1">
-              <div className="text-[11px] text-amber-900 font-semibold">مبلغ کل قابل پرداخت بارنامه:</div>
+            {/* Total Payable Box - Deep Navy / Purple for High Financial Value */}
+            <div className="p-4 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 border border-indigo-800/60 rounded-2xl space-y-1 text-white shadow-xs">
+              <div className="text-[11px] text-indigo-200 font-semibold">مبلغ کل قابل پرداخت بارنامه:</div>
               <div className="flex items-baseline justify-between">
-                <span className="text-2xl font-bold font-mono text-amber-950">
+                <span className="text-2xl font-bold font-mono text-teal-300">
                   {finalPayableToman.toLocaleString('fa-IR')}
                 </span>
-                <span className="text-xs font-bold text-amber-900">تومان</span>
+                <span className="text-xs font-bold text-indigo-200">تومان</span>
               </div>
-              <div className="text-[10px] text-slate-500">
+              <div className="text-[10px] text-slate-400">
                 قابل تسویه از کیف پول اعتباری یا درگاه بانکی شاپرک
               </div>
             </div>
 
-            {/* Action Buttons: Book Now */}
+            {/* Action Buttons: Book Now - Emerald Green CTA */}
             <div className="space-y-2 pt-2">
               <button
                 type="button"
                 onClick={handleFinalizeBooking}
                 disabled={isSubmitting}
-                className="w-full py-3.5 bg-teal-600 hover:bg-teal-700 active:scale-[0.99] text-white rounded-2xl font-bold flex items-center justify-center gap-2 shadow-md shadow-teal-600/20 transition-all cursor-pointer text-sm disabled:opacity-50"
+                className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white rounded-2xl font-bold flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20 transition-all cursor-pointer text-sm disabled:opacity-50"
               >
                 {isSubmitting ? (
                   <>

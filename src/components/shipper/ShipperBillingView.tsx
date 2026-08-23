@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Receipt,
   Download,
@@ -16,20 +16,31 @@ import {
   ShieldCheck,
   Check,
 } from 'lucide-react';
-import {
-  INITIAL_SHIPPER_INVOICES,
-  INITIAL_SHIPPER_TRANSACTIONS,
-  INITIAL_SHIPPER_TIER,
-  ShipperInvoice,
-} from '../../data/mockShipperData';
+import { usePricing } from '../../store/PricingContext';
 import { ModernSelect } from '../common/menus/ModernSelect';
 
 export const ShipperBillingView: React.FC = () => {
+  const { currentShipperOrg } = usePricing();
   const [activeSubTab, setActiveSubTab] = useState<'invoices' | 'transactions' | 'credit' | 'dispute'>('invoices');
-  const [invoices, setInvoices] = useState(INITIAL_SHIPPER_INVOICES);
+  const [invoices, setInvoices] = useState(currentShipperOrg.invoices);
+  const [transactions, setTransactions] = useState(currentShipperOrg.transactions);
+
+  useEffect(() => {
+    if (currentShipperOrg) {
+      setInvoices(currentShipperOrg.invoices);
+      setTransactions(currentShipperOrg.transactions);
+    }
+  }, [currentShipperOrg]);
+
+  const tierInfo = currentShipperOrg.tierInfo;
+  const dueInvoices = invoices.filter((i) => i.status === 'due');
+  const totalDueAmountRials = dueInvoices.reduce((sum, i) => sum + i.amountRials, 0);
+  const paidInvoices = invoices.filter((i) => i.status === 'paid');
+  const totalPaidAmountRials = paidInvoices.reduce((sum, i) => sum + i.amountRials, 0);
+  const totalShipmentCount = invoices.reduce((sum, i) => sum + i.shipmentCount, 0);
 
   // Dispute modal / form state
-  const [disputeInvoiceNo, setDisputeInvoiceNo] = useState('INV-88490');
+  const [disputeInvoiceNo, setDisputeInvoiceNo] = useState(invoices[0]?.invoiceNo || 'INV-88490');
   const [disputeReason, setDisputeReason] = useState('اعمال هزینه توقف نامعتبر راننده');
   const [disputeDescription, setDisputeDescription] = useState('تخلیه بار در انبار شمس‌آباد در زمان کمتر از ۲ ساعت انجام شد، اما مبلغ ۱,۵۰۰,۰۰۰ تومان حق توقف محاسبه شده است.');
   const [disputeSubmitted, setDisputeSubmitted] = useState(false);
@@ -66,16 +77,16 @@ export const ShipperBillingView: React.FC = () => {
           <div className="flex items-center justify-between text-slate-300 text-xs">
             <span className="flex items-center gap-1.5">
               <Wallet className="w-4 h-4 text-amber-400" />
-              مانده اعتبار در دسترس
+              مانده اعتبار در دسترس ({currentShipperOrg.nameFa})
             </span>
             <span className="text-[10px] bg-white/10 px-2 py-0.5 rounded-full font-mono">پس‌کرایه ۳۰ روزه</span>
           </div>
           <div className="text-2xl font-bold font-mono text-amber-300">
-            {(INITIAL_SHIPPER_TIER.availableCreditRials / 10).toLocaleString('fa-IR')}{' '}
+            {((tierInfo?.availableCreditRials || 0) / 10).toLocaleString('fa-IR')}{' '}
             <span className="text-xs font-normal text-slate-300">تومان</span>
           </div>
           <div className="text-[11px] text-slate-400">
-            از مجموع ۵۰۰,۰۰۰,۰۰۰ تومان سقف مجاز
+            از مجموع {((tierInfo?.creditLimitRials || 0) / 10).toLocaleString('fa-IR')} تومان سقف مجاز
           </div>
         </div>
 
@@ -87,14 +98,14 @@ export const ShipperBillingView: React.FC = () => {
               صورتحساب‌های در انتظار پرداخت
             </span>
             <span className="text-[10px] bg-amber-50 text-amber-900 border border-amber-200 px-2 py-0.5 rounded-full font-bold">
-              ۱ فاکتور سررسید
+              {dueInvoices.length} فاکتور سررسید
             </span>
           </div>
           <div className="text-2xl font-bold font-mono text-slate-800">
-            ۴۱,۳۵۰,۰۰۰ <span className="text-xs font-normal text-slate-400">تومان</span>
+            {(totalDueAmountRials / 10).toLocaleString('fa-IR')} <span className="text-xs font-normal text-slate-400">تومان</span>
           </div>
           <div className="text-[11px] text-slate-500">
-            سررسید فاکتور جاری: <strong>۱۴۰۳/۰۶/۳۰</strong>
+            سررسید فاکتور جاری: <strong>{dueInvoices[0]?.dueDate || 'بدون بدهی جاری'}</strong>
           </div>
         </div>
 
@@ -106,14 +117,14 @@ export const ShipperBillingView: React.FC = () => {
               مجموع تسویه‌شده در سال جاری
             </span>
             <span className="text-[10px] bg-emerald-50 text-emerald-900 border border-emerald-200 px-2 py-0.5 rounded-full font-bold">
-              ۱۴۸ بارنامه
+              {totalShipmentCount} بارنامه
             </span>
           </div>
           <div className="text-2xl font-bold font-mono text-emerald-700">
-            ۳۹۶,۴۰۰,۰۰۰ <span className="text-xs font-normal text-slate-400">تومان</span>
+            {(totalPaidAmountRials / 10).toLocaleString('fa-IR')} <span className="text-xs font-normal text-slate-400">تومان</span>
           </div>
           <div className="text-[11px] text-slate-500">
-            میانگین کرایه هر سرویس: ۲,۶۷۰,۰۰۰ تومان
+            میانگین کرایه هر سرویس: {(totalShipmentCount > 0 ? Math.round(totalPaidAmountRials / totalShipmentCount / 10) : 0).toLocaleString('fa-IR')} تومان
           </div>
         </div>
       </div>
@@ -245,7 +256,7 @@ export const ShipperBillingView: React.FC = () => {
           </h3>
 
           <div className="divide-y divide-slate-100">
-            {INITIAL_SHIPPER_TRANSACTIONS.map((trx) => (
+            {transactions.map((trx) => (
               <div key={trx.id} className="py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
                 <div className="flex items-center gap-3">
                   <div

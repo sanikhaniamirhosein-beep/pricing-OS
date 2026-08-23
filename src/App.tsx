@@ -134,7 +134,7 @@ const AppContent: React.FC = () => {
 
   // Carrier / Logistics Organization Portal Layout
   return (
-    <div className="min-h-screen bg-[#FAFAF8] text-[#2C2C2A] flex flex-col antialiased selection:bg-[#E1F5EE] selection:text-[#04342C]">
+    <div className="min-h-screen bg-slate-100 text-slate-800 flex flex-col antialiased selection:bg-slate-900 selection:text-amber-400">
       {/* Header with Environment Status and Controls */}
       <Header
         onToggleAiCoPilot={() => setIsAiCoPilotOpen(!isAiCoPilotOpen)}
@@ -202,21 +202,21 @@ const AppContent: React.FC = () => {
       </div>
 
       {/* Minimalistic Clean Footer */}
-      <footer className="bg-white border-t border-[#D3D1C7] text-[#5F5E5A] text-xs py-5 mt-12">
+      <footer className="bg-white border-t border-slate-200 text-slate-600 text-xs py-5 mt-12">
         <div className="w-full max-w-[98%] 2xl:max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-[#2C2C2A]">سامانه مدیریت و قیمت‌گذاری سازمان‌های حمل‌ونقل جاده‌ای</span>
+            <span className="font-bold text-slate-900">سامانه مدیریت و قیمت‌گذاری سازمان‌های حمل‌ونقل جاده‌ای</span>
             <span>•</span>
-            <span className="text-[#888780] font-mono">Road Freight Pricing & Governance Platform</span>
+            <span className="text-slate-400 font-mono">Road Freight Pricing & Governance Platform</span>
           </div>
           <div className="flex flex-wrap items-center gap-3 text-xs">
-            <span className="bg-[#FAFAF8] text-[#5F5E5A] px-2.5 py-0.5 rounded-lg border border-[#D3D1C7]">
+            <span className="bg-slate-50 text-slate-700 px-2.5 py-0.5 rounded-lg border border-slate-200">
               موتور محاسباتی قطعی (Deterministic Engine)
             </span>
-            <span className="bg-[#E1F5EE] text-[#04342C] px-2.5 py-0.5 rounded-lg border border-[#9FE1CB] font-semibold">
+            <span className="bg-emerald-50 text-emerald-800 px-2.5 py-0.5 rounded-lg border border-emerald-300 font-semibold">
               گاردریل کف سود ۱۵٪ فعال
             </span>
-            <span className="bg-[#FAFAF8] text-[#5F5E5A] px-2.5 py-0.5 rounded-lg border border-[#D3D1C7]">
+            <span className="bg-slate-50 text-slate-700 px-2.5 py-0.5 rounded-lg border border-slate-200">
               تفکیک وظایف Maker-Checker (BR-012)
             </span>
           </div>

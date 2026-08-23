@@ -149,23 +149,23 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
         <div className="px-2 py-1.5 flex items-center justify-between border-b border-slate-100 mb-1">
           {!isCompact ? (
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-bold text-[#888780] uppercase tracking-wider font-mono">
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider font-mono">
                 فضاهای کاری
               </span>
-              <span className="text-[10px] font-bold text-[#04342C] bg-[#E1F5EE] px-2 py-0.5 rounded-full border border-[#9FE1CB]">
+              <span className="text-[10px] font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-300">
                 ۵ فضای کاری
               </span>
             </div>
           ) : (
             <div className="w-full text-center">
-              <span className="text-[10px] font-bold font-mono text-[#888780]">منو</span>
+              <span className="text-[10px] font-bold font-mono text-slate-400">منو</span>
             </div>
           )}
 
           <button
             type="button"
             onClick={() => setIsCompact(!isCompact)}
-            className="p-1 text-[#888780] hover:text-[#2C2C2A] hover:bg-[#F1EFE8] rounded-lg transition-colors cursor-pointer"
+            className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
             title={isCompact ? 'گسترش منو' : 'حالت فشرده'}
           >
             {isCompact ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
@@ -175,13 +175,13 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
         {/* Minimal Search Bar (when expanded) */}
         {!isCompact && (
           <div className="relative mb-2 px-1">
-            <Search className="w-3.5 h-3.5 absolute right-3.5 top-1/2 -translate-y-1/2 text-[#888780]" />
+            <Search className="w-3.5 h-3.5 absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="جستجوی فضا یا زیرمنو..."
-              className="w-full pr-8 pl-3 py-1.5 bg-[#FAFAF8] hover:bg-[#F1EFE8] focus:bg-white text-xs text-[#2C2C2A] placeholder-[#888780] rounded-xl border border-[#D3D1C7] focus:border-[#9FE1CB] focus:outline-none transition-all"
+              className="w-full pr-8 pl-3 py-1.5 bg-slate-50 hover:bg-slate-100/70 focus:bg-white text-xs text-slate-800 placeholder-slate-400 rounded-xl border border-slate-200 focus:border-slate-400 focus:outline-none transition-all"
             />
           </div>
         )}
@@ -197,8 +197,8 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                 key={item.id}
                 className={`rounded-2xl transition-all duration-200 overflow-hidden ${
                   isActive
-                    ? 'bg-[#E1F5EE]/70 border border-[#9FE1CB] shadow-xs'
-                    : 'hover:bg-[#FAFAF8] border border-transparent'
+                    ? 'bg-slate-900 border border-slate-800 shadow-xs'
+                    : 'hover:bg-slate-50 border border-transparent'
                 }`}
               >
                 {/* Main Workspace Item Button */}
@@ -207,15 +207,15 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                   onClick={() => onSelectWorkspace(item.id)}
                   title={isCompact ? `${item.nameFa} - ${item.nameEn}` : undefined}
                   className={`w-full flex items-center justify-between p-2 rounded-xl text-right cursor-pointer transition-all duration-150 relative ${
-                    isActive ? 'text-[#04342C] font-bold' : 'text-[#5F5E5A] font-medium hover:text-[#2C2C2A]'
+                    isActive ? 'text-white font-bold' : 'text-slate-700 font-medium hover:text-slate-900'
                   }`}
                 >
                   <div className={`flex items-center ${isCompact ? 'justify-center w-full' : 'gap-2.5'}`}>
                     <div
                       className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-200 shrink-0 ${
                         isActive
-                          ? 'bg-[#085041] text-white shadow-xs scale-105'
-                          : 'bg-[#F1EFE8] text-[#5F5E5A] group-hover:bg-[#D3D1C7]'
+                          ? 'bg-slate-800 text-amber-400 shadow-xs scale-105 border border-slate-700'
+                          : 'bg-slate-100 text-slate-600 group-hover:bg-slate-200'
                       }`}
                     >
                       <Icon className="w-4 h-4" />
@@ -224,7 +224,9 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                     {!isCompact && (
                       <div className="min-w-0 flex-1">
                         <span className="text-xs block font-display leading-tight truncate">{item.nameFa}</span>
-                        <span className="text-[10px] text-[#888780] font-mono block leading-tight truncate">{item.nameEn}</span>
+                        <span className={`text-[10px] font-mono block leading-tight truncate ${isActive ? 'text-slate-400' : 'text-slate-400'}`}>
+                          {item.nameEn}
+                        </span>
                       </div>
                     )}
                   </div>
@@ -235,8 +237,8 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                         <span
                           className={`text-[9px] px-1.5 py-0.5 rounded font-mono font-medium truncate ${
                             isActive
-                              ? 'bg-[#9FE1CB] text-[#04342C] font-bold'
-                              : 'bg-[#F1EFE8] text-[#5F5E5A]'
+                              ? 'bg-amber-500 text-slate-950 font-bold'
+                              : 'bg-slate-100 text-slate-600'
                           }`}
                         >
                           {item.badge}
@@ -248,7 +250,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                       >
                         <ChevronDown
                           className={`w-3.5 h-3.5 ${
-                            isActive ? 'text-[#085041]' : 'text-[#888780] opacity-60'
+                            isActive ? 'text-amber-400' : 'text-slate-400 opacity-60'
                           }`}
                         />
                       </motion.div>
@@ -267,7 +269,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                       transition={{ duration: 0.22, ease: [0.04, 0.62, 0.23, 0.98] }}
                       className="overflow-hidden"
                     >
-                      <div className="px-2 pb-2 pt-1 space-y-1 border-t border-[#9FE1CB]/40 mt-1 mr-3 border-r-2 border-r-[#085041] pr-2">
+                      <div className="px-2 pb-2 pt-1 space-y-1 border-t border-slate-800 mt-1 mr-3 border-r-2 border-r-amber-500 pr-2">
                         {item.subItems.map((sub) => {
                           const SubIcon = sub.icon;
                           const isSubActive = activeSubTab === sub.id;
@@ -283,14 +285,14 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                               }}
                               className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-right text-xs transition-all duration-150 cursor-pointer ${
                                 isSubActive
-                                  ? 'bg-[#085041] text-white font-bold shadow-xs'
-                                  : 'text-[#5F5E5A] hover:text-[#2C2C2A] hover:bg-white'
+                                  ? 'bg-slate-800 text-amber-300 font-bold shadow-xs border border-slate-700'
+                                  : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
                               }`}
                             >
                               {SubIcon && (
                                 <SubIcon
                                   className={`w-3.5 h-3.5 shrink-0 ${
-                                    isSubActive ? 'text-white' : 'text-[#888780]'
+                                    isSubActive ? 'text-amber-400' : 'text-slate-400'
                                   }`}
                                 />
                               )}
@@ -309,17 +311,17 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
 
         {/* Minimal Sidebar Footer Status */}
         {!isCompact && (
-          <div className="p-2.5 bg-[#FAFAF8] rounded-2xl border border-[#D3D1C7] mt-2 text-[11px] text-[#5F5E5A] space-y-1">
+          <div className="p-2.5 bg-slate-50 rounded-2xl border border-slate-200 mt-2 text-[11px] text-slate-600 space-y-1">
             <div className="flex justify-between items-center">
               <span className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#085041] animate-pulse" />
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
                 موتور تعرفه:
               </span>
-              <span className="font-mono font-bold text-[#085041]">قطعی v1.2</span>
+              <span className="font-mono font-bold text-slate-900">قطعی v1.2</span>
             </div>
             <div className="flex justify-between items-center">
               <span>گاردریل کف سود:</span>
-              <span className="font-mono font-bold text-[#2C2C2A]">۱۵.۰٪ فعال</span>
+              <span className="font-mono font-bold text-emerald-800">۱۵.۰٪ فعال</span>
             </div>
           </div>
         )}

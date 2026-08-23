@@ -779,56 +779,52 @@ export const ShipperSupportIncidentsView: React.FC<ShipperSupportIncidentsViewPr
             <form onSubmit={handleCreateNewTicket} className="p-5 space-y-4">
               {/* Select Active Shipment (Crucial: Connected to active loads!) */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  انتخاب بارنامه / محموله دارای مشکل:
-                </label>
-                <select
+                <ModernSelect
+                  id="ticket-active-load-select"
+                  label="انتخاب بارنامه / محموله دارای مشکل"
                   value={newTicketLoadId}
-                  onChange={(e) => setNewTicketLoadId(e.target.value)}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:border-amber-500 focus:outline-none"
-                >
-                  {INITIAL_ACTIVE_LOADS.map((load) => (
-                    <option key={load.id} value={load.id}>
-                      {load.billOfLadingNo} ({load.originCity} ➔ {load.destCity}) • راننده: {load.driverName} ({load.cargoType})
-                    </option>
-                  ))}
-                </select>
+                  onChange={(val) => setNewTicketLoadId(val)}
+                  options={INITIAL_ACTIVE_LOADS.map((load) => ({
+                    value: load.id,
+                    label: `${load.billOfLadingNo} (${load.originCity} ➔ ${load.destCity})`,
+                    subLabel: `راننده: ${load.driverName} • ${load.cargoType} • ${load.truckType}`,
+                    badge: load.status === 'in_transit' ? 'در مسیر' : 'بارگیری',
+                  }))}
+                />
               </div>
 
               {/* Category & Priority Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    دسته‌بندی فوریت و نوع مشکل:
-                  </label>
-                  <select
+                  <ModernSelect
+                    id="ticket-category-select"
+                    label="دسته‌بندی نوع مشکل"
                     value={newTicketCategory}
-                    onChange={(e) => setNewTicketCategory(e.target.value as any)}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:bg-white focus:border-amber-500 focus:outline-none"
-                  >
-                    <option value="delay">تاخیر در بارگیری / رسیدن به مقصد</option>
-                    <option value="damage">آسیب به بار / نقض پلمپ یا چادر</option>
-                    <option value="breakdown">نقص فنی ناوگان و توقف بین‌راهی</option>
-                    <option value="route_deviation">انحراف از مسیر یا تغییر مقصد</option>
-                    <option value="driver_issue">عدم پاسخگویی یا ناهماهنگی راننده</option>
-                    <option value="pricing_dispute">مغایرت نرخ، کرایه، عوارض یا توقف</option>
-                    <option value="other">سایر فوریت‌های عملیاتی</option>
-                  </select>
+                    onChange={(val) => setNewTicketCategory(val as any)}
+                    options={[
+                      { value: 'delay', label: 'تاخیر در بارگیری / رسیدن به مقصد', badge: 'عملیاتی' },
+                      { value: 'damage', label: 'آسیب به بار / نقض پلمپ یا چادر', badge: 'بیمه/خسارت' },
+                      { value: 'breakdown', label: 'نقص فنی ناوگان و توقف بین‌راهی', badge: 'فنی' },
+                      { value: 'route_deviation', label: 'انحراف از مسیر یا تغییر مقصد', badge: 'ناوبری' },
+                      { value: 'driver_issue', label: 'عدم پاسخگویی یا ناهماهنگی راننده', badge: 'راننده' },
+                      { value: 'pricing_dispute', label: 'مغایرت نرخ، کرایه، عوارض یا توقف', badge: 'مالی' },
+                      { value: 'other', label: 'سایر فوریت‌های عملیاتی', badge: 'سایر' },
+                    ]}
+                  />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    درجه اولویت و حساسیت:
-                  </label>
-                  <select
+                  <ModernSelect
+                    id="ticket-priority-select"
+                    label="درجه فوریت و حساسیت"
                     value={newTicketPriority}
-                    onChange={(e) => setNewTicketPriority(e.target.value as any)}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:bg-white focus:border-amber-500 focus:outline-none"
-                  >
-                    <option value="urgent">فوری / اضطراری (اقدام در کمتر از ۵ دقیقه)</option>
-                    <option value="high">اولویت بالا (توقف یا خطر تاخیر خط تولید)</option>
-                    <option value="normal">عادی (پیگیری اداری یا سوال مالی)</option>
-                  </select>
+                    onChange={(val) => setNewTicketPriority(val as any)}
+                    options={[
+                      { value: 'urgent', label: 'فوری / اضطراری', subLabel: 'اقدام زیر ۵ دقیقه', badge: 'فوری' },
+                      { value: 'high', label: 'اولویت بالا', subLabel: 'خطر توقف خط تولید', badge: 'بالا' },
+                      { value: 'normal', label: 'عادی', subLabel: 'پیگیری اداری و مالی', badge: 'عادی' },
+                    ]}
+                  />
                 </div>
               </div>
 

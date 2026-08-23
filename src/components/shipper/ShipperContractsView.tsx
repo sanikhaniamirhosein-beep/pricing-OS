@@ -16,11 +16,12 @@ import { INITIAL_SHIPPER_TIER } from '../../data/mockShipperData';
 import { usePricing } from '../../store/PricingContext';
 
 export const ShipperContractsView: React.FC = () => {
-  const { userOrgName } = usePricing();
+  const { currentShipperOrg, userOrgName } = usePricing();
+  const tierInfo = currentShipperOrg.tierInfo;
 
   const progressPercent = Math.min(
     100,
-    Math.round((INITIAL_SHIPPER_TIER.monthlyVolumeTons / INITIAL_SHIPPER_TIER.targetVolumeTons) * 100)
+    Math.round((tierInfo.monthlyVolumeTons / tierInfo.targetVolumeTons) * 100)
   );
 
   return (
@@ -30,7 +31,7 @@ export const ShipperContractsView: React.FC = () => {
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 font-bold text-xs">
-              سطح تجاری: {INITIAL_SHIPPER_TIER.tierName}
+              سطح تجاری: {tierInfo.tierName}
             </span>
             <span className="text-xs text-slate-400">|</span>
             <span className="text-xs text-slate-500 font-medium">قرارداد سالانه سازمانی</span>
@@ -39,7 +40,7 @@ export const ShipperContractsView: React.FC = () => {
             مدیریت قراردادها، پله‌های تخفیف و توافقنامه سطح خدمات (SLA)
           </h2>
           <p className="text-xs text-slate-400">
-            سازمان صاحب بار: <strong className="text-slate-700">{userOrgName || 'شرکت فولاد مبارکه اصفهان'}</strong>
+            سازمان صاحب بار: <strong className="text-slate-700">{currentShipperOrg.nameFa || userOrgName}</strong>
           </p>
         </div>
 
@@ -47,7 +48,7 @@ export const ShipperContractsView: React.FC = () => {
           <div className="text-left bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs">
             <span className="text-slate-400 block text-[10px]">تخفیف فعال خودکار روی تمام فاکتورها:</span>
             <strong className="text-emerald-700 text-sm font-mono font-bold">
-              %{INITIAL_SHIPPER_TIER.currentDiscountPercent} تخفیف حجمی
+              %{tierInfo.currentDiscountPercent} تخفیف حجمی
             </strong>
           </div>
         </div>
@@ -63,22 +64,22 @@ export const ShipperContractsView: React.FC = () => {
             <div>
               <h3 className="font-bold text-slate-900 text-sm">نوار پیشرفت حجم بار و رسیدن به پله بعدی (Volume Tracker)</h3>
               <p className="text-xs text-slate-500">
-                حجم تناژ حمل‌شده در ماه جاری: <strong className="font-mono text-amber-950 font-bold">{INITIAL_SHIPPER_TIER.monthlyVolumeTons} تن</strong>
+                حجم تناژ حمل‌شده در ماه جاری: <strong className="font-mono text-amber-950 font-bold">{tierInfo.monthlyVolumeTons} تن</strong>
               </p>
             </div>
           </div>
 
           <div className="text-xs font-bold text-amber-900 bg-white/80 px-3 py-1.5 rounded-xl border border-amber-200">
-            {INITIAL_SHIPPER_TIER.targetVolumeTons - INITIAL_SHIPPER_TIER.monthlyVolumeTons} تن تا پله «{INITIAL_SHIPPER_TIER.nextTierName}»
+            {Math.max(0, tierInfo.targetVolumeTons - tierInfo.monthlyVolumeTons)} تن تا پله «{tierInfo.nextTierName}»
           </div>
         </div>
 
         {/* Big Progress Bar */}
         <div className="space-y-2">
           <div className="flex justify-between text-xs text-slate-600 font-medium">
-            <span>سطح فعلی: <strong>{INITIAL_SHIPPER_TIER.tierName}</strong> (%{INITIAL_SHIPPER_TIER.currentDiscountPercent} تخفیف)</span>
+            <span>سطح فعلی: <strong>{tierInfo.tierName}</strong> (%{tierInfo.currentDiscountPercent} تخفیف)</span>
             <span className="font-mono font-bold text-amber-900">{progressPercent}٪ تکمیل شده</span>
-            <span>پله بعدی: <strong>{INITIAL_SHIPPER_TIER.nextTierName}</strong> (%{INITIAL_SHIPPER_TIER.nextTierDiscountPercent} تخفیف)</span>
+            <span>پله بعدی: <strong>{tierInfo.nextTierName}</strong> (%{tierInfo.nextTierDiscountPercent} تخفیف)</span>
           </div>
 
           <div className="w-full h-4 bg-slate-200 rounded-full overflow-hidden p-0.5">
