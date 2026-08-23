@@ -15,6 +15,9 @@ import {
   Check,
 } from 'lucide-react';
 import { usePricing } from '../../../store/PricingContext';
+import { CityPickerDropdown } from '../../common/menus/CityPickerDropdown';
+import { VehiclePickerDropdown } from '../../common/menus/VehiclePickerDropdown';
+import { CommodityPickerDropdown } from '../../common/menus/CommodityPickerDropdown';
 
 export const PriceTraceDebuggerView: React.FC = () => {
   const { commodities, fleetCategories, geoZones, fuelIndexMultiplier } = usePricing();
@@ -117,53 +120,38 @@ export const PriceTraceDebuggerView: React.FC = () => {
 
             <div className="space-y-3 text-xs">
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-slate-600 font-medium mb-1">مبدأ بارگیری</label>
-                  <input
-                    type="text"
-                    value={origin}
-                    onChange={(e) => setOrigin(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-bold"
-                  />
-                </div>
-                <div>
-                  <label className="block text-slate-600 font-medium mb-1">مقصد تخلیه</label>
-                  <input
-                    type="text"
-                    value={destination}
-                    onChange={(e) => setDestination(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-bold"
-                  />
-                </div>
+                <CityPickerDropdown
+                  id="trace-debugger-origin"
+                  value={origin}
+                  onChange={setOrigin}
+                  label="مبدأ بارگیری"
+                  type="origin"
+                />
+                <CityPickerDropdown
+                  id="trace-debugger-dest"
+                  value={destination}
+                  onChange={setDestination}
+                  label="مقصد تخلیه"
+                  type="destination"
+                />
               </div>
 
               <div>
-                <label className="block text-slate-600 font-medium mb-1">نوع ناوگان بارگیر</label>
-                <select
+                <VehiclePickerDropdown
+                  id="trace-debugger-vehicle"
                   value={vehicle}
-                  onChange={(e) => setVehicle(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-bold"
-                >
-                  <option value="تریلی کفی ۱۳.۶ متری">تریلی کفی ۱۳.۶ متری</option>
-                  <option value="تریلی چادری ترانزیت">تریلی چادری ترانزیت</option>
-                  <option value="تریلی یخچالی">تریلی یخچالی</option>
-                  <option value="جفت ۱۰ چرخ">جفت ۱۰ چرخ</option>
-                  <option value="خاور مسقف">خاور مسقف</option>
-                </select>
+                  onChange={setVehicle}
+                  label="نوع ناوگان بارگیر"
+                />
               </div>
 
               <div>
-                <label className="block text-slate-600 font-medium mb-1">نوع و ماهیت کالا</label>
-                <select
+                <CommodityPickerDropdown
+                  id="trace-debugger-commodity"
                   value={commodity}
-                  onChange={(e) => setCommodity(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-bold"
-                >
-                  <option value="گرانول پتروشیمی">گرانول پتروشیمی</option>
-                  <option value="میلگرد و فولاد">میلگرد و فولاد</option>
-                  <option value="فرآورده‌های لبنی">فرآورده‌های لبنی (زنجیره سرد)</option>
-                  <option value="کالای عمومی تجاری">کالای عمومی تجاری</option>
-                </select>
+                  onChange={setCommodity}
+                  label="نوع و ماهیت کالا"
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-3">

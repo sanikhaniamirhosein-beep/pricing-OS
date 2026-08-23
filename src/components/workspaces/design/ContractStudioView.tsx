@@ -15,6 +15,8 @@ import {
 } from 'lucide-react';
 import { usePricing } from '../../../store/PricingContext';
 import { LogisticsContract } from '../../../types/pricing';
+import { ContractPickerDropdown } from '../../common/menus/ContractPickerDropdown';
+import { ModernSelect } from '../../common/menus/ModernSelect';
 
 export const ContractStudioView: React.FC = () => {
   const { contracts, routeMatrix } = usePricing();
@@ -64,19 +66,13 @@ export const ContractStudioView: React.FC = () => {
         </div>
 
         {/* Contract Selector */}
-        <div className="flex items-center gap-3">
-          <Building2 className="w-5 h-5 text-amber-600" />
-          <select
+        <div className="w-full sm:w-80">
+          <ContractPickerDropdown
+            id="studio-contract-select"
             value={selectedContractId}
-            onChange={(e) => setSelectedContractId(e.target.value)}
-            className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 text-xs font-medium focus:bg-white focus:border-amber-500 focus:outline-none"
-          >
-            {(contracts || []).map((cnt) => (
-              <option key={cnt.contractId} value={cnt.contractId}>
-                {cnt.displayId} - {cnt.customerNameFa} ({cnt.tier})
-              </option>
-            ))}
-          </select>
+            onChange={setSelectedContractId}
+            contracts={contracts}
+          />
         </div>
       </div>
 
@@ -175,15 +171,16 @@ export const ContractStudioView: React.FC = () => {
 
             <div className="space-y-4">
               <div>
-                <label className="text-slate-700 font-medium block mb-1.5 text-xs">کریدور هدف مذاکره:</label>
-                <select
+                <ModernSelect
+                  id="studio-negotiation-route"
                   value={selectedRoute}
-                  onChange={(e) => setSelectedRoute(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-800 text-xs focus:bg-white focus:outline-none focus:border-amber-500"
-                >
-                  <option value="تهران-بندرعباس:تریلی چادری">تهران به بندرعباس (تریلی چادری ۲۴ تن)</option>
-                  <option value="اصفهان-بوشهر:تریلر کفی">اصفهان به بوشهر (تریلر کفی ۲۵ تن)</option>
-                </select>
+                  onChange={setSelectedRoute}
+                  label="کریدور هدف مذاکره:"
+                  options={[
+                    { value: 'تهران-بندرعباس:تریلی چادری', label: 'تهران به بندرعباس (تریلی چادری ۲۴ تن)', badge: 'ترانزیت' },
+                    { value: 'اصفهان-بوشهر:تریلر کفی', label: 'اصفهان به بوشهر (تریلر کفی ۲۵ تن)', badge: 'کفی' },
+                  ]}
+                />
               </div>
 
               <div>

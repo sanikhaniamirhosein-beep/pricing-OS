@@ -20,6 +20,7 @@ import {
   Shield,
 } from 'lucide-react';
 import { INITIAL_ACTIVE_LOADS, ShipperActiveLoad } from '../../data/mockShipperData';
+import { ModernSelect } from '../common/menus/ModernSelect';
 
 interface ShipperShipmentsViewProps {
   initialSelectedShipment?: ShipperActiveLoad | null;
@@ -146,19 +147,20 @@ export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
                 <span className="text-xs font-mono text-slate-400">({filteredLoads.length} مورد)</span>
               </div>
 
-              <div className="flex items-center gap-2">
-                <Filter className="w-3.5 h-3.5 text-slate-400" />
-                <span className="text-xs text-slate-500">فیلتر وضعیت:</span>
-                <select
+              <div className="flex items-center gap-2 min-w-[200px]">
+                <ModernSelect
+                  id="shipments-status-filter"
                   value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="bg-slate-50 border border-slate-200 rounded-lg text-xs p-1.5 text-slate-700 font-medium"
-                >
-                  <option value="all">همه وضعیت‌ها</option>
-                  <option value="in_transit">در حال حرکت</option>
-                  <option value="loading">در حال بارگیری</option>
-                  <option value="pending_driver">در انتظار ناوگان</option>
-                </select>
+                  onChange={setStatusFilter}
+                  icon={<Filter className="w-3.5 h-3.5 text-slate-400" />}
+                  options={[
+                    { value: 'all', label: 'همه وضعیت‌ها', badge: `${INITIAL_ACTIVE_LOADS.length}` },
+                    { value: 'in_transit', label: 'در حال حرکت', badge: 'فعال' },
+                    { value: 'loading', label: 'در حال بارگیری', badge: 'انبار' },
+                    { value: 'pending_driver', label: 'در انتظار ناوگان', badge: 'صف' },
+                  ]}
+                  className="w-48"
+                />
               </div>
             </div>
 

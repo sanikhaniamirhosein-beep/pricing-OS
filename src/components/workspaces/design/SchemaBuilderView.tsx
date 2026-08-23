@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { usePricing } from '../../../store/PricingContext';
 import { SchemaAttribute, CommodityCategory, FleetCategory } from '../../../types/pricing';
+import { ModernSelect } from '../../common/menus/ModernSelect';
 
 export const SchemaBuilderView: React.FC = () => {
   const {
@@ -574,19 +575,20 @@ export const SchemaBuilderView: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">نوع داده</label>
-                  <select
+                  <ModernSelect
+                    id="schema-attr-datatype"
                     value={newAttr.dataType}
-                    onChange={(e) => setNewAttr({ ...newAttr, dataType: e.target.value as any })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs focus:bg-white focus:outline-none focus:border-amber-500"
-                  >
-                    <option value="number">عدد (Number)</option>
-                    <option value="string">متن (String)</option>
-                    <option value="boolean">شرطی (Boolean)</option>
-                    <option value="enum">انتخابی (Enum)</option>
-                    <option value="geo_location">مختصات جغرافیایی (Geo)</option>
-                    <option value="date">تاریخ (Date)</option>
-                  </select>
+                    onChange={(val) => setNewAttr({ ...newAttr, dataType: val as any })}
+                    label="نوع داده"
+                    options={[
+                      { value: 'number', label: 'عدد (Number)', badge: 'عددی' },
+                      { value: 'string', label: 'متن (String)', badge: 'متنی' },
+                      { value: 'boolean', label: 'شرطی (Boolean)', badge: 'بولی' },
+                      { value: 'enum', label: 'انتخابی (Enum)', badge: 'لیست' },
+                      { value: 'geo_location', label: 'مختصات جغرافیایی (Geo)', badge: 'نقشه' },
+                      { value: 'date', label: 'تاریخ (Date)', badge: 'زمان' },
+                    ]}
+                  />
                 </div>
               </div>
 
@@ -923,16 +925,17 @@ export const SchemaBuilderView: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">سطح ریسک حمل</label>
-                  <select
+                  <ModernSelect
+                    id="schema-commodity-risk"
                     value={editingCommodity.riskClass}
-                    onChange={(e) => setEditingCommodity({ ...editingCommodity, riskClass: e.target.value as any })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs focus:bg-white focus:outline-none focus:border-amber-500 font-semibold"
-                  >
-                    <option value="low">کم‌ریسک (Low Risk)</option>
-                    <option value="medium">متوسط (Medium Risk)</option>
-                    <option value="high">پرخطر / حساس (High Risk)</option>
-                  </select>
+                    onChange={(val) => setEditingCommodity({ ...editingCommodity, riskClass: val as any })}
+                    label="سطح ریسک حمل"
+                    options={[
+                      { value: 'low', label: 'کم‌ریسک (Low Risk)', badge: 'سبز' },
+                      { value: 'medium', label: 'متوسط (Medium Risk)', badge: 'زرد' },
+                      { value: 'high', label: 'پرخطر / حساس (High Risk)', badge: 'قرمز' },
+                    ]}
+                  />
                 </div>
               </div>
 
@@ -1104,18 +1107,19 @@ export const SchemaBuilderView: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">دسته‌بندی تناژ</label>
-                  <select
+                  <ModernSelect
+                    id="schema-fleet-category"
                     value={editingFleet.categoryType}
-                    onChange={(e) => setEditingFleet({ ...editingFleet, categoryType: e.target.value as any })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs focus:bg-white focus:outline-none focus:border-amber-500 font-semibold"
-                  >
-                    <option value="light">سبک (نیسان و وانت)</option>
-                    <option value="medium">نیمه‌سنگین (خاور و ۹۱۱)</option>
-                    <option value="heavy">سنگین (تک، جفت، تریلی)</option>
-                    <option value="specialized">تخصصی (کمپرسی، تانکر، یخچال)</option>
-                    <option value="super_heavy">فوق‌سنگین (بوژی و کمرشکن)</option>
-                  </select>
+                    onChange={(val) => setEditingFleet({ ...editingFleet, categoryType: val as any })}
+                    label="دسته‌بندی تناژ"
+                    options={[
+                      { value: 'light', label: 'سبک (نیسان و وانت)', badge: 'سبک' },
+                      { value: 'medium', label: 'نیمه‌سنگین (خاور و ۹۱۱)', badge: 'نیمه‌سنگین' },
+                      { value: 'heavy', label: 'سنگین (تک، جفت، تریلی)', badge: 'سنگین' },
+                      { value: 'specialized', label: 'تخصصی (کمپرسی، تانکر، یخچال)', badge: 'تخصصی' },
+                      { value: 'super_heavy', label: 'فوق‌سنگین (بوژی و کمرشکن)', badge: 'فوق‌سنگین' },
+                    ]}
+                  />
                 </div>
               </div>
 

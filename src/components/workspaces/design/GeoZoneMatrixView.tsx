@@ -23,6 +23,8 @@ import {
 } from 'lucide-react';
 import { usePricing } from '../../../store/PricingContext';
 import { GeoZone, RouteMatrixCell } from '../../../types/pricing';
+import { ModernSelect } from '../../common/menus/ModernSelect';
+import { VehiclePickerDropdown } from '../../common/menus/VehiclePickerDropdown';
 
 export const GeoZoneMatrixView: React.FC = () => {
   const { geoZones, updateGeoZone, addGeoZone, routeMatrix, updateRouteMatrixCell } = usePricing();
@@ -143,18 +145,17 @@ export const GeoZoneMatrixView: React.FC = () => {
               </div>
 
               {/* Vehicle Filter */}
-              <select
-                value={selectedVehicle}
-                onChange={(e) => setSelectedVehicle(e.target.value)}
-                className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-700 focus:bg-white focus:outline-none focus:border-amber-500"
-              >
-                <option value="all">همه انواع ناوگان</option>
-                {vehiclesList.map((v) => (
-                  <option key={v} value={v}>
-                    {v}
-                  </option>
-                ))}
-              </select>
+              <div className="min-w-[170px]">
+                <ModernSelect
+                  id="geozone-vehicle-filter"
+                  value={selectedVehicle}
+                  onChange={setSelectedVehicle}
+                  options={[
+                    { value: 'all', label: 'همه انواع ناوگان', badge: 'همه' },
+                    ...vehiclesList.map((v) => ({ value: v, label: v })),
+                  ]}
+                />
+              </div>
 
               {/* Resolution Switcher */}
               <div className="flex items-center bg-slate-50 p-1 rounded-xl border border-slate-200 text-xs">
@@ -590,18 +591,19 @@ export const GeoZoneMatrixView: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-medium text-slate-700 mb-1">نوع زون لجستیکی</label>
-                  <select
+                  <ModernSelect
+                    id="geozone-edit-type"
                     value={editingGeoZone.zoneType}
-                    onChange={(e) => setEditingGeoZone({ ...editingGeoZone, zoneType: e.target.value as any })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs focus:bg-white focus:outline-none focus:border-amber-500 font-semibold"
-                  >
-                    <option value="metropolitan">کلان‌شهر / شهری</option>
-                    <option value="industrial_hub">شهرک و قطب صنعتی</option>
-                    <option value="port_terminal">بندر تجاری و اسکله</option>
-                    <option value="border_customs">گمرک و پایانه مرزی</option>
-                    <option value="free_trade_zone">منطقه آزاد تجاری</option>
-                  </select>
+                    onChange={(val) => setEditingGeoZone({ ...editingGeoZone, zoneType: val as any })}
+                    label="نوع زون لجستیکی"
+                    options={[
+                      { value: 'metropolitan', label: 'کلان‌شهر / شهری', badge: 'شهری' },
+                      { value: 'industrial_hub', label: 'شهرک و قطب صنعتی', badge: 'صنعتی' },
+                      { value: 'port_terminal', label: 'بندر تجاری و اسکله', badge: 'بندری' },
+                      { value: 'border_customs', label: 'گمرک و پایانه مرزی', badge: 'مرزی' },
+                      { value: 'free_trade_zone', label: 'منطقه آزاد تجاری', badge: 'آزاد' },
+                    ]}
+                  />
                 </div>
                 <div>
                   <label className="block font-medium text-slate-700 mb-1">ضریب سختی دسترسی زون</label>

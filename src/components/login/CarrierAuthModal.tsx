@@ -19,6 +19,7 @@ import {
   Layers,
 } from 'lucide-react';
 import { UserRole } from '../../types/pricing';
+import { ModernSelect } from '../common/menus/ModernSelect';
 
 interface CarrierAuthModalProps {
   isOpen: boolean;
@@ -707,18 +708,16 @@ export const CarrierAuthModal: React.FC<CarrierAuthModalProps> = ({
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-slate-700 mb-1 font-bold">انتخاب نقش:</label>
-                        <select
+                        <ModernSelect
+                          id="carrier-member-role"
                           value={memberRole}
-                          onChange={(e) => setMemberRole(e.target.value as UserRole)}
-                          className="w-full bg-white border border-amber-200 rounded-xl p-2.5 text-slate-800 text-xs font-medium focus:border-amber-500 focus:outline-none"
-                        >
-                          {roleOptions.map((ro) => (
-                            <option key={ro.role} value={ro.role}>
-                              {ro.titleFa}
-                            </option>
-                          ))}
-                        </select>
+                          onChange={(val) => setMemberRole(val as UserRole)}
+                          label="انتخاب نقش:"
+                          options={roleOptions.map((ro) => ({
+                            value: ro.role,
+                            label: ro.titleFa,
+                          }))}
+                        />
                       </div>
 
                       <div>

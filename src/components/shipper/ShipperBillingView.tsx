@@ -22,6 +22,7 @@ import {
   INITIAL_SHIPPER_TIER,
   ShipperInvoice,
 } from '../../data/mockShipperData';
+import { ModernSelect } from '../common/menus/ModernSelect';
 
 export const ShipperBillingView: React.FC = () => {
   const [activeSubTab, setActiveSubTab] = useState<'invoices' | 'transactions' | 'credit' | 'dispute'>('invoices');
@@ -391,17 +392,18 @@ export const ShipperBillingView: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-slate-700 font-bold text-xs mb-1">نوع مغایرت:</label>
-              <select
+              <ModernSelect
+                id="billing-dispute-reason"
                 value={disputeReason}
-                onChange={(e) => setDisputeReason(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 font-medium"
-              >
-                <option value="اعمال هزینه توقف نامعتبر راننده">اعمال هزینه توقف نامعتبر راننده</option>
-                <option value="مغایرت تناژ باسکول مبدأ با فاکتور">مغایرت تناژ باسکول مبدأ با فاکتور</option>
-                <option value="عدم اعمال تخفیف پلکانی قرارداد">عدم اعمال تخفیف پلکانی قرارداد</option>
-                <option value="محاسبه اشتباه عوارض جاده‌ای">محاسبه اشتباه عوارض جاده‌ای</option>
-              </select>
+                onChange={setDisputeReason}
+                label="نوع مغایرت:"
+                options={[
+                  { value: 'اعمال هزینه توقف نامعتبر راننده', label: 'اعمال هزینه توقف نامعتبر راننده', badge: 'حق توقف' },
+                  { value: 'مغایرت تناژ باسکول مبدأ با فاکتور', label: 'مغایرت تناژ باسکول مبدأ با فاکتور', badge: 'وزن/تناژ' },
+                  { value: 'عدم اعمال تخفیف پلکانی قرارداد', label: 'عدم اعمال تخفیف پلکانی قرارداد', badge: 'تخفیف' },
+                  { value: 'محاسبه اشتباه عوارض جاده‌ای', label: 'محاسبه اشتباه عوارض جاده‌ای', badge: 'عوارض' },
+                ]}
+              />
             </div>
           </div>
 

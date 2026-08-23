@@ -19,6 +19,9 @@ import {
 } from 'lucide-react';
 import { usePricing } from '../../store/PricingContext';
 import { ShipmentPricingContext } from '../../engine/pricingEngine';
+import { CityPickerDropdown } from './menus/CityPickerDropdown';
+import { VehiclePickerDropdown } from './menus/VehiclePickerDropdown';
+import { ContractPickerDropdown } from './menus/ContractPickerDropdown';
 
 export const QuickQuoteSandboxModal: React.FC = () => {
   const { isQuickQuoteOpen, setIsQuickQuoteOpen, calculatePrice, setSelectedTrace, contracts } = usePricing();
@@ -98,80 +101,41 @@ export const QuickQuoteSandboxModal: React.FC = () => {
         <div className="p-6 space-y-4 text-xs overflow-y-auto max-h-[75vh] bg-white">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
             {/* Origin */}
-            <div>
-              <label className="block text-slate-700 mb-1.5 font-bold flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-amber-600" />
-                شهر مبدأ بارگیری:
-              </label>
-              <select
-                value={originCity}
-                onChange={(e) => setOriginCity(e.target.value)}
-                className="w-full bg-[#FAF8F5] border border-amber-200/80 rounded-xl p-2.5 text-slate-800 text-xs focus:border-amber-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 font-medium"
-              >
-                <option value="تهران">تهران (پایانه جنوب / احمدآباد)</option>
-                <option value="اصفهان">اصفهان (پایانه امیرکبیر)</option>
-                <option value="مشهد">مشهد (پایانه بار شرق)</option>
-                <option value="تبریز">تبریز (پایانه ترانزیت)</option>
-                <option value="رشت">رشت (گیلان)</option>
-                <option value="شیراز">شیراز (فارس)</option>
-                <option value="اهواز">اهواز (خوزستان)</option>
-                <option value="بندرعباس">بندرعباس (اسکله شهید رجایی)</option>
-                <option value="بوشهر">بوشهر (گمرک منطقه ویژه)</option>
-                <option value="چابهار">چابهار (بندر شهید بهشتی)</option>
-                <option value="بازرگان">بازرگان (مرز ترکیه)</option>
-              </select>
-            </div>
+            <CityPickerDropdown
+              id="sandbox-origin-city"
+              value={originCity}
+              onChange={setOriginCity}
+              label="شهر مبدأ بارگیری:"
+              type="origin"
+            />
 
             {/* Destination */}
-            <div>
-              <label className="block text-slate-700 mb-1.5 font-bold flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-teal-600" />
-                شهر مقصد تخلیه:
-              </label>
-              <select
-                value={destinationCity}
-                onChange={(e) => setDestinationCity(e.target.value)}
-                className="w-full bg-[#FAF8F5] border border-amber-200/80 rounded-xl p-2.5 text-slate-800 text-xs focus:border-amber-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 font-medium"
-              >
-                <option value="بندرعباس">بندرعباس (اسکله شهید رجایی)</option>
-                <option value="تهران">تهران (انبار مرکزی)</option>
-                <option value="بوشهر">بوشهر (گمرک بنادر)</option>
-                <option value="بازرگان">بازرگان (مرز ترانزیتی)</option>
-                <option value="چابهار">چابهار (کریدور اقیانوسی)</option>
-                <option value="اصفهان">اصفهان</option>
-                <option value="مشهد">مشهد</option>
-                <option value="تبریز">تبریز</option>
-                <option value="شیراز">شیراز</option>
-              </select>
-            </div>
+            <CityPickerDropdown
+              id="sandbox-dest-city"
+              value={destinationCity}
+              onChange={setDestinationCity}
+              label="شهر مقصد تخلیه:"
+              type="destination"
+            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
             {/* Vehicle Type */}
-            <div>
-              <label className="block text-slate-700 mb-1.5 font-bold flex items-center gap-1.5">
-                <Truck className="w-3.5 h-3.5 text-slate-500" />
-                نوع ناوگان باربری:
-              </label>
-              <select
-                value={vehicleType}
-                onChange={(e) => setVehicleType(e.target.value)}
-                className="w-full bg-[#FAF8F5] border border-amber-200/80 rounded-xl p-2.5 text-slate-800 text-xs focus:border-amber-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 font-medium"
-              >
-                <option value="تریلی چادری">تریلی چادری ۲۴ تن (ترانزیت استاندارد)</option>
-                <option value="تریلر کفی">تریلر کفی ۲۵ تن (صنعتی و کانتینری)</option>
-                <option value="کشنده یخچال‌دار">کشنده یخچال‌دار ۲۰ تن (کنترل دما)</option>
-                <option value="کامیون جفت ۱۵ تن">کامیون جفت ۶×۴ (۱۵ تن)</option>
-                <option value="کامیون تک ۱۰ تن">کامیون تک ۴×۲ (۱۰ تن)</option>
-                <option value="کمرشکن بوژی">کمرشکن بوژی ۶۰ تن (فوق سنگین)</option>
-              </select>
-            </div>
+            <VehiclePickerDropdown
+              id="sandbox-vehicle-type"
+              value={vehicleType}
+              onChange={setVehicleType}
+              label="نوع ناوگان باربری:"
+            />
 
             {/* Cargo Weight */}
             <div>
-              <label className="block text-slate-700 mb-1.5 font-bold flex items-center gap-1.5">
-                <Scale className="w-3.5 h-3.5 text-slate-500" />
-                وزن خالص محموله (تن):
+              <label className="block text-slate-700 mb-1.5 font-bold flex items-center justify-between text-xs">
+                <span className="flex items-center gap-1.5">
+                  <Scale className="w-3.5 h-3.5 text-amber-600" />
+                  <span>وزن خالص محموله (تن):</span>
+                </span>
+                <span className="text-[10px] text-slate-400 font-mono">حداکثر ۶۰ تن</span>
               </label>
               <div className="flex items-center gap-2">
                 <input
@@ -180,7 +144,7 @@ export const QuickQuoteSandboxModal: React.FC = () => {
                   max="60"
                   value={cargoWeightTons}
                   onChange={(e) => setCargoWeightTons(Number(e.target.value))}
-                  className="w-full bg-[#FAF8F5] border border-amber-200/80 rounded-xl p-2.5 text-slate-800 text-xs focus:border-amber-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 font-mono font-bold"
+                  className="w-full bg-white border border-slate-200 rounded-2xl p-2.5 text-slate-800 text-xs focus:border-amber-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 font-mono font-bold shadow-2xs"
                 />
                 <span className="text-slate-500 font-bold px-2">تن</span>
               </div>
@@ -188,24 +152,13 @@ export const QuickQuoteSandboxModal: React.FC = () => {
           </div>
 
           {/* Contract Selection */}
-          <div>
-            <label className="block text-slate-700 mb-1.5 font-bold flex items-center gap-1.5">
-              <Building2 className="w-3.5 h-3.5 text-slate-500" />
-              قرارداد صاحب‌کالا (اختیاری):
-            </label>
-            <select
-              value={contractId}
-              onChange={(e) => setContractId(e.target.value)}
-              className="w-full bg-[#FAF8F5] border border-amber-200/80 rounded-xl p-2.5 text-slate-800 text-xs focus:border-amber-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 font-medium"
-            >
-              <option value="">(تعرفه عمومی استاندارد - بدون قرارداد اختصاصی)</option>
-              {(contracts || []).map((cnt) => (
-                <option key={cnt.contractId} value={cnt.contractId}>
-                  {cnt.displayId} - {cnt.customerNameFa} ({cnt.tier})
-                </option>
-              ))}
-            </select>
-          </div>
+          <ContractPickerDropdown
+            id="sandbox-contract"
+            value={contractId}
+            contracts={contracts || []}
+            onChange={setContractId}
+            label="قرارداد صاحب‌کالا (اختیاری):"
+          />
 
           {/* Service Addon Toggles */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 pt-1">

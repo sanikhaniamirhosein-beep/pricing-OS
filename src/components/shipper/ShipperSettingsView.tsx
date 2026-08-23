@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { INITIAL_SHIPPER_TEAM, ShipperTeamMember } from '../../data/mockShipperData';
 import { usePricing } from '../../store/PricingContext';
+import { ModernSelect } from '../common/menus/ModernSelect';
 
 export const ShipperSettingsView: React.FC = () => {
   const { userOrgName, userName, userEmail } = usePricing();
@@ -177,32 +178,34 @@ export const ShipperSettingsView: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-700 text-xs font-bold mb-1">نقش سازمانی:</label>
-                  <select
+                  <ModernSelect
+                    id="settings-member-role"
                     value={newMemberRole}
-                    onChange={(e) => setNewMemberRole(e.target.value as any)}
-                    className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs"
-                  >
-                    <option value="مدیر ارشد تدارکات">مدیر ارشد تدارکات</option>
-                    <option value="کارشناس بارنامه">کارشناس بارنامه و حمل</option>
-                    <option value="مسئول انبار">مسئول انبار و تحویل</option>
-                    <option value="مدیر مالی و حسابداری">مدیر مالی و حسابداری</option>
-                    <option value="مدیر بازرگانی">مدیر بازرگانی</option>
-                  </select>
+                    onChange={(val) => setNewMemberRole(val as any)}
+                    label="نقش سازمانی:"
+                    options={[
+                      { value: 'مدیر ارشد تدارکات', label: 'مدیر ارشد تدارکات', badge: 'مدیریت' },
+                      { value: 'کارشناس بارنامه', label: 'کارشناس بارنامه و حمل', badge: 'عملیات' },
+                      { value: 'مسئول انبار', label: 'مسئول انبار و تحویل', badge: 'انبار' },
+                      { value: 'مدیر مالی و حسابداری', label: 'مدیر مالی و حسابداری', badge: 'مالی' },
+                      { value: 'مدیر بازرگانی', label: 'مدیر بازرگانی', badge: 'بازرگانی' },
+                    ]}
+                  />
                 </div>
 
                 <div>
-                  <label className="block text-slate-700 text-xs font-bold mb-1">سطح دسترسی در پرتال:</label>
-                  <select
+                  <ModernSelect
+                    id="settings-member-access"
                     value={newMemberAccess}
-                    onChange={(e) => setNewMemberAccess(e.target.value as any)}
-                    className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs"
-                  >
-                    <option value="مدیر کل">مدیر کل (دسترسی کامل به تمام بخش‌ها)</option>
-                    <option value="ثبت و رهگیری">ثبت سفارش و رهگیری محموله‌ها</option>
-                    <option value="امور مالی">دسترسی به فاکتورها و کیف پول</option>
-                    <option value="صرفاً مشاهده و گزارش">صرفاً مشاهده و گزارش‌گیری</option>
-                  </select>
+                    onChange={(val) => setNewMemberAccess(val as any)}
+                    label="سطح دسترسی در پرتال:"
+                    options={[
+                      { value: 'مدیر کل', label: 'مدیر کل (دسترسی کامل)', badge: 'کامل' },
+                      { value: 'ثبت و رهگیری', label: 'ثبت سفارش و رهگیری محموله‌ها', badge: 'ثبت' },
+                      { value: 'امور مالی', label: 'دسترسی به فاکتورها و کیف پول', badge: 'مالی' },
+                      { value: 'صرفاً مشاهده و گزارش', label: 'صرفاً مشاهده و گزارش‌گیری', badge: 'گزارش' },
+                    ]}
+                  />
                 </div>
               </div>
 

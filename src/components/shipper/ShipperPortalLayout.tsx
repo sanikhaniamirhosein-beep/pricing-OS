@@ -23,7 +23,10 @@ import {
   CheckCircle2,
   FileCheck2,
   Clock,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { usePricing } from '../../store/PricingContext';
 import { ShipperDashboardView } from './ShipperDashboardView';
 import { ShipperQuoteBookingView } from './ShipperQuoteBookingView';
@@ -52,6 +55,7 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
   const [selectedShipmentForTracking, setSelectedShipmentForTracking] = useState<ShipperActiveLoad | null>(null);
   const [isAiCoPilotOpen, setIsAiCoPilotOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const [isSidebarCompact, setIsSidebarCompact] = useState(false);
   const userDropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown on outside click
@@ -78,12 +82,12 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col antialiased selection:bg-amber-500/20 selection:text-amber-900">
-      {/* 1. Shipper Header */}
+      {/* 1. Shipper Minimal Header */}
       <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
         <div className="w-full max-w-[98%] 2xl:max-w-[1700px] mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
           {/* Logo & Portal Identity */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white flex items-center justify-center font-black text-base shadow-sm">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 text-white flex items-center justify-center font-black text-base shadow-xs">
               <Truck className="w-5 h-5" />
             </div>
             <div>
@@ -91,7 +95,7 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
                 <span className="font-bold text-slate-900 text-sm font-title">
                   پرتال اختصاصی صاحب بار
                 </span>
-                <span className="px-2 py-0.5 rounded-md bg-amber-100 text-amber-900 font-bold text-[10px] border border-amber-300">
+                <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 font-bold text-[10px] border border-amber-300">
                   مشتری تجاری
                 </span>
               </div>
@@ -117,7 +121,7 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
             </div>
           </div>
 
-          {/* Right Controls: Quick Quote + AI CoPilot Button + Rich User Profile Panel */}
+          {/* Right Controls: Quick Quote + AI CoPilot Button + Minimal User Menu */}
           <div className="flex items-center gap-3 shrink-0">
             {/* Quick Price Inquiry Button */}
             <button
@@ -132,10 +136,10 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
               title="استعلام فوری نرخ کرایه و ثبت سفارش حمل بار"
             >
               <Calculator className={`w-4 h-4 ${activeTab === 'quote' ? 'text-white' : 'text-amber-600'}`} />
-              <span>استعلام قیمت</span>
+              <span className="hidden sm:inline">استعلام قیمت</span>
             </button>
 
-            {/* AI Assistant Button (Identical to Carrier Panel) */}
+            {/* AI Assistant Button */}
             <div className="relative group">
               <button
                 type="button"
@@ -148,17 +152,16 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
                 <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-amber-400 ring-2 ring-white" />
               </button>
 
-              {/* Tooltip on hover */}
               <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 hidden group-hover:flex flex-col items-center z-50 pointer-events-none">
                 <div className="bg-slate-900 text-white text-[11px] font-medium px-2.5 py-1 rounded-lg shadow-lg whitespace-nowrap">
-                  دستیار هوشمند تحلیل تعرفه و استعلام بار
+                  دستیار هوشمند استعلام بار
                 </div>
               </div>
             </div>
 
             <div className="h-5 w-px bg-slate-200" />
 
-            {/* EXPANDED RICH USER PROFILE & ROLE DETAILS PANEL */}
+            {/* Minimal User Profile Dropdown */}
             <div className="relative" ref={userDropdownRef}>
               <button
                 type="button"
@@ -178,125 +181,95 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
                     {userName || 'مهندس اکبری'}
                   </div>
                   <div className="text-[10px] text-amber-800 font-medium leading-tight">
-                    مدیر ارشد تدارکات و لجستیک
+                    مدیر ارشد تدارکات
                   </div>
                 </div>
-                <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${isUserDropdownOpen ? 'rotate-180' : ''}`} />
+                <motion.div
+                  animate={{ rotate: isUserDropdownOpen ? 180 : 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                </motion.div>
               </button>
 
-              {/* Comprehensive Rich User Profile Dropdown */}
-              {isUserDropdownOpen && (
-                <div
-                  id="panel-shipper-user-dropdown"
-                  className="absolute left-0 mt-2.5 w-88 sm:w-96 bg-white border border-slate-200 rounded-2xl shadow-xl p-4 z-50 animate-in fade-in zoom-in-98 duration-150 space-y-3.5"
-                >
-                  {/* 1. Primary User Identity Card */}
-                  <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl space-y-2.5">
-                    <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white font-bold text-base flex items-center justify-center shrink-0 shadow-xs">
-                        {userName ? userName.substring(0, 1) : 'ص'}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-xs font-bold text-slate-900 truncate">
-                          {userName || 'مهندس جواد اکبری'}
+              {/* Animated Profile Dropdown Menu */}
+              <AnimatePresence>
+                {isUserDropdownOpen && (
+                  <motion.div
+                    id="panel-shipper-user-dropdown"
+                    initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 6, scale: 0.97 }}
+                    transition={{ duration: 0.18, ease: 'easeOut' }}
+                    className="absolute left-0 mt-2.5 w-84 sm:w-92 bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-2xl shadow-xl p-3.5 z-50 space-y-3"
+                  >
+                    {/* User Identity Card */}
+                    <div className="p-3 bg-slate-50/90 rounded-xl border border-slate-200/80 space-y-2">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white font-bold text-base flex items-center justify-center shrink-0 shadow-xs">
+                          {userName ? userName.substring(0, 1) : 'ص'}
                         </div>
-                        <div className="text-[11px] text-amber-800 font-semibold truncate mt-0.5">
-                          مدیر ارشد تدارکات و لجستیک سازمانی
-                        </div>
-                        <div className="text-[10px] text-slate-500 font-mono truncate mt-0.5 flex items-center gap-1">
-                          <Mail className="w-3 h-3 text-slate-400 shrink-0" />
-                          <span>{userEmail || 'j.akbari@steel-msc.ir'}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Organization & Level Details */}
-                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200/70 text-[10px]">
-                      <div className="bg-white p-2 rounded-lg border border-slate-100">
-                        <span className="text-slate-400 block font-medium">سازمان صاحب بار:</span>
-                        <span className="text-slate-800 font-bold block truncate">
-                          {userOrgName || 'شرکت فولاد مبارکه اصفهان'}
-                        </span>
-                      </div>
-                      <div className="bg-white p-2 rounded-lg border border-slate-100">
-                        <span className="text-slate-400 block font-medium">سطح اشتراک تجاری:</span>
-                        <span className="text-amber-700 font-bold block truncate">
-                          پله طلایی (تخفیف ۸.۵٪)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 2. Account Privileges and Status */}
-                  <div className="space-y-2 text-xs">
-                    <div className="text-[11px] font-bold text-slate-500 px-1 flex items-center gap-1.5">
-                      <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
-                      <span>مشخصات و دسترسی‌های مجاز حساب:</span>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2 text-[10px]">
-                      <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
-                        <span className="text-slate-400 block font-medium">نوع دسترسی پرتال:</span>
-                        <div className="flex items-center gap-1 text-emerald-700 font-bold">
-                          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                          <span>مدیر ارشد حساب (Full Access)</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs font-bold text-slate-900 truncate">
+                            {userName || 'مهندس جواد اکبری'}
+                          </div>
+                          <div className="text-[11px] text-amber-800 font-medium truncate mt-0.5">
+                            مدیر ارشد تدارکات و لجستیک سازمانی
+                          </div>
+                          <div className="text-[10px] text-slate-500 font-mono truncate mt-0.5 flex items-center gap-1">
+                            <Mail className="w-3 h-3 text-slate-400 shrink-0" />
+                            <span>{userEmail || 'j.akbari@steel-msc.ir'}</span>
+                          </div>
                         </div>
                       </div>
 
-                      <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
-                        <span className="text-slate-400 block font-medium">اعتبار تخصیص‌یافته:</span>
-                        <div className="font-mono text-slate-800 font-bold">
-                          {(INITIAL_SHIPPER_TIER.availableCreditRials / 10).toLocaleString('fa-IR')} تومان
+                      <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200/70 text-[10px]">
+                        <div className="bg-white p-2 rounded-lg border border-slate-100">
+                          <span className="text-slate-400 block font-medium">سازمان:</span>
+                          <span className="text-slate-800 font-bold block truncate">
+                            {userOrgName || 'فولاد مبارکه اصفهان'}
+                          </span>
                         </div>
-                      </div>
-
-                      <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
-                        <span className="text-slate-400 block font-medium">پوشش بیمه تمام‌خطر:</span>
-                        <div className="text-slate-700 font-bold">
-                          پوشش کامل ۱۰۰٪ ارزش محموله
-                        </div>
-                      </div>
-
-                      <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
-                        <span className="text-slate-400 block font-medium">وضعیت احراز هویت:</span>
-                        <div className="flex items-center gap-1 text-emerald-700 font-bold">
-                          <FileCheck2 className="w-3 h-3 text-emerald-600" />
-                          <span>تایید شرکتی با شناسه ملی</span>
+                        <div className="bg-white p-2 rounded-lg border border-slate-100">
+                          <span className="text-slate-400 block font-medium">رده تخفیف:</span>
+                          <span className="text-amber-700 font-bold block truncate">
+                            پله طلایی (۸.۵٪)
+                          </span>
                         </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* 3. Navigation to Settings or Profile */}
-                  <div className="pt-2 border-t border-slate-100 flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsUserDropdownOpen(false);
-                        setActiveTab('settings');
-                      }}
-                      className="flex-1 py-2 px-3 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-                    >
-                      <Settings className="w-3.5 h-3.5 text-slate-500" />
-                      <span>تنظیمات و کاربران سازمان</span>
-                    </button>
+                    {/* Navigation to Settings or Profile */}
+                    <div className="pt-2 border-t border-slate-100 flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsUserDropdownOpen(false);
+                          setActiveTab('settings');
+                        }}
+                        className="flex-1 py-2 px-3 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                      >
+                        <Settings className="w-3.5 h-3.5 text-slate-500" />
+                        <span>تنظیمات حساب</span>
+                      </button>
 
-                    <button
-                      type="button"
-                      id="btn-shipper-logout"
-                      onClick={() => {
-                        setIsUserDropdownOpen(false);
-                        onLogout();
-                      }}
-                      className="py-2 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-                      title="خروج از حساب کاربری"
-                    >
-                      <LogOut className="w-3.5 h-3.5" />
-                      <span>خروج</span>
-                    </button>
-                  </div>
-                </div>
-              )}
+                      <button
+                        type="button"
+                        id="btn-shipper-logout"
+                        onClick={() => {
+                          setIsUserDropdownOpen(false);
+                          onLogout();
+                        }}
+                        className="py-2 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                        title="خروج از حساب کاربری"
+                      >
+                        <LogOut className="w-3.5 h-3.5" />
+                        <span>خروج</span>
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </div>
@@ -304,57 +277,80 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
 
       {/* 2. Main Body with Navigation Sidebar + Central Views */}
       <div className="w-full max-w-[98%] 2xl:max-w-[1700px] mx-auto px-2 sm:px-4 lg:px-6 py-6 flex flex-col lg:flex-row gap-5 flex-1 items-start">
-        {/* Shipper Navigation Sidebar (Right Side in RTL) */}
-        <aside className="w-full lg:w-64 shrink-0 bg-white rounded-2xl border border-slate-200 shadow-xs p-3 space-y-1.5 sticky top-20">
-          <div className="px-3 py-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-            بخش‌های پرتال صاحب بار
-          </div>
+        {/* Shipper Navigation Sidebar */}
+        <aside
+          className={`shrink-0 transition-all duration-300 ${
+            isSidebarCompact ? 'w-full lg:w-20' : 'w-full lg:w-68'
+          }`}
+        >
+          <div className="bg-white rounded-3xl border border-slate-200/90 shadow-xs p-3 space-y-2 sticky top-20 backdrop-blur-xs">
+            <div className="px-2 py-1.5 flex items-center justify-between border-b border-slate-100 mb-1">
+              {!isSidebarCompact ? (
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                  بخش‌های پرتال صاحب بار
+                </span>
+              ) : (
+                <span className="text-[10px] font-bold font-mono text-slate-400 mx-auto">منو</span>
+              )}
+              <button
+                type="button"
+                onClick={() => setIsSidebarCompact(!isSidebarCompact)}
+                className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                title={isSidebarCompact ? 'گسترش منو' : 'حالت فشرده'}
+              >
+                {isSidebarCompact ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
+              </button>
+            </div>
 
-          <nav className="space-y-1">
-            {navigationItems.map((item) => {
-              const Icon = item.icon;
-              const isSelected = activeTab === item.id;
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => setActiveTab(item.id as any)}
-                  className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer text-right ${
-                    isSelected
-                      ? 'bg-amber-500 text-white shadow-sm'
-                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                  }`}
+            <nav className="space-y-1">
+              {navigationItems.map((item) => {
+                const Icon = item.icon;
+                const isSelected = activeTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setActiveTab(item.id as any)}
+                    title={isSidebarCompact ? item.label : undefined}
+                    className={`w-full flex items-center justify-between p-2.5 rounded-2xl text-xs font-bold transition-all duration-150 cursor-pointer text-right ${
+                      isSelected
+                        ? 'bg-amber-500 text-white shadow-2xs'
+                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                    }`}
+                  >
+                    <div className={`flex items-center ${isSidebarCompact ? 'justify-center w-full' : 'gap-2.5'}`}>
+                      <Icon className={`w-4 h-4 shrink-0 ${isSelected ? 'text-white' : 'text-slate-500'}`} />
+                      {!isSidebarCompact && <span>{item.label}</span>}
+                    </div>
+                    {!isSidebarCompact && item.badge && (
+                      <span
+                        className={`text-[10px] px-2 py-0.5 rounded-full font-mono ${
+                          isSelected
+                            ? 'bg-white/20 text-white font-bold'
+                            : 'bg-slate-100 text-slate-600'
+                        }`}
+                      >
+                        {item.badge}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </nav>
+
+            {/* Quick Support Call Box */}
+            {!isSidebarCompact && (
+              <div className="mt-4 pt-3 border-t border-slate-100 px-1 space-y-1.5">
+                <div className="text-[11px] text-slate-400 font-medium">پشتیبانی اختصاصی:</div>
+                <a
+                  href="tel:02188000000"
+                  className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 hover:bg-amber-50 text-slate-700 hover:text-amber-950 border border-slate-200/80 text-xs font-bold transition-colors"
                 >
-                  <div className="flex items-center gap-2.5">
-                    <Icon className={`w-4 h-4 ${isSelected ? 'text-white' : 'text-slate-500'}`} />
-                    <span>{item.label}</span>
-                  </div>
-                  {item.badge && (
-                    <span
-                      className={`text-[10px] px-2 py-0.5 rounded-md font-mono ${
-                        isSelected
-                          ? 'bg-white/20 text-white font-bold'
-                          : 'bg-slate-100 text-slate-600'
-                      }`}
-                    >
-                      {item.badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </nav>
-
-          {/* Quick Support Call Box */}
-          <div className="mt-6 pt-4 border-t border-slate-100 px-2 space-y-2">
-            <div className="text-[11px] text-slate-500 font-medium">پشتیبانی اختصاصی سازمانی:</div>
-            <a
-              href="tel:02188000000"
-              className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 hover:bg-amber-50 text-slate-700 hover:text-amber-950 border border-slate-200 text-xs font-bold transition-colors"
-            >
-              <Phone className="w-3.5 h-3.5 text-amber-600" />
-              <span className="font-mono">۰۲۱-۸۸۰۰۰۰۰۰</span>
-            </a>
+                  <Phone className="w-3.5 h-3.5 text-amber-600" />
+                  <span className="font-mono">۰۲۱-۸۸۰۰۰۰۰۰</span>
+                </a>
+              </div>
+            )}
           </div>
         </aside>
 
@@ -418,4 +414,3 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
     </div>
   );
 };
-

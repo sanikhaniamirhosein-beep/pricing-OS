@@ -524,9 +524,13 @@ export interface AuditLogEvent {
     | 'margin.floor_changed'
     | 'policy.changed'
     | 'approval.granted'
+    | 'approval.rejected'
     | 'simulation.executed'
     | 'package.created'
-    | 'canary.stepped';
+    | 'canary.stepped'
+    | 'contract.created'
+    | 'contract.updated'
+    | 'rule.modified';
   actorName: string;
   actorRole: UserRole;
   objectRef: string;
@@ -593,10 +597,18 @@ export interface ApprovalRequest {
   makerName: string;
   makerRole: string;
   packageVersion: string;
+  targetPackageId?: string;
   createdAt: string;
   status: 'pending_approval' | 'approved' | 'rejected';
   checkerName?: string;
+  checkerComment?: string;
   approvedAt?: string;
+  rejectedAt?: string;
+  rejectionReason?: string;
+  riskClass?: 'low' | 'medium' | 'high';
+  guardrailCompliance?: boolean;
+  simulationPassed?: boolean;
+  certificateNumber?: string;
   diffSummary: DiffItem[];
 }
 

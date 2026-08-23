@@ -29,6 +29,7 @@ import {
   CorporateCreditAccount,
   StakeholderSplitConfig,
   RBACRoleDefinition,
+  ApprovalRequest,
 } from '../types/pricing';
 import {
   INITIAL_SCHEMA,
@@ -50,6 +51,7 @@ import {
   INITIAL_STAKEHOLDER_SPLIT_CONFIG,
   INITIAL_CORPORATE_CREDIT_ACCOUNTS,
   INITIAL_RBAC_ROLES,
+  INITIAL_APPROVAL_REQUESTS,
 } from '../data/mockLogisticsData';
 import { calculateShipmentPrice, ShipmentPricingContext, EngineExecutionResult } from '../engine/pricingEngine';
 
@@ -102,7 +104,12 @@ interface PricingContextType {
   discountPolicies: DiscountPolicy[];
   offers: LogisticsOffer[];
   contracts: LogisticsContract[];
+  setContracts: React.Dispatch<React.SetStateAction<LogisticsContract[]>>;
+  addContract: (contract: LogisticsContract) => void;
+  updateContract: (contract: LogisticsContract) => void;
+  deleteContract: (contractId: string) => void;
   strategyPackages: StrategyPackage[];
+  approvalQueue: ApprovalRequest[];
   simulations: SimulationScenario[];
   anomalies: PricingAnomaly[];
   auditLogs: AuditLogEvent[];
@@ -120,7 +127,12 @@ interface PricingContextType {
   submitPackageForReview: (packageId: string) => { success: boolean; error?: string };
   approvePackage: (packageId: string, approverName: string) => { success: boolean; error?: string };
   publishPackage: (packageId: string, canaryPercent: number) => { success: boolean; error?: string };
+  deployPackage: (packageId: string) => { success: boolean; error?: string };
   rollbackPackage: (targetPackageId: string, reason: string) => { success: boolean; error?: string };
+  approveRequest: (requestId: string, comment?: string) => { success: boolean; error?: string };
+  rejectRequest: (requestId: string, reason: string) => { success: boolean; error?: string };
+  submitForApproval: (request: Partial<ApprovalRequest>) => ApprovalRequest;
+  triggerStepUpMFA: (description: string, onConfirm: () => void) => void;
   runSimulation: (scenario: Partial<SimulationScenario>) => SimulationScenario;
   resolveAnomaly: (anomalyId: string) => void;
   addAuditLog: (event: Partial<AuditLogEvent>) => void;
@@ -166,6 +178,7 @@ export const PricingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [offers, setOffers] = useState<LogisticsOffer[]>(INITIAL_OFFERS);
   const [contracts, setContracts] = useState<LogisticsContract[]>(INITIAL_CONTRACTS);
   const [strategyPackages, setStrategyPackages] = useState<StrategyPackage[]>(INITIAL_STRATEGY_PACKAGES);
+  const [approvalQueue, setApprovalQueue] = useState<ApprovalRequest[]>(INITIAL_APPROVAL_REQUESTS);
   const [simulations, setSimulations] = useState<SimulationScenario[]>(INITIAL_SIMULATIONS);
   const [anomalies, setAnomalies] = useState<PricingAnomaly[]>(INITIAL_ANOMALIES);
   const [auditLogs, setAuditLogs] = useState<AuditLogEvent[]>(INITIAL_AUDIT_LOGS);
@@ -245,6 +258,39 @@ export const PricingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         return a;
       })
     );
+  };
+
+  const addContract = (contract: LogisticsContract) => {
+    setContracts((prev) => [contract, ...prev]);
+    addAuditLog({
+      eventType: 'contract.created',
+      objectRef: `${contract.displayId} (${contract.customerNameFa})`,
+      actorName: userName,
+      actorRole: userRole,
+      details: {
+        customerCode: contract.customerCode,
+        tier: contract.tier,
+        minimumCommitmentTons: contract.minimumCommitmentTons,
+      },
+    });
+  };
+
+  const updateContract = (contract: LogisticsContract) => {
+    setContracts((prev) => prev.map((c) => (c.contractId === contract.contractId ? contract : c)));
+    addAuditLog({
+      eventType: 'contract.updated',
+      objectRef: `${contract.displayId} (${contract.customerNameFa})`,
+      actorName: userName,
+      actorRole: userRole,
+      details: {
+        customerCode: contract.customerCode,
+        tier: contract.tier,
+      },
+    });
+  };
+
+  const deleteContract = (contractId: string) => {
+    setContracts((prev) => prev.filter((c) => c.contractId !== contractId));
   };
 
   // Modals & UI Traces
@@ -536,6 +582,164 @@ export const PricingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return { success: true };
   };
 
+  const deployPackage = (packageId: string): { success: boolean; error?: string } => {
+    return publishPackage(packageId, 100);
+  };
+
+  const triggerStepUpMFA = (_description: string, onConfirm: () => void) => {
+    setPendingMfaAction(() => onConfirm);
+    setIsMfaModalOpen(true);
+  };
+
+  const approveRequest = (requestId: string, comment?: string): { success: boolean; error?: string } => {
+    const req = approvalQueue.find((q) => q.id === requestId);
+    if (!req) return { success: false, error: 'درخواست در صف تایید یافت نشد.' };
+
+    const approvedTime = new Date().toISOString();
+    const certNumber = `CERT-GOV-${Math.floor(1000 + Math.random() * 9000)}-IR`;
+
+    setApprovalQueue((prev) =>
+      prev.map((q) =>
+        q.id === requestId
+          ? {
+              ...q,
+              status: 'approved',
+              checkerName: userName,
+              checkerComment: comment || 'تایید شد با احراز هویت دوعاملی (MFA OTP). کلیه پارامترهای گاردریل و حاشیه سود احراز گردید.',
+              approvedAt: approvedTime,
+              certificateNumber: certNumber,
+            }
+          : q
+      )
+    );
+
+    if (req.targetPackageId) {
+      setStrategyPackages((prev) =>
+        prev.map((p) =>
+          p.packageId === req.targetPackageId
+            ? {
+                ...p,
+                status: 'Approved',
+                approverName: userName,
+                approvalRecordRef: certNumber,
+              }
+            : p
+        )
+      );
+    }
+
+    addAuditLog({
+      eventType: 'approval.granted',
+      objectRef: req.displayId,
+      actorName: userName,
+      actorRole: userRole,
+      details: {
+        packageVersion: req.packageVersion,
+        maker: req.makerName,
+        comment: comment || 'تایید دوطرفه مدیر حاکمیت',
+        certificateNumber: certNumber,
+      },
+      mfaVerified: true,
+    });
+
+    return { success: true };
+  };
+
+  const rejectRequest = (requestId: string, reason: string): { success: boolean; error?: string } => {
+    const req = approvalQueue.find((q) => q.id === requestId);
+    if (!req) return { success: false, error: 'درخواست یافت نشد.' };
+
+    const rejectedTime = new Date().toISOString();
+
+    setApprovalQueue((prev) =>
+      prev.map((q) =>
+        q.id === requestId
+          ? {
+              ...q,
+              status: 'rejected',
+              checkerName: userName,
+              rejectionReason: reason,
+              rejectedAt: rejectedTime,
+            }
+          : q
+      )
+    );
+
+    if (req.targetPackageId) {
+      setStrategyPackages((prev) =>
+        prev.map((p) =>
+          p.packageId === req.targetPackageId
+            ? {
+                ...p,
+                status: 'Draft',
+              }
+            : p
+        )
+      );
+    }
+
+    addAuditLog({
+      eventType: 'approval.rejected',
+      objectRef: req.displayId,
+      actorName: userName,
+      actorRole: userRole,
+      details: {
+        packageVersion: req.packageVersion,
+        maker: req.makerName,
+        reason,
+      },
+      mfaVerified: true,
+    });
+
+    return { success: true };
+  };
+
+  const submitForApproval = (request: Partial<ApprovalRequest>): ApprovalRequest => {
+    const newReq: ApprovalRequest = {
+      id: `req-gov-${Date.now()}`,
+      displayId: `REQ-GOV-2026-${Math.floor(10 + Math.random() * 90)}`,
+      titleFa: request.titleFa || 'درخواست تصویب بسته تعرفه',
+      descriptionFa: request.descriptionFa || '',
+      makerName: userName,
+      makerRole: userRole,
+      packageVersion: request.packageVersion || 'v1.0 (Staging)',
+      targetPackageId: request.targetPackageId,
+      createdAt: new Date().toISOString(),
+      status: 'pending_approval',
+      riskClass: request.riskClass || 'medium',
+      guardrailCompliance: request.guardrailCompliance ?? true,
+      simulationPassed: request.simulationPassed ?? true,
+      diffSummary: request.diffSummary || [
+        {
+          fieldPath: 'policies.guardrails.minimumGrossMarginPercent',
+          fieldNameFa: 'کف حاشیه سود ناخالص شرکت',
+          oldValue: '۱۵.۰٪',
+          newValue: '۱۵.۵٪',
+        },
+      ],
+    };
+
+    setApprovalQueue((prev) => [newReq, ...prev]);
+
+    if (newReq.targetPackageId) {
+      setStrategyPackages((prev) =>
+        prev.map((p) =>
+          p.packageId === newReq.targetPackageId ? { ...p, status: 'In Review', environment: 'staging' } : p
+        )
+      );
+    }
+
+    addAuditLog({
+      eventType: 'strategy.published',
+      objectRef: newReq.displayId,
+      actorName: userName,
+      actorRole: userRole,
+      details: { title: newReq.titleFa, version: newReq.packageVersion },
+    });
+
+    return newReq;
+  };
+
   const runSimulation = (scenario: Partial<SimulationScenario>): SimulationScenario => {
     const newSim: SimulationScenario = {
       simulationId: `sim-${Date.now()}`,
@@ -664,7 +868,12 @@ export const PricingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         discountPolicies,
         offers,
         contracts,
+        setContracts,
+        addContract,
+        updateContract,
+        deleteContract,
         strategyPackages,
+        approvalQueue,
         simulations,
         anomalies,
         auditLogs,
@@ -678,7 +887,12 @@ export const PricingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         submitPackageForReview,
         approvePackage,
         publishPackage,
+        deployPackage,
         rollbackPackage,
+        approveRequest,
+        rejectRequest,
+        submitForApproval,
+        triggerStepUpMFA,
         runSimulation,
         resolveAnomaly,
         addAuditLog,

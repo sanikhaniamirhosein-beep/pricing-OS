@@ -19,6 +19,8 @@ import {
   SavedLocation,
   SavedCommodity,
 } from '../../data/mockShipperData';
+import { ModernSelect } from '../common/menus/ModernSelect';
+import { CityPickerDropdown } from '../common/menus/CityPickerDropdown';
 
 export const ShipperMasterDataView: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'locations' | 'commodities'>('locations');
@@ -174,27 +176,26 @@ export const ShipperMasterDataView: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-slate-700 text-xs font-bold mb-1">نوع موقعیت:</label>
-                  <select
+                  <ModernSelect
+                    id="masterdata-location-category"
                     value={newLocCategory}
-                    onChange={(e) => setNewLocCategory(e.target.value as any)}
-                    className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs"
-                  >
-                    <option value="origin">مبدأ بارگیری</option>
-                    <option value="destination">مقصد تخلیه</option>
-                    <option value="both">هر دو (مبدأ و مقصد)</option>
-                  </select>
+                    onChange={(val) => setNewLocCategory(val as any)}
+                    label="نوع موقعیت:"
+                    options={[
+                      { value: 'origin', label: 'مبدأ بارگیری', badge: 'مبدأ' },
+                      { value: 'destination', label: 'مقصد تخلیه', badge: 'مقصد' },
+                      { value: 'both', label: 'هر دو (مبدأ و مقصد)', badge: 'جامع' },
+                    ]}
+                  />
                 </div>
 
                 <div>
-                  <label className="block text-slate-700 text-xs font-bold mb-1">شهر و استان:</label>
-                  <input
-                    type="text"
-                    required
+                  <CityPickerDropdown
+                    id="masterdata-location-city"
                     value={newLocCity}
-                    onChange={(e) => setNewLocCity(e.target.value)}
-                    placeholder="مثلاً: اصفهان"
-                    className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs"
+                    onChange={setNewLocCity}
+                    label="شهر و استان:"
+                    type="origin"
                   />
                 </div>
               </div>
@@ -339,18 +340,19 @@ export const ShipperMasterDataView: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-slate-700 text-xs font-bold mb-1">ماهیت باربری:</label>
-                  <select
+                  <ModernSelect
+                    id="masterdata-commodity-category"
                     value={newComCategory}
-                    onChange={(e) => setNewComCategory(e.target.value as any)}
-                    className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-xs"
-                  >
-                    <option value="صنعتی">صنعتی سنگین</option>
-                    <option value="عادی">عادی استاندارد</option>
-                    <option value="خطرناک">خطرناک (شیمیایی/ADR)</option>
-                    <option value="یخچالی">فاسدشدنی (یخچالی)</option>
-                    <option value="فله">فله و معدنی</option>
-                  </select>
+                    onChange={(val) => setNewComCategory(val as any)}
+                    label="ماهیت باربری:"
+                    options={[
+                      { value: 'صنعتی', label: 'صنعتی سنگین', badge: 'صنعتی' },
+                      { value: 'عادی', label: 'عادی استاندارد', badge: 'عادی' },
+                      { value: 'خطرناک', label: 'خطرناک (شیمیایی/ADR)', badge: 'ADR' },
+                      { value: 'یخچالی', label: 'فاسدشدنی (یخچالی)', badge: 'دما' },
+                      { value: 'فله', label: 'فله و معدنی', badge: 'فله' },
+                    ]}
+                  />
                 </div>
 
                 <div>

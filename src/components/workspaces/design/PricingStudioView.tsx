@@ -23,6 +23,8 @@ import { usePricing } from '../../../store/PricingContext';
 import { ObjectHeader } from '../../layout/ObjectHeader';
 import { RuleBlock, RuleBlockType } from '../../../types/pricing';
 import { ShipmentPricingContext } from '../../../engine/pricingEngine';
+import { CityPickerDropdown } from '../../common/menus/CityPickerDropdown';
+import { VehiclePickerDropdown } from '../../common/menus/VehiclePickerDropdown';
 
 export const PricingStudioView: React.FC<{ onNavigateToValidation?: () => void }> = ({ onNavigateToValidation }) => {
   const {
@@ -391,46 +393,29 @@ export const PricingStudioView: React.FC<{ onNavigateToValidation?: () => void }
             <h3 className="font-bold text-slate-900 text-base font-display">تنظیم پارامترهای محموله نمونه (Test Context):</h3>
 
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-slate-600 mb-1.5 block font-medium">مبدأ:</label>
-                <select
-                  value={testOrigin}
-                  onChange={(e) => setTestOrigin(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-800 focus:bg-white focus:outline-none focus:border-amber-500"
-                >
-                  <option value="تهران">تهران</option>
-                  <option value="اصفهان">اصفهان</option>
-                  <option value="مشهد">مشهد</option>
-                  <option value="رشت">رشت</option>
-                  <option value="تبریز">تبریز</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-slate-600 mb-1.5 block font-medium">مقصد:</label>
-                <select
-                  value={testDestination}
-                  onChange={(e) => setTestDestination(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-800 focus:bg-white focus:outline-none focus:border-amber-500"
-                >
-                  <option value="بندرعباس">بندرعباس</option>
-                  <option value="بوشهر">بوشهر</option>
-                  <option value="بازرگان">بازرگان</option>
-                  <option value="چابهار">چابهار</option>
-                </select>
-              </div>
+              <CityPickerDropdown
+                id="studio-test-origin"
+                value={testOrigin}
+                onChange={setTestOrigin}
+                label="مبدأ:"
+                type="origin"
+              />
+              <CityPickerDropdown
+                id="studio-test-dest"
+                value={testDestination}
+                onChange={setTestDestination}
+                label="مقصد:"
+                type="destination"
+              />
             </div>
 
             <div>
-              <label className="text-slate-600 mb-1.5 block font-medium">نوع ناوگان:</label>
-              <select
+              <VehiclePickerDropdown
+                id="studio-test-vehicle"
                 value={testVehicle}
-                onChange={(e) => setTestVehicle(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-800 focus:bg-white focus:outline-none focus:border-amber-500"
-              >
-                <option value="تریلی چادری">تریلی چادری ۲۴ تن</option>
-                <option value="تریلر کفی">تریلر کفی ۲۵ تن</option>
-                <option value="کشنده یخچال‌دار">کشنده یخچال‌دار ۲۰ تن</option>
-              </select>
+                onChange={setTestVehicle}
+                label="نوع ناوگان:"
+              />
             </div>
 
             <div className="flex gap-3">

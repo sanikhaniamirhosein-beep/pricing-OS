@@ -16,7 +16,16 @@ import {
   KeyRound,
   BadgePercent,
   Layers,
+  Search,
+  ExternalLink,
+  Sliders,
+  Check,
+  Clock,
+  AlertCircle,
+  X,
+  ChevronLeft,
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { usePricing } from '../../store/PricingContext';
 import { UserRole } from '../../types/pricing';
 
@@ -27,7 +36,12 @@ interface HeaderProps {
   onLogout?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onToggleAiCoPilot, activeWorkspaceId, onSelectWorkspace, onLogout }) => {
+export const Header: React.FC<HeaderProps> = ({
+  onToggleAiCoPilot,
+  activeWorkspaceId,
+  onSelectWorkspace,
+  onLogout,
+}) => {
   const {
     userRole,
     setUserRole,
@@ -39,13 +53,21 @@ export const Header: React.FC<HeaderProps> = ({ onToggleAiCoPilot, activeWorkspa
   } = usePricing();
 
   const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [roleSearch, setRoleSearch] = useState('');
+  const [activeMenuTab, setActiveMenuTab] = useState<'roles' | 'profile'>('roles');
 
-  // Close dropdown on outside click
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const notifRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdowns on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsRoleDropdownOpen(false);
+      }
+      if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
+        setIsNotificationsOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -135,15 +157,26 @@ export const Header: React.FC<HeaderProps> = ({ onToggleAiCoPilot, activeWorkspa
     'System Admin',
   ];
 
+  const filteredRoles = rolesList.filter((r) => {
+    if (!roleSearch.trim()) return true;
+    const query = roleSearch.toLowerCase();
+    const info = roleDetails[r];
+    return (
+      r.toLowerCase().includes(query) ||
+      info.titleFa.toLowerCase().includes(query) ||
+      info.accessBadge.toLowerCase().includes(query)
+    );
+  });
+
   const currentRoleInfo = roleDetails[userRole];
 
   return (
     <header className="relative bg-white/95 backdrop-blur-md border-b border-slate-200/80 text-slate-800 z-40">
       <div className="w-full max-w-[98%] 2xl:max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-18 gap-6">
+        <div className="flex items-center justify-between h-16 sm:h-18 gap-4">
           {/* 1. Brand Identity & Logo */}
-          <div className="flex items-center gap-3.5 shrink-0">
-            <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-600 flex items-center justify-center">
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-600 flex items-center justify-center shadow-2xs">
               <Truck className="w-5 h-5" />
             </div>
             <div>
@@ -152,27 +185,27 @@ export const Header: React.FC<HeaderProps> = ({ onToggleAiCoPilot, activeWorkspa
                   سامانه مدیریت تعرفه و قیمت‌گذاری
                 </span>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
-                  نسخه ۱.۲
+                  v1.2
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 font-medium leading-none mt-1">
+              <p className="text-[11px] text-slate-400 font-medium leading-none mt-1 hidden sm:block">
                 پلتفرم هوشمند مدیریت سیاست‌های کرایه و بارنامه جاده‌ای
               </p>
             </div>
           </div>
 
-          {/* 2. Action Controls: Minimal Quick Quote, AI Robot Button, Bell, Redesigned Role Panel */}
-          <div className="flex items-center gap-3 sm:gap-4 shrink-0">
-            {/* Redesigned Minimal Quick Quote Button */}
+          {/* 2. Action Controls: Quick Quote, AI Assistant, Notification Popover, Minimal Profile Menu */}
+          <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+            {/* Quick Quote Button */}
             <button
               type="button"
               id="btn-header-quick-quote"
               onClick={() => setIsQuickQuoteOpen(true)}
-              className="flex items-center gap-2 px-3.5 py-2 bg-white hover:bg-amber-50/60 text-slate-700 hover:text-amber-900 text-xs font-semibold rounded-xl border border-slate-200 hover:border-amber-300 shadow-2xs hover:shadow-xs transition-all duration-150 cursor-pointer"
+              className="flex items-center gap-2 px-3 py-2 bg-white hover:bg-amber-50/70 text-slate-700 hover:text-amber-900 text-xs font-semibold rounded-xl border border-slate-200 hover:border-amber-300 shadow-2xs hover:shadow-xs transition-all duration-150 cursor-pointer"
               title="استعلام سریع و محاسبه هوشمند کرایه حمل بار"
             >
               <Calculator className="w-4 h-4 text-amber-600" />
-              <span>استعلام قیمت</span>
+              <span className="hidden sm:inline">استعلام قیمت</span>
             </button>
 
             {/* AI Assistant Button */}
@@ -196,37 +229,115 @@ export const Header: React.FC<HeaderProps> = ({ onToggleAiCoPilot, activeWorkspa
               </div>
             </div>
 
-            {/* Approval Inbox Notification Bell */}
-            <button
-              type="button"
-              id="btn-header-notifications"
-              onClick={() => onSelectWorkspace('governance')}
-              className="relative p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
-              title="کارتابل تاییدیه و حاکمیت سازمانی"
-            >
-              <Bell className="w-4.5 h-4.5" />
-              {pendingApprovalsCount > 0 && (
-                <span className="absolute top-1 right-1 w-4 h-4 bg-rose-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center shadow-xs animate-bounce">
-                  {pendingApprovalsCount}
-                </span>
-              )}
-            </button>
+            {/* Notification & Approvals Menu Popover */}
+            <div className="relative" ref={notifRef}>
+              <button
+                type="button"
+                id="btn-header-notifications"
+                onClick={() => {
+                  setIsNotificationsOpen(!isNotificationsOpen);
+                  setIsRoleDropdownOpen(false);
+                }}
+                className={`relative p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer ${
+                  isNotificationsOpen ? 'bg-slate-100 text-slate-900' : ''
+                }`}
+                title="اعلانات و کارتابل تاییدیه"
+              >
+                <Bell className="w-4.5 h-4.5" />
+                {pendingApprovalsCount > 0 && (
+                  <span className="absolute top-1 right-1 w-4 h-4 bg-rose-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center shadow-xs animate-pulse">
+                    {pendingApprovalsCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Smooth Animated Notification Menu */}
+              <AnimatePresence>
+                {isNotificationsOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 6, scale: 0.97 }}
+                    transition={{ duration: 0.18, ease: 'easeOut' }}
+                    className="absolute left-0 mt-2.5 w-80 sm:w-88 bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-2xl shadow-xl p-3 z-50 space-y-3"
+                  >
+                    <div className="flex items-center justify-between px-1 pb-2 border-b border-slate-100">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900 font-title">
+                        <Bell className="w-4 h-4 text-amber-600" />
+                        <span>کارتابل تاییدیه و اعلانات</span>
+                      </div>
+                      <span className="text-[10px] font-mono font-bold bg-amber-50 text-amber-900 border border-amber-200 px-2 py-0.5 rounded-full">
+                        {pendingApprovalsCount} بسته در انتظار
+                      </span>
+                    </div>
+
+                    <div className="space-y-2 max-h-64 overflow-y-auto">
+                      {(strategyPackages || [])
+                        .filter((p) => p && p.status === 'In Review')
+                        .map((pkg) => (
+                          <div
+                            key={pkg.packageId || pkg.displayId}
+                            className="p-2.5 rounded-xl bg-slate-50 hover:bg-amber-50/60 border border-slate-200/70 transition-colors space-y-1.5"
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11px] font-bold text-slate-900 font-mono">
+                                {pkg.displayId} ({pkg.titleFa || pkg.titleEn})
+                              </span>
+                              <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 font-bold">
+                                نیاز به تایید Checker
+                              </span>
+                            </div>
+                            <p className="text-[10px] text-slate-500 line-clamp-2">
+                              {pkg.changeSummaryFa || pkg.titleEn || 'بدون توضیحات تکمیلی'}
+                            </p>
+                            <div className="pt-1 flex items-center justify-between text-[10px]">
+                              <span className="text-slate-400 font-mono">طراح: {pkg.authorName || 'سیستم'}</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setIsNotificationsOpen(false);
+                                  onSelectWorkspace('governance');
+                                }}
+                                className="text-amber-700 font-bold hover:underline cursor-pointer flex items-center gap-1"
+                              >
+                                <span>مشاهده در کارتابل</span>
+                                <ChevronLeft className="w-3 h-3" />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+
+                      {pendingApprovalsCount === 0 && (
+                        <div className="py-6 text-center text-xs text-slate-400 space-y-1">
+                          <CheckCircle2 className="w-6 h-6 text-emerald-500 mx-auto" />
+                          <p className="font-bold text-slate-700">همه تاییدیه‌ها انجام شده است</p>
+                          <p className="text-[11px]">مورد معلقی در کارتابل حاکمیتی وجود ندارد.</p>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
             <div className="h-5 w-px bg-slate-200" />
 
-            {/* REDESIGNED ROLE MANAGEMENT & USER PANEL */}
+            {/* MINIMAL USER & ROLE PANEL MENU */}
             <div className="relative" ref={dropdownRef}>
               <button
                 type="button"
                 id="btn-header-role-panel"
-                onClick={() => setIsRoleDropdownOpen(!isRoleDropdownOpen)}
-                className={`flex items-center gap-2.5 px-3 py-1.5 rounded-xl border text-xs transition-all cursor-pointer ${
+                onClick={() => {
+                  setIsRoleDropdownOpen(!isRoleDropdownOpen);
+                  setIsNotificationsOpen(false);
+                }}
+                className={`flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs transition-all duration-150 cursor-pointer ${
                   isRoleDropdownOpen
                     ? 'bg-amber-50/80 border-amber-300 shadow-xs'
-                    : 'bg-slate-50/70 border-slate-200 hover:bg-slate-100 hover:border-slate-300'
+                    : 'bg-slate-50/80 border-slate-200 hover:bg-slate-100 hover:border-slate-300'
                 }`}
               >
-                <div className="w-7 h-7 rounded-lg bg-amber-500 text-white font-bold text-xs flex items-center justify-center shrink-0">
+                <div className="w-7 h-7 rounded-lg bg-amber-500 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
                   {userName ? userName.substring(0, 1) : 'س'}
                 </div>
                 <div className="text-right hidden sm:block">
@@ -237,130 +348,181 @@ export const Header: React.FC<HeaderProps> = ({ onToggleAiCoPilot, activeWorkspa
                     {currentRoleInfo?.accessBadge || 'دسترسی سازمانی'}
                   </div>
                 </div>
-                <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${isRoleDropdownOpen ? 'rotate-180' : ''}`} />
+                <motion.div
+                  animate={{ rotate: isRoleDropdownOpen ? 180 : 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                </motion.div>
               </button>
 
-              {/* Redesigned Spacious & Clean Role Management Dropdown */}
-              {isRoleDropdownOpen && (
-                <div
-                  id="panel-header-role-dropdown"
-                  className="absolute left-0 mt-2.5 w-88 sm:w-96 bg-white border border-slate-200 rounded-2xl shadow-xl p-4 z-50 animate-in fade-in zoom-in-98 duration-150 space-y-4"
-                >
-                  {/* Current Active User Information Card */}
-                  <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl space-y-2.5">
-                    <div className="flex items-center gap-3">
-                      <div className="w-11 h-11 rounded-xl bg-amber-500 text-white font-bold text-base flex items-center justify-center shrink-0 shadow-xs">
-                        {userName ? userName.substring(0, 1) : 'س'}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-1">
-                          <span className="text-xs font-bold text-slate-900 truncate">{userName || 'کاربر سیستم'}</span>
-                          <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-200/80 text-amber-950 font-bold">
-                            {currentRoleInfo?.levelBadge || 'سطح دسترسی'}
-                          </span>
+              {/* Minimal Animated Dropdown Menu with Tabs */}
+              <AnimatePresence>
+                {isRoleDropdownOpen && (
+                  <motion.div
+                    id="panel-header-role-dropdown"
+                    initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 6, scale: 0.97 }}
+                    transition={{ duration: 0.18, ease: 'easeOut' }}
+                    className="absolute left-0 mt-2.5 w-84 sm:w-92 bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-2xl shadow-xl p-3.5 z-50 space-y-3"
+                  >
+                    {/* Compact User Header Profile */}
+                    <div className="p-3 bg-slate-50/90 rounded-xl border border-slate-200/80 flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="w-9 h-9 rounded-xl bg-amber-500 text-white font-bold text-sm flex items-center justify-center shrink-0 shadow-xs">
+                          {userName ? userName.substring(0, 1) : 'س'}
                         </div>
-                        <div className="text-[11px] text-amber-800 font-semibold truncate mt-0.5">{currentRoleInfo?.titleFa || 'نقش کاربری'}</div>
-                        <div className="text-[10px] text-slate-500 font-mono truncate mt-0.5 flex items-center gap-1">
-                          <Mail className="w-3 h-3 text-slate-400 shrink-0" />
-                          <span>{userEmail || 'p.sharifi@iran-freight.ir'}</span>
+                        <div className="min-w-0">
+                          <div className="text-xs font-bold text-slate-900 truncate">
+                            {userName || 'کاربر سیستم'}
+                          </div>
+                          <div className="text-[10px] text-amber-800 font-medium truncate">
+                            {currentRoleInfo?.titleFa}
+                          </div>
                         </div>
                       </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200/70 text-[10px]">
-                      <div className="bg-white p-2 rounded-lg border border-slate-100">
-                        <span className="text-slate-400 block font-medium">سازمان و واحد:</span>
-                        <span className="text-slate-800 font-bold block truncate">
-                          {userOrgName || 'سازمان مرکزی حمل‌ونقل'} ({currentRoleInfo.departmentFa})
-                        </span>
-                      </div>
-                      <div className="bg-white p-2 rounded-lg border border-slate-100">
-                        <span className="text-slate-400 block font-medium">نشان دسترسی:</span>
-                        <span className="text-emerald-700 font-bold block truncate">{currentRoleInfo.accessBadge}</span>
-                      </div>
-                    </div>
-
-                    {/* Scope and Governance Badge */}
-                    <div className="bg-amber-50/70 p-2 rounded-lg border border-amber-200/60 text-[10px]">
-                      <span className="text-amber-900 block font-medium">قلمرو اختیارات سازمانی:</span>
-                      <span className="text-amber-950 font-bold block mt-0.5">
-                        {currentRoleInfo.governanceScope}
+                      <span className="text-[9px] px-2 py-0.5 rounded-full bg-amber-200/80 text-amber-950 font-bold shrink-0">
+                        {currentRoleInfo?.levelBadge}
                       </span>
                     </div>
-                  </div>
 
-                  {/* Role Selector Section */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between px-1 text-slate-500 text-[11px] font-bold">
-                      <span className="flex items-center gap-1.5">
-                        <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
-                        مدیریت و تغییر نقش فعال در سامانه:
-                      </span>
-                      <span className="text-[10px] text-slate-400 font-mono">۷ نقش سازمانی</span>
-                    </div>
-
-                    <div className="space-y-1.5 max-h-56 overflow-y-auto pr-0.5">
-                      {rolesList.map((role) => {
-                        const info = roleDetails[role];
-                        const isSelected = userRole === role;
-                        return (
-                          <button
-                            key={role}
-                            type="button"
-                            onClick={() => {
-                              setUserRole(role);
-                              setIsRoleDropdownOpen(false);
-                            }}
-                            className={`w-full text-right p-2.5 rounded-xl transition-all flex items-center justify-between cursor-pointer border ${
-                              isSelected
-                                ? 'bg-amber-50/80 text-amber-950 border-amber-300 font-bold'
-                                : 'bg-white text-slate-700 border-slate-100 hover:bg-slate-50 hover:border-slate-200'
-                            }`}
-                          >
-                            <div className="space-y-0.5 min-w-0 flex-1">
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs font-bold truncate">{info.titleFa}</span>
-                                <span
-                                  className={`text-[9px] px-1.5 py-0.2 rounded font-medium shrink-0 ${
-                                    isSelected ? 'bg-amber-200 text-amber-950 font-bold' : 'bg-slate-100 text-slate-600'
-                                  }`}
-                                >
-                                  {info.accessBadge}
-                                </span>
-                              </div>
-                              <span className="text-[10px] text-slate-400 block truncate">
-                                {info.permissionLevelFa}
-                              </span>
-                            </div>
-
-                            {isSelected && (
-                              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mr-2" />
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Return to Portal / Logout Action */}
-                  {onLogout && (
-                    <div className="pt-2 border-t border-slate-100">
+                    {/* Segmented Menu Switcher: Roles vs Profile Details */}
+                    <div className="flex bg-slate-100 p-0.5 rounded-xl text-xs font-bold">
                       <button
                         type="button"
-                        id="btn-header-logout"
-                        onClick={() => {
-                          setIsRoleDropdownOpen(false);
-                          onLogout();
-                        }}
-                        className="w-full py-2.5 px-3 rounded-xl bg-slate-50 hover:bg-rose-50 text-slate-600 hover:text-rose-700 border border-slate-200 hover:border-rose-200 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer"
+                        onClick={() => setActiveMenuTab('roles')}
+                        className={`flex-1 py-1.5 rounded-lg transition-all cursor-pointer ${
+                          activeMenuTab === 'roles'
+                            ? 'bg-white text-slate-900 shadow-2xs'
+                            : 'text-slate-500 hover:text-slate-800'
+                        }`}
                       >
-                        <LogOut className="w-3.5 h-3.5" />
-                        <span>خروج از پنل و بازگشت به صفحه درگاه</span>
+                        تغییر نقش سازمانی
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveMenuTab('profile')}
+                        className={`flex-1 py-1.5 rounded-lg transition-all cursor-pointer ${
+                          activeMenuTab === 'profile'
+                            ? 'bg-white text-slate-900 shadow-2xs'
+                            : 'text-slate-500 hover:text-slate-800'
+                        }`}
+                      >
+                        اختیارات و پروفایل
                       </button>
                     </div>
-                  )}
-                </div>
-              )}
+
+                    {/* Tab 1: Roles List with Search */}
+                    {activeMenuTab === 'roles' && (
+                      <div className="space-y-2">
+                        <div className="relative">
+                          <Search className="w-3.5 h-3.5 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                          <input
+                            type="text"
+                            value={roleSearch}
+                            onChange={(e) => setRoleSearch(e.target.value)}
+                            placeholder="جستجوی نقش سازمانی..."
+                            className="w-full pr-8 pl-3 py-1.5 bg-slate-50 text-xs text-slate-800 placeholder-slate-400 rounded-xl border border-slate-200/80 focus:border-amber-500 focus:outline-none"
+                          />
+                        </div>
+
+                        <div className="space-y-1 max-h-48 overflow-y-auto pr-0.5">
+                          {filteredRoles.map((role) => {
+                            const info = roleDetails[role];
+                            const isSelected = userRole === role;
+                            return (
+                              <button
+                                key={role}
+                                type="button"
+                                onClick={() => {
+                                  setUserRole(role);
+                                  setIsRoleDropdownOpen(false);
+                                }}
+                                className={`w-full text-right p-2 rounded-xl transition-all flex items-center justify-between cursor-pointer border ${
+                                  isSelected
+                                    ? 'bg-amber-50/90 text-amber-950 border-amber-300 font-bold shadow-2xs'
+                                    : 'bg-white text-slate-700 border-transparent hover:bg-slate-50 hover:border-slate-200'
+                                }`}
+                              >
+                                <div className="space-y-0.5 min-w-0 flex-1">
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-xs font-bold truncate">{info.titleFa}</span>
+                                    <span
+                                      className={`text-[9px] px-1.5 py-0.2 rounded font-medium shrink-0 ${
+                                        isSelected ? 'bg-amber-200 text-amber-950 font-bold' : 'bg-slate-100 text-slate-600'
+                                      }`}
+                                    >
+                                      {info.accessBadge}
+                                    </span>
+                                  </div>
+                                  <span className="text-[10px] text-slate-400 block truncate">
+                                    {info.permissionLevelFa}
+                                  </span>
+                                </div>
+
+                                {isSelected && (
+                                  <Check className="w-4 h-4 text-emerald-600 shrink-0 mr-1.5" />
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Tab 2: Profile & Governance Details */}
+                    {activeMenuTab === 'profile' && (
+                      <div className="space-y-2 text-[11px]">
+                        <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200/80 space-y-1.5">
+                          <div className="flex justify-between">
+                            <span className="text-slate-400">سازمان و معاونت:</span>
+                            <span className="text-slate-800 font-bold truncate max-w-[180px]">
+                              {userOrgName || 'سازمان مرکزی حمل‌ونقل'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-400">ایمیل سازمانی:</span>
+                            <span className="text-slate-700 font-mono">{userEmail || 'p.sharifi@iran-freight.ir'}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-400">سطح احراز هویت:</span>
+                            <span className="text-emerald-700 font-bold flex items-center gap-1">
+                              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                              تایید MFA سازمانی
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="p-2.5 bg-amber-50/70 rounded-xl border border-amber-200/70 space-y-1">
+                          <span className="text-amber-900 font-bold block">قلمرو اختیارات در سامانه:</span>
+                          <p className="text-amber-950 leading-relaxed text-[10px]">
+                            {currentRoleInfo.governanceScope}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Footer Actions */}
+                    {onLogout && (
+                      <div className="pt-2 border-t border-slate-100">
+                        <button
+                          type="button"
+                          id="btn-header-logout"
+                          onClick={() => {
+                            setIsRoleDropdownOpen(false);
+                            onLogout();
+                          }}
+                          className="w-full py-2 px-3 rounded-xl bg-slate-50 hover:bg-rose-50 text-slate-600 hover:text-rose-700 border border-slate-200 hover:border-rose-200 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer"
+                        >
+                          <LogOut className="w-3.5 h-3.5" />
+                          <span>خروج از حساب کاربری</span>
+                        </button>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </div>
@@ -368,4 +530,3 @@ export const Header: React.FC<HeaderProps> = ({ onToggleAiCoPilot, activeWorkspa
     </header>
   );
 };
-

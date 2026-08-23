@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { usePricing } from '../../../store/PricingContext';
 import { SimulationScenario, RiskClass } from '../../../types/pricing';
+import { ModernSelect } from '../../common/menus/ModernSelect';
 
 export const ValidationLabView: React.FC = () => {
   const { simulations, runSimulation, activeProductionPackage, activeStagingPackage, userName } = usePricing();
@@ -109,21 +110,22 @@ export const ValidationLabView: React.FC = () => {
       {/* Simulator Setup Controls */}
       <div className="bg-white border border-slate-200 p-6 rounded-3xl grid grid-cols-1 md:grid-cols-3 gap-5 shadow-xs">
         <div>
-          <label className="text-slate-700 block mb-2 font-semibold text-xs">نوع سناریوی شبیه‌سازی:</label>
-          <select
+          <ModernSelect
+            id="validation-scenario-type"
             value={scenarioType}
-            onChange={(e: any) => setScenarioType(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-800 text-xs focus:bg-white focus:border-amber-500 focus:outline-none"
-          >
-            <option value="historical_replay">بازپخش ۱۰,۰۰۰ بارنامه سال گذشته (Historical Replay)</option>
-            <option value="synthetic_fuel_shock">شوک ناگهانی ۳۰ درصدی قیمت گازوئیل (Fuel Shock)</option>
-            <option value="winter_blizzard_peak">پیک فصلی زمستان و انسداد گردنه‌ها (Peak Surge)</option>
-          </select>
+            onChange={(val) => setScenarioType(val as any)}
+            label="نوع سناریوی شبیه‌سازی:"
+            options={[
+              { value: 'historical_replay', label: 'بازپخش ۱۰,۰۰۰ بارنامه سال گذشته (Replay)', badge: 'داده واقعی' },
+              { value: 'synthetic_fuel_shock', label: 'شوک ناگهانی ۳۰٪ قیمت گازوئیل (Fuel Shock)', badge: 'ریسک سوخت' },
+              { value: 'winter_blizzard_peak', label: 'پیک فصلی زمستان و انسداد گردنه‌ها (Peak)', badge: 'فصلی' },
+            ]}
+          />
         </div>
 
         <div>
           <label className="text-slate-700 block mb-2 font-semibold text-xs">پکیج استراتژی هدف:</label>
-          <div className="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-amber-900 font-mono flex items-center justify-between">
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3 text-amber-900 font-mono flex items-center justify-between">
             <span className="font-bold">
               {activeStagingPackage?.displayId || activeProductionPackage.displayId}@v
               {activeStagingPackage?.version || activeProductionPackage.version}
@@ -133,16 +135,17 @@ export const ValidationLabView: React.FC = () => {
         </div>
 
         <div>
-          <label className="text-slate-700 block mb-2 font-semibold text-xs">تعداد نمونه‌های ارزیابی:</label>
-          <select
-            value={sampleCount}
-            onChange={(e) => setSampleCount(Number(e.target.value))}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-slate-800 text-xs focus:bg-white focus:border-amber-500 focus:outline-none"
-          >
-            <option value={5000}>۵,۰۰۰ بارنامه تصادفی</option>
-            <option value={10000}>۱۰,۰۰۰ بارنامه کامل پاییز و زمستان</option>
-            <option value={25000}>۲۵,۰۰۰ بارنامه سالانه جامع</option>
-          </select>
+          <ModernSelect
+            id="validation-sample-count"
+            value={String(sampleCount)}
+            onChange={(val) => setSampleCount(Number(val))}
+            label="تعداد نمونه‌های ارزیابی:"
+            options={[
+              { value: '5000', label: '۵,۰۰۰ بارنامه تصادفی', badge: 'سریع' },
+              { value: '10000', label: '۱۰,۰۰۰ بارنامه کامل پاییز و زمستان', badge: 'استاندارد' },
+              { value: '25000', label: '۲۵,۰۰۰ بارنامه سالانه جامع', badge: 'دقیق' },
+            ]}
+          />
         </div>
       </div>
 

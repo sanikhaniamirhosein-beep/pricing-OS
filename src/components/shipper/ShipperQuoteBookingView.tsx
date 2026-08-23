@@ -19,6 +19,8 @@ import {
 } from 'lucide-react';
 import { usePricing } from '../../store/PricingContext';
 import { INITIAL_SAVED_LOCATIONS, INITIAL_SAVED_COMMODITIES, ShipperActiveLoad } from '../../data/mockShipperData';
+import { CityPickerDropdown } from '../common/menus/CityPickerDropdown';
+import { CommodityPickerDropdown } from '../common/menus/CommodityPickerDropdown';
 
 interface ShipperQuoteBookingViewProps {
   onOrderCreated?: (newLoad: ShipperActiveLoad) => void;
@@ -40,7 +42,7 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
   const [destPostalCode, setDestPostalCode] = useState('1834199999');
 
   // Cargo specs
-  const [cargoType, setCargoType] = useState('عادی');
+  const [cargoType, setCargoType] = useState('صنعتی');
   const [cargoTitle, setCargoTitle] = useState('رول و کویل ورق فولادی گرم');
   const [weightTons, setWeightTons] = useState<number>(22.0);
   const [lengthM, setLengthM] = useState<number>(12.0);
@@ -49,8 +51,9 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
   const [cargoValueToman, setCargoValueToman] = useState<number>(280000000); // 280 million toman
 
   // Selected Truck Type
-  const [selectedTruck, setSelectedTruck] = useState('تریلی کفی ۱۸ چرخ');
+  const [selectedTruck, setSelectedTruck] = useState('تریلر کفی ۱۳.۶ متری (۱۸ چرخ)');
   const [urgencyLevel, setUrgencyLevel] = useState<'standard' | 'express'>('standard');
+  const [fleetFilterCategory, setFleetFilterCategory] = useState<'all' | 'heavy' | 'medium' | 'specialized'>('all');
 
   // Loading/Unloading service addon
   const [includeLoadingService, setIncludeLoadingService] = useState(true);
@@ -60,17 +63,373 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
   const [bookedOrder, setBookedOrder] = useState<ShipperActiveLoad | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Intelligent Fleet Recommendation based on weight & dimensions
-  const getRecommendedTruck = () => {
-    if (cargoType === 'یخچالی') return 'تریلی یخچالی دماسنج‌دار';
-    if (cargoType === 'خطرناک' || cargoType === 'فله') return 'تریلی لبه‌دار / تانکر';
-    if (weightTons > 15) return 'تریلی کفی ۱۸ چرخ';
-    if (weightTons > 10) return 'کامیون جفت (۱۰ چرخ)';
-    if (weightTons > 4) return 'کامیون تک (۶ چرخ)';
-    return 'خاور مسقف / روباز ۵ تن';
+  // Comprehensive Fleet Database
+  const AVAILABLE_FLEET_LIST = [
+    {
+      id: 'flatbed',
+      name: 'تریلر کفی ۱۳.۶ متری (۱۸ چرخ)',
+      category: 'heavy',
+      maxTon: 25,
+      axles: 5,
+      desc: 'مناسب رول و کویل، شمش فولاد، میلگرد، پالت سنگین و کانتینر',
+      loadingMethod: 'جرثقیل سقفی / مگنت از بالا یا لیفتراک',
+      badge: 'صنعتی / سنگین',
+      color: 'blue',
+    },
+    {
+      id: 'tent',
+      name: 'تریلی چادری ترانزیت (سقف کشویی)',
+      category: 'heavy',
+      maxTon: 24,
+      axles: 5,
+      desc: 'حفاظت ۱۰۰٪ در برابر بارش و گردوغبار، مناسب پتروشیمی، کارتن و صادرات',
+      loadingMethod: 'لیفتراک از بغل و عقب با سقف کشویی',
+      badge: 'ترانزیت / چادری',
+      color: 'amber',
+    },
+    {
+      id: 'reefer',
+      name: 'تریلی یخچالی دماسنج‌دار (-۱۸°C تا +۴°C)',
+      category: 'specialized',
+      maxTon: 20,
+      axles: 5,
+      desc: 'کنترل فعال دما و ترموگراف آنلاین ویژه لبنیات، پروتئینی، دارو و بستنی',
+      loadingMethod: 'داک بارگیری سردخانه و لیفتراک پالت‌بر',
+      badge: 'زنجیره سرد',
+      color: 'teal',
+    },
+    {
+      id: 'tipper',
+      name: 'تریلی کمپرسی / لبه‌دار ۲۴ تن',
+      category: 'specialized',
+      maxTon: 24,
+      axles: 5,
+      desc: 'تخلیه هیدرولیکی سریع ویژه سنگ معدن، کلینکر، سیمان فله، خاک و غلات',
+      loadingMethod: 'لودر / هاپر و شوتینگ از بالا',
+      badge: 'فله و معدنی',
+      color: 'amber',
+    },
+    {
+      id: 'tanker',
+      name: 'تانکر مخصوص مایعات و شیمیایی ADR',
+      category: 'specialized',
+      maxTon: 24,
+      axles: 5,
+      desc: 'مخزن دوجداره ایزوله ویژه سوخت، قیر مذاب، حلال و مواد اولیه مایع پتروشیمی',
+      loadingMethod: 'بازوهای بارگیری پالایشگاهی با پمپ ضدانفجار',
+      badge: 'مایعات و سوخت',
+      color: 'rose',
+    },
+    {
+      id: 'bogie',
+      name: 'کمرشکن بوژی فوق سنگین (ترافیکی)',
+      category: 'specialized',
+      maxTon: 60,
+      axles: 11,
+      desc: 'محموله‌های ترافیکی، توربین، ترانسفورماتور و ماشین‌آلات سنگین راه‌سازی',
+      loadingMethod: 'جرثقیل بوم‌بلند موبایل و رمپ هیدرولیک',
+      badge: 'ترافیکی / فوق‌سنگین',
+      color: 'purple',
+    },
+    {
+      id: 'pair_15t',
+      name: 'کامیون جفت ۱۰ چرخ (۱۵ تن)',
+      category: 'medium',
+      maxTon: 15,
+      axles: 3,
+      desc: 'مناسب کاشی و سرامیک، سنگ اسلب، لوله و بارهای نیمه‌سنگین بین‌استانی',
+      loadingMethod: 'لیفتراک از طرفین و جرثقیل کارگاهی',
+      badge: '۱۰ چرخ (۶×۴)',
+      color: 'slate',
+    },
+    {
+      id: 'single_10t',
+      name: 'کامیون تک ۶ چرخ (۱۰ تن)',
+      category: 'medium',
+      maxTon: 10,
+      axles: 2,
+      desc: 'توزیع سریع بین‌شهری، قطعات صنعتی و محموله‌های تا سقف ۱۰ تن',
+      loadingMethod: 'لیفتراک و رمپ بارانداز شهری',
+      badge: '۶ چرخ (۴×۲)',
+      color: 'slate',
+    },
+    {
+      id: 'khavar_5t',
+      name: 'خاور مسقف / روباز ۵ تن (ایسوزو)',
+      category: 'medium',
+      maxTon: 5,
+      axles: 2,
+      desc: 'ایده‌آل برای محموله‌های سبک، خرده‌بار تجاری و مبادی فاقد رمپ تریلی',
+      loadingMethod: 'کارگری دستی و جک‌پالت هیدرولیک',
+      badge: 'کامیونت سبک',
+      color: 'slate',
+    },
+  ];
+
+  // Highly Accurate & Domain-Grounded Fleet Recommendation Engine
+  const analyzeFleetRecommendation = () => {
+    const text = `${cargoTitle} ${cargoType}`.toLowerCase();
+    const isTrafficOversize = lengthM > 13.6 || widthM > 2.55 || heightM > 3.0 || weightTons > 25.0;
+
+    // 1. Heavy / Oversized Traffic Check
+    if (
+      isTrafficOversize ||
+      text.includes('ترافیک') ||
+      text.includes('کمرشکن') ||
+      text.includes('بوژی') ||
+      text.includes('توربین') ||
+      text.includes('ترانس') ||
+      text.includes('بیل مکانیکی') ||
+      text.includes('بولدوزر') ||
+      text.includes('لودر سنگین') ||
+      text.includes('سازه سنگین') ||
+      text.includes('مخزن بزرگ') ||
+      weightTons > 25.0
+    ) {
+      return {
+        truck: AVAILABLE_FLEET_LIST.find((f) => f.id === 'bogie')!,
+        reason: `ابعاد فیزیکی (طول ${lengthM}m یا عرض ${widthM}m) یا تناژ بار (${weightTons} تن) از سقف استاندارد تریلی‌های تجاری فراتر بوده و محموله بر اساس ضوابط راهداری نیازمند کمرشکن بوژی فوق سنگین و اسکورت ترافیکی است.`,
+        isOversized: true,
+        isOverweight: false,
+      };
+    }
+
+    // 2. Cold Chain / Perishable Check
+    if (
+      cargoType === 'یخچالی' ||
+      text.includes('یخچال') ||
+      text.includes('سردخانه') ||
+      text.includes('گوشت') ||
+      text.includes('مرغ') ||
+      text.includes('پروتئین') ||
+      text.includes('لبنی') ||
+      text.includes('شیر') ||
+      text.includes('پنیر') ||
+      text.includes('بستنی') ||
+      text.includes('کره') ||
+      text.includes('واکسن') ||
+      text.includes('دارو') ||
+      text.includes('میوه') ||
+      text.includes('ماهی') ||
+      text.includes('سوسیس') ||
+      text.includes('منجمد')
+    ) {
+      if (weightTons <= 5) {
+        return {
+          truck: AVAILABLE_FLEET_LIST.find((f) => f.id === 'khavar_5t')!,
+          reason: `محموله نیازمند اتاق عایق/یخچالی سبک برای حجم ${weightTons} تن است تا در حین توزیع سریع بین‌شهری زنجیره سرما بدون اضافه ظرفیت تضمین گردد.`,
+          isOversized: false,
+          isOverweight: false,
+        };
+      }
+      return {
+        truck: AVAILABLE_FLEET_LIST.find((f) => f.id === 'reefer')!,
+        reason: `محموله دارای ماهیت فسادپذیر و حساس به دما بوده و مطابق استانداردهای زنجیره سرد راهداری نیازمند کشنده مجهز به یونیت خنک‌کننده فعال (-۱۸°C الی +۴°C) و ثبت آنلاین دماسنجی است.`,
+        isOversized: false,
+        isOverweight: weightTons > 20,
+      };
+    }
+
+    // 3. Liquid / Chemical Fuel & Bitumen Tanker Check
+    if (
+      text.includes('تانکر') ||
+      text.includes('مایع') ||
+      text.includes('سوخت') ||
+      text.includes('گازوئیل') ||
+      text.includes('بنزین') ||
+      text.includes('نفت') ||
+      text.includes('قیر') ||
+      text.includes('اسید') ||
+      text.includes('حلال') ||
+      text.includes('اتانول') ||
+      text.includes('متانول') ||
+      text.includes('روغن هیدرولیک') ||
+      text.includes('روغن پایه')
+    ) {
+      return {
+        truck: AVAILABLE_FLEET_LIST.find((f) => f.id === 'tanker')!,
+        reason: `محموله از نوع مایعات صنعتی/شیمیایی/سوختی بوده و جهت پیشگیری از خطرات اشتعال و نشت محیط‌زیستی، منحصراً باید توسط تانکر دوجداره استاندارد ADR با شیرآلات ضدجرقه حمل گردد.`,
+        isOversized: false,
+        isOverweight: weightTons > 24,
+      };
+    }
+
+    // 4. Bulk / Mineral / Grain Tipper Check
+    if (
+      cargoType === 'فله' ||
+      text.includes('فله') ||
+      text.includes('کمپرسی') ||
+      text.includes('سنگ معدن') ||
+      text.includes('کلینکر') ||
+      text.includes('سیمان فله') ||
+      text.includes('شن') ||
+      text.includes('ماسه') ||
+      text.includes('خاک نسوز') ||
+      text.includes('گندم') ||
+      text.includes('جو فله') ||
+      text.includes('ذرت فله') ||
+      text.includes('آهک') ||
+      text.includes('سنگ لاشه')
+    ) {
+      if (weightTons <= 15 && weightTons > 10) {
+        return {
+          truck: AVAILABLE_FLEET_LIST.find((f) => f.id === 'pair_15t')!,
+          reason: `محموله فله/معدنی با تناژ ${weightTons} تن در محدوده ظرفیت کامیون جفت کمپرسی ۱۵ تن است که امکان ورود به معابر سخت کارگاهی و تخلیه سریع را فراهم می‌سازد.`,
+          isOversized: false,
+          isOverweight: false,
+        };
+      }
+      return {
+        truck: AVAILABLE_FLEET_LIST.find((f) => f.id === 'tipper')!,
+        reason: `ماهیت محموله دانه‌ای و فله‌ای بوده و بارگیری از هاپر و تخلیه نیازمند اتاق کمپرسی با جک هیدرولیکی یا لبه‌دار مقاوم در برابر سایش بار است.`,
+        isOversized: false,
+        isOverweight: weightTons > 24,
+      };
+    }
+
+    // 5. Heavy Steel, Metal, Slabs & Coils (Flatbed Trailer)
+    if (
+      text.includes('فولاد') ||
+      text.includes('میلگرد') ||
+      text.includes('شمش') ||
+      text.includes('کویل') ||
+      text.includes('ورق') ||
+      text.includes('تیرآهن') ||
+      text.includes('پروفیل سنگین') ||
+      text.includes('نبشی') ||
+      text.includes('اسلب') ||
+      text.includes('بلوم') ||
+      text.includes('سنگ اسلب') ||
+      text.includes('کانتینر') ||
+      text.includes('لوله فلزی') ||
+      (cargoType === 'صنعتی' && weightTons > 15)
+    ) {
+      if (weightTons > 15) {
+        return {
+          truck: AVAILABLE_FLEET_LIST.find((f) => f.id === 'flatbed')!,
+          reason: `شکل هندسی و وزن سنگین محموله (${weightTons} تن) ایجاب می‌کند که بارگیری از بالا توسط جرثقیل سقفی/مگنت بر روی کفی تخت ۱۳.۶۰ متری دارای مهارهای رول‌گیر انجام پذیرد.`,
+          isOversized: false,
+          isOverweight: weightTons > 25,
+        };
+      }
+      if (weightTons > 10) {
+        return {
+          truck: AVAILABLE_FLEET_LIST.find((f) => f.id === 'pair_15t')!,
+          reason: `تناژ محموله آهن‌آلات (${weightTons} تن) در ظرفیت کامیون ۱۰ چرخ کفی/روباز است که امکان مهاربندی ایمن و تخلیه سریع در انبار را مهیا می‌سازد.`,
+          isOversized: false,
+          isOverweight: false,
+        };
+      }
+      if (weightTons > 5) {
+        return {
+          truck: AVAILABLE_FLEET_LIST.find((f) => f.id === 'single_10t')!,
+          reason: `محموله صنعتی با تناژ ${weightTons} تن مناسب حمل با کامیون تک روباز ۶ چرخ جهت صرفه‌جویی در هزینه کرایه است.`,
+          isOversized: false,
+          isOverweight: false,
+        };
+      }
+      return {
+        truck: AVAILABLE_FLEET_LIST.find((f) => f.id === 'khavar_5t')!,
+        reason: `تناژ سبک محموله فلزی (${weightTons} تن) با خاور روباز ۵ تن به‌صرفه‌ترین و منعطف‌ترین انتخاب برای مبدأ و مقصد است.`,
+        isOversized: false,
+        isOverweight: false,
+      };
+    }
+
+    // 6. Enclosed Cartons, Petrochemical Polymers, Jumbo Bags, Consumer Goods (Tent/Curtain Trailer)
+    if (
+      text.includes('کارتن') ||
+      text.includes('پتروشیمی') ||
+      text.includes('گرانول') ||
+      text.includes('پلیمر') ||
+      text.includes('جامبوبگ') ||
+      text.includes('پالت شرینک') ||
+      text.includes('لوازم خانگی') ||
+      text.includes('پوشاک') ||
+      text.includes('فرش') ||
+      text.includes('مواد شوینده') ||
+      text.includes('کاغذ') ||
+      text.includes('سلولزی') ||
+      text.includes('صادرات') ||
+      text.includes('ترانزیت') ||
+      text.includes('الکترونیک') ||
+      text.includes('قطعات')
+    ) {
+      if (weightTons > 15) {
+        return {
+          truck: AVAILABLE_FLEET_LIST.find((f) => f.id === 'tent')!,
+          reason: `بسته‌بندی کارتن و جامبوبگ در برابر رطوبت، باد و تابش آفتاب آسیب‌پذیر بوده و تریلی چادری ترانزیت با سقف کشویی و پلمپ استاندارد بالاترین سطح سلامت بار را تضمین می‌کند.`,
+          isOversized: false,
+          isOverweight: weightTons > 24,
+        };
+      }
+      if (weightTons > 10) {
+        return {
+          truck: AVAILABLE_FLEET_LIST.find((f) => f.id === 'pair_15t')!,
+          reason: `تناژ کالای تجاری/کارتنی (${weightTons} تن) در بازه بهینه کامیون جفت مسقف چادری قرار دارد.`,
+          isOversized: false,
+          isOverweight: false,
+        };
+      }
+      if (weightTons > 5) {
+        return {
+          truck: AVAILABLE_FLEET_LIST.find((f) => f.id === 'single_10t')!,
+          reason: `کالای بسته‌بندی با وزن ${weightTons} تن متناسب با ناوگان تک ۶ چرخ مسقف چادری است.`,
+          isOversized: false,
+          isOverweight: false,
+        };
+      }
+      return {
+        truck: AVAILABLE_FLEET_LIST.find((f) => f.id === 'khavar_5t')!,
+        reason: `محموله تجاری سبک (${weightTons} تن) با خاور مسقف چادری به صورت دربستی و محافظت‌شده ارسال می‌گردد.`,
+        isOversized: false,
+        isOverweight: false,
+      };
+    }
+
+    // 7. General Weight-Based Fallback
+    if (weightTons > 15) {
+      return {
+        truck: AVAILABLE_FLEET_LIST.find((f) => f.id === 'tent')!,
+        reason: `بر اساس وزن کل ${weightTons} تن، تریلی ترانزیت ۲۴ تن استانداردترین گزینه حمل سراسری برای این محموله است.`,
+        isOversized: false,
+        isOverweight: weightTons > 24,
+      };
+    }
+    if (weightTons > 10) {
+      return {
+        truck: AVAILABLE_FLEET_LIST.find((f) => f.id === 'pair_15t')!,
+        reason: `بر اساس وزن کل ${weightTons} تن، کامیون جفت ۱۰ چرخ با حداکثر ظرفیت ۱۵ تن مناسب‌ترین گزینه عملیاتی است.`,
+        isOversized: false,
+        isOverweight: false,
+      };
+    }
+    if (weightTons > 5) {
+      return {
+        truck: AVAILABLE_FLEET_LIST.find((f) => f.id === 'single_10t')!,
+        reason: `بر اساس وزن کل ${weightTons} تن، کامیون تک ۶ چرخ با حداکثر ظرفیت ۱۰ تن مناسب‌ترین گزینه با نرخ اقتصادی است.`,
+        isOversized: false,
+        isOverweight: false,
+      };
+    }
+
+    return {
+      truck: AVAILABLE_FLEET_LIST.find((f) => f.id === 'khavar_5t')!,
+      reason: `بر اساس وزن کل ${weightTons} تن، خاور مسقف/روباز ۵ تن اقتصادی‌ترین و سریع‌ترین ناوگان بارگیری است.`,
+      isOversized: false,
+      isOverweight: false,
+    };
   };
 
-  const recommendedTruck = getRecommendedTruck();
+  const fleetRecommendation = analyzeFleetRecommendation();
+  const recommendedTruckName = fleetRecommendation.truck.name;
+
+  // Selected Truck Object for Capacity Warning Check
+  const currentSelectedTruckObj =
+    AVAILABLE_FLEET_LIST.find((f) => f.name === selectedTruck || selectedTruck.includes(f.name) || f.name.includes(selectedTruck)) ||
+    AVAILABLE_FLEET_LIST[0];
+
+  const isSelectedTruckOverweight = weightTons > currentSelectedTruckObj.maxTon;
 
   // Price Calculation through runtime pricing logic
   const engineResult = calculatePrice({
@@ -174,9 +533,9 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-[11px] font-bold text-slate-500 flex items-center gap-1">
             <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-            کالاهای پرتکرار سازمانی:
+            نمونه کالاهای پرتکرار سازمانی:
           </span>
-          {INITIAL_SAVED_COMMODITIES.slice(0, 3).map((com) => (
+          {INITIAL_SAVED_COMMODITIES.slice(0, 5).map((com) => (
             <button
               key={com.id}
               type="button"
@@ -283,19 +642,18 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Origin */}
               <div className="space-y-2">
-                <label className="block text-slate-700 font-bold text-xs">شهر و استان مبدأ:</label>
-                <input
-                  type="text"
+                <CityPickerDropdown
+                  id="booking-origin-city"
                   value={originCity}
-                  onChange={(e) => setOriginCity(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 font-medium focus:bg-white focus:border-amber-500 focus:outline-none"
-                  placeholder="مثلاً: اصفهان"
+                  onChange={setOriginCity}
+                  label="شهر و استان مبدأ:"
+                  type="origin"
                 />
                 <input
                   type="text"
                   value={originHub}
                   onChange={(e) => setOriginHub(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-[11px] text-slate-700"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-[11px] text-slate-700 focus:bg-white focus:border-amber-500 focus:outline-none"
                   placeholder="نام انبار یا کارخانه مبدأ"
                 />
                 <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
@@ -311,19 +669,18 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
 
               {/* Destination */}
               <div className="space-y-2">
-                <label className="block text-slate-700 font-bold text-xs">شهر و استان مقصد:</label>
-                <input
-                  type="text"
+                <CityPickerDropdown
+                  id="booking-dest-city"
                   value={destCity}
-                  onChange={(e) => setDestCity(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 font-medium focus:bg-white focus:border-amber-500 focus:outline-none"
-                  placeholder="مثلاً: تهران"
+                  onChange={setDestCity}
+                  label="شهر و استان مقصد:"
+                  type="destination"
                 />
                 <input
                   type="text"
                   value={destHub}
                   onChange={(e) => setDestHub(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-[11px] text-slate-700"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 text-[11px] text-slate-700 focus:bg-white focus:border-amber-500 focus:outline-none"
                   placeholder="نام انبار یا کارخانه تحویل‌گیرنده"
                 />
                 <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
@@ -348,28 +705,22 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-slate-700 font-bold text-xs mb-1">شرح کالای ارسالی:</label>
+                <label className="block text-slate-700 font-bold text-xs mb-1.5">شرح کالای ارسالی:</label>
                 <input
                   type="text"
                   value={cargoTitle}
                   onChange={(e) => setCargoTitle(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 font-medium"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-2.5 text-xs text-slate-800 font-medium focus:bg-white focus:border-amber-500 focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-slate-700 font-bold text-xs mb-1">دسته‌بندی و ماهیت کالا:</label>
-                <select
+                <CommodityPickerDropdown
+                  id="booking-cargo-type"
                   value={cargoType}
-                  onChange={(e) => setCargoType(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-800 font-medium"
-                >
-                  <option value="عادی">عادی و صنعتی استاندارد</option>
-                  <option value="صنعتی">تجهیزات و متریال سنگین صنعتی</option>
-                  <option value="خطرناک">مواد خطرناک و شیمیایی (ADR)</option>
-                  <option value="یخچالی">فاسدشدنی و مواد غذایی (یخچالی)</option>
-                  <option value="فله">کالای فله و معدنی</option>
-                </select>
+                  onChange={setCargoType}
+                  label="دسته‌بندی و ماهیت کالا:"
+                />
               </div>
             </div>
 
@@ -439,47 +790,207 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
 
           {/* 3. انتخاب هوشمند ناوگان و خدمات تکمیلی */}
           <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-              <h3 className="font-bold text-slate-800 text-xs flex items-center gap-2">
-                <Truck className="w-4 h-4 text-amber-600" />
-                ۳. انتخاب نوع ناوگان و خدمات اضافه
-              </h3>
-              <span className="text-[10px] text-teal-800 bg-teal-50 px-2 py-0.5 rounded-md font-bold flex items-center gap-1">
-                <Sparkles className="w-3 h-3 text-teal-600" />
-                پیشنهاد هوشمند سیستم: {recommendedTruck}
-              </span>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
+              <div>
+                <h3 className="font-bold text-slate-800 text-xs flex items-center gap-2">
+                  <Truck className="w-4 h-4 text-amber-600" />
+                  ۳. انتخاب نوع ناوگان بارگیر و خدمات تکمیلی
+                </h3>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  پیشنهاد خودکار بر اساس ماهیت کالا ({cargoType})، وزن ({weightTons} تن) و ابعاد هندسی
+                </p>
+              </div>
+
+              {/* Category Filter Chips */}
+              <div className="flex items-center gap-1 bg-slate-100/80 p-1 rounded-xl text-[10px] font-bold">
+                <button
+                  type="button"
+                  onClick={() => setFleetFilterCategory('all')}
+                  className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
+                    fleetFilterCategory === 'all'
+                      ? 'bg-white text-slate-900 shadow-xs'
+                      : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  همه ({AVAILABLE_FLEET_LIST.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFleetFilterCategory('heavy')}
+                  className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
+                    fleetFilterCategory === 'heavy'
+                      ? 'bg-white text-slate-900 shadow-xs'
+                      : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  سنگین و تریلر
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFleetFilterCategory('medium')}
+                  className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
+                    fleetFilterCategory === 'medium'
+                      ? 'bg-white text-slate-900 shadow-xs'
+                      : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  تک و جفت و خاور
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFleetFilterCategory('specialized')}
+                  className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
+                    fleetFilterCategory === 'specialized'
+                      ? 'bg-white text-slate-900 shadow-xs'
+                      : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  تخصصی (یخچال/تانکر/بوژی)
+                </button>
+              </div>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-              {[
-                { name: 'تریلی کفی ۱۸ چرخ', maxTon: 24, desc: 'مناسب شمش، رول، پالت سنگین' },
-                { name: 'تریلی چادری ترانزیت', maxTon: 22, desc: 'حفاظت کامل در برابر باران و گردوغبار' },
-                { name: 'کامیون جفت (۱۰ چرخ)', maxTon: 15, desc: 'مناسب سرامیک، کاشی، لوله' },
-                { name: 'کامیون تک (۶ چرخ)', maxTon: 10, desc: 'توزیع نیمه‌سنگین بین‌استانی' },
-                { name: 'خاور روباز ۵ تن', maxTon: 5, desc: 'بارگیری سریع و تناژ سبک' },
-                { name: 'تریلی یخچالی دماسنج‌دار', maxTon: 20, desc: 'حمل در دمای منفی ۱۸ تا مثبت ۴' },
-              ].map((truck) => {
+            {/* Smart Technical Justification Recommendation Banner */}
+            <div className="bg-gradient-to-r from-amber-50/90 via-teal-50/50 to-blue-50/70 p-3.5 rounded-2xl border border-amber-200/80 space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-lg bg-teal-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+                    <Sparkles className="w-3.5 h-3.5" />
+                  </span>
+                  <div>
+                    <span className="text-[10px] font-bold text-teal-800 block">پیشنهاد تحلیلی و تخصصی سیستم لجستیک:</span>
+                    <strong className="text-xs font-bold text-slate-900">{fleetRecommendation.truck.name}</strong>
+                  </div>
+                </div>
+
+                {selectedTruck !== fleetRecommendation.truck.name && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedTruck(fleetRecommendation.truck.name)}
+                    className="px-3 py-1.5 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-[11px] font-bold shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <span>اعمال ناوگان پیشنهادی</span>
+                    <Check className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              <p className="text-[11px] text-slate-700 leading-relaxed bg-white/70 p-2.5 rounded-xl border border-amber-100/80">
+                <strong className="text-amber-900 font-bold ml-1">توجیه فنی:</strong>
+                {fleetRecommendation.reason}
+              </p>
+
+              <div className="flex flex-wrap items-center gap-3 pt-0.5 text-[10px] text-slate-600">
+                <span className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-teal-500"></span>
+                  <strong>روش بارگیری پیشنهادی:</strong> {fleetRecommendation.truck.loadingMethod}
+                </span>
+                <span className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                  <strong>ظرفیت مجاز:</strong> {fleetRecommendation.truck.maxTon} تن
+                </span>
+                {fleetRecommendation.isOversized && (
+                  <span className="px-2 py-0.5 bg-purple-100 text-purple-900 rounded font-bold">
+                    محموله ترافیکی راهداری
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Overweight Capacity Warning Alert */}
+            {isSelectedTruckOverweight && (
+              <div className="bg-rose-50 border border-rose-300 p-3 rounded-xl flex items-start justify-between gap-3 animate-in fade-in duration-200">
+                <div className="flex items-start gap-2.5">
+                  <div className="w-5 h-5 rounded-md bg-rose-500 text-white flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">
+                    !
+                  </div>
+                  <div className="text-xs">
+                    <strong className="text-rose-950 block font-bold">
+                      هشدار اضافه بار و عدم انطباق ظرفیت ناوگان!
+                    </strong>
+                    <p className="text-rose-800 text-[11px] mt-0.5">
+                      وزن محموله شما (<strong className="font-mono">{weightTons} تن</strong>) از حداکثر ظرفیت بارگیری ناوگان انتخابی «{currentSelectedTruckObj.name}» (<strong className="font-mono">{currentSelectedTruckObj.maxTon} تن</strong>) فراتر است. صدور بارنامه رسمی راهداری با این ناوگان به دلیل اضافه تناژ متوقف خواهد شد.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedTruck(fleetRecommendation.truck.name)}
+                  className="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-[10px] font-bold shrink-0 cursor-pointer shadow-xs"
+                >
+                  تغییر به {fleetRecommendation.truck.name.split(' ')[0]}
+                </button>
+              </div>
+            )}
+
+            {/* Fleet Options Cards Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+              {AVAILABLE_FLEET_LIST.filter(
+                (truck) => fleetFilterCategory === 'all' || truck.category === fleetFilterCategory
+              ).map((truck) => {
                 const isSelected = selectedTruck === truck.name;
-                const isRec = recommendedTruck === truck.name;
+                const isRec = fleetRecommendation.truck.id === truck.id;
+                const isOverweightForThis = weightTons > truck.maxTon;
+
                 return (
                   <button
-                    key={truck.name}
+                    key={truck.id}
                     type="button"
                     onClick={() => setSelectedTruck(truck.name)}
-                    className={`p-3 rounded-xl border text-right transition-all cursor-pointer relative ${
+                    className={`p-3 rounded-2xl border text-right transition-all cursor-pointer relative flex flex-col justify-between gap-2 text-xs ${
                       isSelected
-                        ? 'bg-amber-50 border-amber-400 text-amber-950 ring-1 ring-amber-400/30'
-                        : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                        ? 'bg-amber-50/90 border-amber-400 text-amber-950 ring-2 ring-amber-400/40 shadow-xs'
+                        : isRec
+                        ? 'bg-teal-50/40 border-teal-300 text-slate-800 hover:bg-teal-50/80'
+                        : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100/80'
                     }`}
                   >
-                    {isRec && (
-                      <span className="absolute -top-2 left-2 px-1.5 py-0.2 rounded bg-teal-600 text-white font-bold text-[9px]">
-                        پیشنهاد
+                    {/* Top Badges */}
+                    <div className="flex items-center justify-between gap-1 w-full">
+                      <span className="text-[10px] px-2 py-0.5 rounded-md font-bold bg-white/80 border border-slate-200 text-slate-600">
+                        {truck.badge}
                       </span>
-                    )}
-                    <div className="font-bold text-xs">{truck.name}</div>
-                    <div className="text-[10px] text-slate-400 mt-0.5 font-mono">ظرفیت مجاز: {truck.maxTon} تن</div>
-                    <div className="text-[9px] text-slate-500 mt-1 line-clamp-1">{truck.desc}</div>
+                      <div className="flex items-center gap-1">
+                        {isRec && (
+                          <span className="px-2 py-0.5 rounded-full bg-teal-600 text-white font-bold text-[9px] flex items-center gap-0.5 shadow-xs">
+                            <Sparkles className="w-2.5 h-2.5" />
+                            پیشنهاد هوشمند
+                          </span>
+                        )}
+                        {isOverweightForThis && (
+                          <span className="px-1.5 py-0.5 rounded bg-rose-100 text-rose-800 font-bold text-[9px]">
+                            اضافه بار ⚠️
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Title & Specs */}
+                    <div>
+                      <div className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
+                        <Truck className={`w-3.5 h-3.5 ${isSelected ? 'text-amber-700' : 'text-slate-400'}`} />
+                        <span>{truck.name}</span>
+                      </div>
+                      <div className="text-[10px] text-slate-500 mt-1 flex items-center gap-2 font-mono">
+                        <span>ظرفیت مجاز: <strong>{truck.maxTon} تن</strong></span>
+                        <span>•</span>
+                        <span>{truck.axles} محور</span>
+                      </div>
+                      <p className="text-[10px] text-slate-500 mt-1 line-clamp-2 leading-tight">
+                        {truck.desc}
+                      </p>
+                    </div>
+
+                    {/* Footer loading info */}
+                    <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-[9px] text-slate-400">
+                      <span className="truncate max-w-[170px]">{truck.loadingMethod}</span>
+                      {isSelected && (
+                        <span className="text-amber-800 font-bold flex items-center gap-0.5">
+                          <Check className="w-3 h-3" />
+                          انتخاب‌شده
+                        </span>
+                      )}
+                    </div>
                   </button>
                 );
               })}
@@ -487,29 +998,29 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
 
             {/* Addons Switches */}
             <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <label className="flex items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100">
+              <label className="flex items-center gap-2.5 p-3 bg-slate-50 border border-slate-200 rounded-2xl cursor-pointer hover:bg-slate-100 transition-all">
                 <input
                   type="checkbox"
                   checked={includeLoadingService}
                   onChange={(e) => setIncludeLoadingService(e.target.checked)}
-                  className="rounded text-amber-600 focus:ring-amber-500 w-4 h-4"
+                  className="rounded text-amber-600 focus:ring-amber-500 w-4 h-4 cursor-pointer"
                 />
                 <div className="text-xs">
-                  <span className="font-bold text-slate-800 block">خدمات لیفتراک و کارگر تخلیه/بارگیری</span>
-                  <span className="text-[10px] text-slate-500">۱,۸۰۰,۰۰۰ تومان به ازای هر سرویس</span>
+                  <span className="font-bold text-slate-800 block">خدمات لیفتراک و کارگر تخلیه/بارگیری در محل</span>
+                  <span className="text-[10px] text-slate-500">۱,۸۰۰,۰۰۰ تومان به ازای هر سرویس بارگیری رسمی</span>
                 </div>
               </label>
 
-              <label className="flex items-center gap-2 p-3 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100">
+              <label className="flex items-center gap-2.5 p-3 bg-slate-50 border border-slate-200 rounded-2xl cursor-pointer hover:bg-slate-100 transition-all">
                 <input
                   type="checkbox"
                   checked={includeFullInsurance}
                   onChange={(e) => setIncludeFullInsurance(e.target.checked)}
-                  className="rounded text-amber-600 focus:ring-amber-500 w-4 h-4"
+                  className="rounded text-amber-600 focus:ring-amber-500 w-4 h-4 cursor-pointer"
                 />
                 <div className="text-xs">
                   <span className="font-bold text-slate-800 block">بیمه تکمیلی All-Risk با فرانشیز صفر</span>
-                  <span className="text-[10px] text-slate-500">پوشش کامل بدون اعمال استهلاک</span>
+                  <span className="text-[10px] text-slate-500">پوشش ۱۰۰٪ ارزش محموله بدون اعمال استهلاک</span>
                 </div>
               </label>
             </div>

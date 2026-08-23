@@ -20,6 +20,7 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { UserRole } from '../../types/pricing';
+import { ModernSelect } from '../common/menus/ModernSelect';
 
 interface ShipperAuthModalProps {
   isOpen: boolean;
@@ -545,21 +546,17 @@ export const ShipperAuthModal: React.FC<ShipperAuthModalProps> = ({
 
                       {/* انتخاب نقش در سامانه */}
                       <div>
-                        <label className="block text-slate-700 font-bold mb-1.5 flex items-center gap-1.5">
-                          <Briefcase className="w-3.5 h-3.5 text-teal-600" />
-                          انتخاب نقش در سامانه:
-                        </label>
-                        <select
+                        <ModernSelect
+                          id="corp-login-role"
                           value={corpLoginRole}
-                          onChange={(e) => setCorpLoginRole(e.target.value)}
-                          className="w-full bg-[#FAF8F5] border border-amber-200/80 rounded-xl p-3 text-slate-800 text-xs focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500/20 font-bold transition-all"
-                        >
-                          {corporateRoleOptions.map((opt) => (
-                            <option key={opt} value={opt}>
-                              {opt}
-                            </option>
-                          ))}
-                        </select>
+                          onChange={setCorpLoginRole}
+                          label="انتخاب نقش در سامانه:"
+                          icon={<Briefcase className="w-3.5 h-3.5 text-teal-600" />}
+                          options={corporateRoleOptions.map((opt) => ({
+                            value: opt,
+                            label: opt,
+                          }))}
+                        />
                       </div>
 
                       {/* گذرواژه اختصاصی اون نقش */}
@@ -684,18 +681,16 @@ export const ShipperAuthModal: React.FC<ShipperAuthModalProps> = ({
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-slate-700 mb-1 font-bold">نقش در سامانه:</label>
-                        <select
+                        <ModernSelect
+                          id="corp-new-role"
                           value={corpNewRoleTitle}
-                          onChange={(e) => setCorpNewRoleTitle(e.target.value)}
-                          className="w-full bg-white border border-amber-200 rounded-xl p-2 text-slate-800 text-xs font-medium focus:border-teal-500 focus:outline-none"
-                        >
-                          {corporateRoleOptions.map((opt) => (
-                            <option key={opt} value={opt}>
-                              {opt}
-                            </option>
-                          ))}
-                        </select>
+                          onChange={setCorpNewRoleTitle}
+                          label="نقش در سامانه:"
+                          options={corporateRoleOptions.map((opt) => ({
+                            value: opt,
+                            label: opt,
+                          }))}
+                        />
                       </div>
 
                       <div>

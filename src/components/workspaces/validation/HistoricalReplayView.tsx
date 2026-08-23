@@ -18,6 +18,7 @@ import {
   ArrowDownRight,
 } from 'lucide-react';
 import { usePricing } from '../../../store/PricingContext';
+import { ModernSelect } from '../../common/menus/ModernSelect';
 
 export const HistoricalReplayView: React.FC = () => {
   const [replayTimeframe, setReplayTimeframe] = useState<'3m' | '6m' | '12m'>('6m');
@@ -158,18 +159,20 @@ export const HistoricalReplayView: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-slate-400" />
-            <select
+          <div className="flex items-center gap-2 min-w-[220px]">
+            <ModernSelect
+              id="replay-industry-filter"
               value={industryFilter}
-              onChange={(e) => setIndustryFilter(e.target.value as any)}
-              className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-700 focus:bg-white"
-            >
-              <option value="all">همه صنایع و گروه‌های کالایی</option>
-              <option value="petrochemical">پتروشیمی و مواد شیمیایی</option>
-              <option value="steel">فولاد و مصالح ساختمانی</option>
-              <option value="food">صنایع غذایی و کشاورزی</option>
-            </select>
+              onChange={(val) => setIndustryFilter(val as any)}
+              icon={<Filter className="w-3.5 h-3.5 text-slate-400" />}
+              options={[
+                { value: 'all', label: 'همه صنایع و گروه‌های کالایی', badge: 'جامع' },
+                { value: 'petrochemical', label: 'پتروشیمی و مواد شیمیایی', badge: 'صنعت' },
+                { value: 'steel', label: 'فولاد و مصالح ساختمانی', badge: 'صنعت' },
+                { value: 'food', label: 'صنایع غذایی و کشاورزی', badge: 'صنعت' },
+              ]}
+              className="w-56"
+            />
           </div>
         </div>
       </div>
