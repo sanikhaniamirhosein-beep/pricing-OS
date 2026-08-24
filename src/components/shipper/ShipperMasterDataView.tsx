@@ -21,13 +21,13 @@ import { CityPickerDropdown } from '../common/menus/CityPickerDropdown';
 export const ShipperMasterDataView: React.FC = () => {
   const { currentShipperOrg } = usePricing();
   const [activeTab, setActiveTab] = useState<'locations' | 'commodities'>('locations');
-  const [locations, setLocations] = useState<SavedLocation[]>(currentShipperOrg.savedLocations);
-  const [commodities, setCommodities] = useState<SavedCommodity[]>(currentShipperOrg.savedCommodities);
+  const [locations, setLocations] = useState<SavedLocation[]>(currentShipperOrg?.savedLocations || []);
+  const [commodities, setCommodities] = useState<SavedCommodity[]>(currentShipperOrg?.savedCommodities || []);
 
   useEffect(() => {
     if (currentShipperOrg) {
-      setLocations(currentShipperOrg.savedLocations);
-      setCommodities(currentShipperOrg.savedCommodities);
+      setLocations(currentShipperOrg.savedLocations || []);
+      setCommodities(currentShipperOrg.savedCommodities || []);
     }
   }, [currentShipperOrg]);
 

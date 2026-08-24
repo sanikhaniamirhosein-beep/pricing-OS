@@ -32,6 +32,7 @@ import {
   getShipperRoleDetail,
 } from '../../data/shipperRolesConfig';
 import { ModernSelect } from '../common/menus/ModernSelect';
+import { ShipperRetailNotificationsView } from './ShipperRetailNotificationsView';
 
 export const ShipperSettingsView: React.FC = () => {
   const {
@@ -49,12 +50,22 @@ export const ShipperSettingsView: React.FC = () => {
     setShipperApprovalLimitToman,
   } = usePricing();
 
+  const isRetail =
+    currentShipperOrg?.entityType === 'individual' ||
+    userOrgName?.includes('شخصی') ||
+    userOrgName?.includes('خرد') ||
+    shipperUserRole === 'Individual Shipper / Personal';
+
+  if (isRetail) {
+    return <ShipperRetailNotificationsView />;
+  }
+
   const [activeTab, setActiveTab] = useState<'team' | 'roles_matrix' | 'notifications' | 'api_hub'>('team');
-  const [teamMembers, setTeamMembers] = useState<ShipperTeamMember[]>(currentShipperOrg.teamMembers);
+  const [teamMembers, setTeamMembers] = useState<ShipperTeamMember[]>(currentShipperOrg?.teamMembers || []);
 
   useEffect(() => {
     if (currentShipperOrg) {
-      setTeamMembers(currentShipperOrg.teamMembers);
+      setTeamMembers(currentShipperOrg.teamMembers || []);
     }
   }, [currentShipperOrg]);
 
@@ -152,7 +163,7 @@ export const ShipperSettingsView: React.FC = () => {
       <div className="bg-white p-4 rounded-3xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
           {[
-            { id: 'team', label: 'مدیریت پرسنل و نقش‌های سازمان', icon: Users, count: teamMembers.length },
+            { id: 'team', label: 'مدیریت پرسنل و نقش‌های سازمان', icon: Users, count: (teamMembers || []).length },
             { id: 'roles_matrix', label: 'ماتریس وظایف و دسترسی‌ها (RBAC)', icon: Shield },
             { id: 'notifications', label: 'تنظیمات اطلاع‌رسانی پیامک/ایمیل', icon: Bell },
             { id: 'api_hub', label: 'یکپارچه‌سازی و کلیدهای API (ERP Hub)', icon: Key },

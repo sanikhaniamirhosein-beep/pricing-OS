@@ -66,6 +66,7 @@ import {
   CarrierOrgProfile,
   ShipperOrgProfile,
 } from '../data/mockOrganizationProfiles';
+import { ShipperEntityType } from '../types/shipperLegal';
 import { INITIAL_CARRIER_DRIVERS, INITIAL_CARRIER_USERS } from '../data/mockDriverData';
 import { calculateShipmentPrice, ShipmentPricingContext, EngineExecutionResult } from '../engine/pricingEngine';
 
@@ -223,6 +224,14 @@ interface PricingContextType {
   setTransportOrgInitialTab: (tab: 'profile' | 'users' | 'drivers') => void;
   openTransportOrgModal: (tab?: 'profile' | 'users' | 'drivers') => void;
   updateCarrierOrgProfile: (updated: Partial<CarrierOrgProfile>) => void;
+
+  // Shipper Organization Profile Modal & Updates
+  isShipperOrgModalOpen: boolean;
+  setIsShipperOrgModalOpen: (open: boolean) => void;
+  shipperOrgInitialTab: 'basic' | 'financial' | 'operations';
+  setShipperOrgInitialTab: (tab: 'basic' | 'financial' | 'operations') => void;
+  openShipperOrgModal: (tab?: 'basic' | 'financial' | 'operations') => void;
+  updateShipperOrgProfile: (updated: Partial<ShipperOrgProfile>) => void;
 }
 
 const PricingContext = createContext<PricingContextType | undefined>(undefined);
@@ -259,6 +268,38 @@ export const PricingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const openTransportOrgModal = (tab: 'profile' | 'users' | 'drivers' = 'profile') => {
     setTransportOrgInitialTab(tab);
     setIsTransportOrgModalOpen(true);
+  };
+
+  // Shipper Org Modal State
+  const [isShipperOrgModalOpen, setIsShipperOrgModalOpen] = useState<boolean>(false);
+  const [shipperOrgInitialTab, setShipperOrgInitialTab] = useState<'basic' | 'financial' | 'operations'>('basic');
+
+  const openShipperOrgModal = (tab: 'basic' | 'financial' | 'operations' = 'basic') => {
+    setShipperOrgInitialTab(tab);
+    setIsShipperOrgModalOpen(true);
+  };
+
+  const updateShipperOrgProfile = (updated: Partial<ShipperOrgProfile>) => {
+    setShipperOrganizations((prev) => {
+      const exists = prev.some((org) => org.id === currentShipperOrgId || org.nameFa === userOrgName);
+      if (updated.nameFa) {
+        setUserOrgName(updated.nameFa);
+      }
+      if (exists) {
+        return prev.map((org) => {
+          if (org.id === currentShipperOrgId || org.nameFa === userOrgName) {
+            return { ...org, ...updated };
+          }
+          return org;
+        });
+      } else {
+        const newOrg: ShipperOrgProfile = {
+          ...currentShipperOrg,
+          ...updated,
+        };
+        return [newOrg, ...prev];
+      }
+    });
   };
 
   const addCarrierDriver = (driver: CarrierDriver) => {
@@ -346,15 +387,73 @@ export const PricingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     if (idMatch) return idMatch;
 
     if (userOrgName) {
-      const base = shipperOrganizations[0];
+      const isRetail = userPortalType === 'retail' || userOrgName.includes('شخصی') || userOrgName.includes('خرد');
       return {
-        ...base,
         id: `org-shipper-dyn-${userOrgName.replace(/\s+/g, '')}`,
+        code: `SHP-${Math.floor(1000 + Math.random() * 9000)}`,
         nameFa: userOrgName,
         nameEn: userOrgName,
-        industry: 'صنایع تولیدی و بازرگانی صنعتی',
+        industry: isRetail ? 'صاحب بار شخصی / خرده‌بار' : 'صنایع تولیدی و بازرگانی صنعتی',
+        tier: 'Silver' as const,
+        nationalId: '',
+        economicCode: '',
         contactPerson: userName || 'مدیریت لجستیک و زنجیره تأمین',
-        email: userEmail || `logistics@${userOrgName.replace(/\s+/g, '').toLowerCase()}.ir`,
+        phone: '',
+        email: userEmail || '',
+        address: '',
+        tierInfo: {
+          tierName: isRetail ? 'کاربر عادی' : 'نقره‌ای',
+          monthlyVolumeTons: 0,
+          targetVolumeTons: 500,
+          currentDiscountPercent: 0,
+          nextTierDiscountPercent: 5.0,
+          nextTierName: 'طلایی تجاری',
+          creditLimitRials: 0,
+          availableCreditRials: 0,
+          slaCommitmentRate: 98.0,
+          delayPenaltyPerHourRials: 0,
+          benefits: ['تعرفه پایه رسمی ناوگان', 'پشتیبانی ۲۴ ساعته'],
+        },
+        activeLoads: [],
+        invoices: [],
+        transactions: [],
+        savedLocations: [],
+        savedCommodities: [],
+        teamMembers: [],
+        contractId: '',
+        entityType: (isRetail ? 'individual' : 'corporate') as ShipperEntityType,
+        legalDossier: isRetail
+          ? undefined
+          : {
+              companyLegalName: userOrgName,
+              nationalId: '',
+              economicCode: '',
+              registrationNumber: '',
+              representativeName: userName || '',
+              representativeMobile: '',
+              representativeEmail: userEmail || '',
+              hasVatCertificate: false,
+              headquartersAddress: '',
+              postalCode: '',
+              phoneLandline: '',
+              bankShaba: '',
+              hubs: [],
+              commonProductTypes: [],
+              standardPackagingTypes: [],
+              isProfileComplete: false,
+            },
+        individualProfile: isRetail
+          ? {
+              fullName: userName?.replace(/\(.*?\)/g, '').trim() || '',
+              nationalCode: '',
+              mobileNumber: '',
+              birthDate: '',
+              hubs: [],
+              shahkarVerified: false,
+              sabtAhvalVerified: false,
+              isComplete: false,
+            }
+          : undefined,
       };
     }
 
@@ -1430,6 +1529,12 @@ export const PricingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setTransportOrgInitialTab,
         openTransportOrgModal,
         updateCarrierOrgProfile,
+        isShipperOrgModalOpen,
+        setIsShipperOrgModalOpen,
+        shipperOrgInitialTab,
+        setShipperOrgInitialTab,
+        openShipperOrgModal,
+        updateShipperOrgProfile,
       }}
     >
       {children}

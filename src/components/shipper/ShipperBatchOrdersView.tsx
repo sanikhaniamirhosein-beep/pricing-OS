@@ -31,6 +31,7 @@ import {
   Sliders,
   HelpCircle,
   FileUp,
+  Lock,
 } from 'lucide-react';
 import {
   SAMPLE_BATCH_SHIPMENTS,
@@ -40,6 +41,7 @@ import {
   ShipperActiveLoad,
 } from '../../data/mockShipperData';
 import { usePricing } from '../../store/PricingContext';
+import { checkShipperProfileCompleteness } from '../../types/shipperLegal';
 import {
   parseUploadedBatchFile,
   downloadGenuineTemplate,
@@ -334,7 +336,20 @@ export const ShipperBatchOrdersView: React.FC<ShipperBatchOrdersViewProps> = ({
   onNavigateTab,
   onBatchSubmitted,
 }) => {
-  const { userOrgName } = usePricing();
+  const { userOrgName, currentShipperOrg, openShipperOrgModal } = usePricing();
+  const completeness = checkShipperProfileCompleteness(currentShipperOrg?.legalDossier || {
+    companyLegalName: currentShipperOrg?.nameFa || userOrgName,
+    nationalId: currentShipperOrg?.nationalId,
+    economicCode: currentShipperOrg?.economicCode,
+    registrationNumber: '14820',
+    representativeName: currentShipperOrg?.contactPerson,
+    representativeMobile: '۰۹۱۲۳۴۵۶۷۸۹',
+    representativeEmail: currentShipperOrg?.email,
+    headquartersAddress: currentShipperOrg?.address,
+    postalCode: '8488111111',
+    phoneLandline: currentShipperOrg?.phone,
+    bankShaba: 'IR820120000000001234567890',
+  });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Sub-tabs
@@ -502,6 +517,12 @@ export const ShipperBatchOrdersView: React.FC<ShipperBatchOrdersViewProps> = ({
 
   // Submit batch orders
   const handleSubmitBatch = () => {
+    if (!completeness.isComplete) {
+      alert(`ثبت دسته بار امکان‌پذیر نیست!\nاطلاعات و مدارک رسمی شرکت کامل نیست (${completeness.completionPercentage}٪ تکمیل شده).\nجهت صدور بارنامه رسمی، اطلاعات حقوقی شرکت باید توسط مدیر ارشد تکمیل گردد.`);
+      openShipperOrgModal('basic');
+      return;
+    }
+
     if (errorRowsCount > 0) {
       alert('لطفاً ردیف‌های دارای خطا را قبل از ثبت نهایی اصلاح یا حذف فرمایید.');
       return;
@@ -861,10 +882,12 @@ export const ShipperBatchOrdersView: React.FC<ShipperBatchOrdersViewProps> = ({
                   type="button"
                   id="btn-submit-final-batch"
                   onClick={handleSubmitBatch}
-                  disabled={isSubmittedSuccess || totalRowsCount === 0}
+                  disabled={isSubmittedSuccess || totalRowsCount === 0 || !completeness.isComplete}
                   className={`px-5 py-3 rounded-2xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all cursor-pointer ${
                     isSubmittedSuccess
                       ? 'bg-emerald-600 text-white cursor-default'
+                      : !completeness.isComplete
+                      ? 'bg-slate-400 text-white cursor-not-allowed shadow-none'
                       : 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-amber-500/20'
                   }`}
                 >
@@ -872,6 +895,13 @@ export const ShipperBatchOrdersView: React.FC<ShipperBatchOrdersViewProps> = ({
                     <>
                       <CheckCircle2 className="w-4 h-4" />
                       <span>دسته با موفقیت ثبت و به دیسپچینگ ارجاع شد</span>
+                    </>
+                  ) : !completeness.isComplete ? (
+                    <>
+                      <Lock className="w-4 h-4" />
+                      <span>
+                        ثبت دسته غیرفعال (نیازمند تکمیل {currentShipperOrg?.entityType === 'individual' ? 'احراز هویت فردی' : 'اطلاعات شرکت'})
+                      </span>
                     </>
                   ) : (
                     <>

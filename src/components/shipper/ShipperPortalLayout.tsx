@@ -50,11 +50,14 @@ import { ShipperBillingView } from './ShipperBillingView';
 import { ShipperMasterDataView } from './ShipperMasterDataView';
 import { ShipperAnalyticsView } from './ShipperAnalyticsView';
 import { ShipperSettingsView } from './ShipperSettingsView';
+import { ShipperRetailNotificationsView } from './ShipperRetailNotificationsView';
 import { ShipperSupportIncidentsView } from './ShipperSupportIncidentsView';
 import { ShipperBatchOrdersView } from './ShipperBatchOrdersView';
+import { ShipperOrgProfileModal } from './ShipperOrgProfileModal';
 import { AICoPilotDrawer } from '../common/AICoPilotDrawer';
 import { RoleAccessGuard } from '../common/RoleAccessGuard';
 import { ShipperActiveLoad } from '../../data/mockShipperData';
+import { checkShipperProfileCompleteness } from '../../types/shipperLegal';
 
 interface ShipperPortalLayoutProps {
   onLogout: () => void;
@@ -77,12 +80,21 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
     setShipperLocationScope,
     shipperApprovalLimitToman,
     setShipperApprovalLimitToman,
+    isShipperOrgModalOpen,
+    setIsShipperOrgModalOpen,
+    openShipperOrgModal,
   } = usePricing();
 
   const currentRoleDetail = getShipperRoleDetail(shipperUserRole);
 
+  const isRetail =
+    currentShipperOrg?.entityType === 'individual' ||
+    userOrgName?.includes('شخصی') ||
+    userOrgName?.includes('خرد') ||
+    shipperUserRole === 'Individual Shipper / Personal';
+
   const [activeTab, setActiveTab] = useState<
-    'dashboard' | 'quote' | 'batch_orders' | 'shipments' | 'support' | 'contracts' | 'billing' | 'master_data' | 'analytics' | 'settings'
+    'dashboard' | 'quote' | 'batch_orders' | 'shipments' | 'support' | 'contracts' | 'billing' | 'master_data' | 'analytics' | 'settings' | 'notifications'
   >('dashboard');
 
   const [activeLoads, setActiveLoads] = useState<ShipperActiveLoad[]>(currentShipperOrg.activeLoads);
@@ -93,6 +105,15 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
       setActiveLoads(currentShipperOrg.activeLoads);
     }
   }, [currentShipperOrg]);
+
+  // Adjust active tab if switching between retail and corporate modes
+  useEffect(() => {
+    if (isRetail && activeTab === 'settings') {
+      setActiveTab('notifications');
+    } else if (!isRetail && activeTab === 'notifications') {
+      setActiveTab('settings');
+    }
+  }, [isRetail, activeTab]);
 
   const [selectedShipmentForTracking, setSelectedShipmentForTracking] = useState<ShipperActiveLoad | null>(null);
   const [selectedLoadForSupport, setSelectedLoadForSupport] = useState<string | null>(null);
@@ -135,31 +156,45 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
     }
   };
 
-  const navigationItems = [
-    { id: 'dashboard', label: 'داشبورد اصلی', icon: LayoutDashboard, badge: undefined },
-    { id: 'quote', label: 'استعلام و ثبت سفارش', icon: Calculator, badge: 'نرخ آنی' },
-    { id: 'batch_orders', label: 'ثبت دسته‌ای بار (اکسل)', icon: FileSpreadsheet, badge: 'جدید' },
-    { id: 'shipments', label: 'مدیریت و رهگیری بارها', icon: Truck, badge: `${activeLoads.length} بار` },
-    { id: 'support', label: 'پشتیبانی و حوادث حین حمل', icon: LifeBuoy, badge: '۲ تیکت' },
-    { id: 'contracts', label: 'قراردادها و تخفیف‌ها', icon: ShieldCheck, badge: 'پله طلایی' },
-    { id: 'billing', label: 'امور مالی و صورتحساب‌ها', icon: Receipt, badge: undefined },
-    { id: 'master_data', label: 'اطلاعات پایه و انبارها', icon: BookOpen, badge: undefined },
-    { id: 'analytics', label: 'گزارش‌ها و تحلیل‌ها', icon: BarChart3, badge: undefined },
-    { id: 'settings', label: 'تنظیمات و تیم سازمانی', icon: Settings, badge: undefined },
-  ];
+  const navigationItems = isRetail
+    ? [
+        { id: 'dashboard', label: 'داشبورد اصلی', icon: LayoutDashboard, badge: undefined },
+        { id: 'quote', label: 'استعلام و ثبت سفارش', icon: Calculator, badge: 'نرخ آنی' },
+        { id: 'batch_orders', label: 'ثبت دسته‌ای بار (اکسل)', icon: FileSpreadsheet, badge: 'جدید' },
+        { id: 'shipments', label: 'مدیریت و رهگیری بارها', icon: Truck, badge: `${(activeLoads || []).length} بار` },
+        { id: 'support', label: 'پشتیبانی و حوادث حین حمل', icon: LifeBuoy, badge: '۲ تیکت' },
+        { id: 'contracts', label: 'قراردادها و تخفیف‌ها', icon: ShieldCheck, badge: 'پله طلایی' },
+        { id: 'billing', label: 'امور مالی و صورتحساب‌ها', icon: Receipt, badge: undefined },
+        { id: 'master_data', label: 'اطلاعات پایه و آدرس‌ها', icon: BookOpen, badge: undefined },
+        { id: 'analytics', label: 'گزارش‌ها و تحلیل‌ها', icon: BarChart3, badge: undefined },
+        { id: 'notifications', label: 'تنظیمات اطلاع‌رسانی پیامک / ایمیل', icon: Bell, badge: 'فعال' },
+      ]
+    : [
+        { id: 'dashboard', label: 'داشبورد اصلی', icon: LayoutDashboard, badge: undefined },
+        { id: 'quote', label: 'استعلام و ثبت سفارش', icon: Calculator, badge: 'نرخ آنی' },
+        { id: 'batch_orders', label: 'ثبت دسته‌ای بار (اکسل)', icon: FileSpreadsheet, badge: 'جدید' },
+        { id: 'shipments', label: 'مدیریت و رهگیری بارها', icon: Truck, badge: `${(activeLoads || []).length} بار` },
+        { id: 'support', label: 'پشتیبانی و حوادث حین حمل', icon: LifeBuoy, badge: '۲ تیکت' },
+        { id: 'contracts', label: 'قراردادها و تخفیف‌ها', icon: ShieldCheck, badge: 'پله طلایی' },
+        { id: 'billing', label: 'امور مالی و صورتحساب‌ها', icon: Receipt, badge: undefined },
+        { id: 'master_data', label: 'اطلاعات پایه و انبارها', icon: BookOpen, badge: undefined },
+        { id: 'analytics', label: 'گزارش‌ها و تحلیل‌ها', icon: BarChart3, badge: undefined },
+        { id: 'settings', label: 'تنظیمات و تیم سازمانی', icon: Settings, badge: undefined },
+      ];
 
   // Allowed roles dictionary for each tab to inform users who can access locked tabs
   const tabAllowedRolesMap: Record<string, string[]> = {
-    dashboard: ['مدیر ارشد زنجیره تامین و لجستیک', 'کارشناس لجستیک و هماهنگی بار', 'مدیر مالی و امور حسابداری'],
-    quote: ['مدیر ارشد زنجیره تامین و لجستیک', 'کارشناس لجستیک و هماهنگی بار'],
-    batch_orders: ['مدیر ارشد زنجیره تامین و لجستیک', 'کارشناس لجستیک و هماهنگی بار'],
-    shipments: ['مدیر ارشد زنجیره تامین و لجستیک', 'کارشناس لجستیک و هماهنگی بار', 'مسئول انبار / اپراتور اعزام بار'],
-    support: ['مدیر ارشد زنجیره تامین و لجستیک', 'کارشناس لجستیک و هماهنگی بار', 'مسئول انبار / اپراتور اعزام بار'],
-    contracts: ['مدیر ارشد زنجیره تامین و لجستیک', 'مدیر مالی و امور حسابداری'],
-    billing: ['مدیر ارشد زنجیره تامین و لجستیک', 'مدیر مالی و امور حسابداری'],
-    master_data: ['مدیر ارشد زنجیره تامین و لجستیک', 'کارشناس لجستیک و هماهنگی بار', 'مسئول انبار / اپراتور اعزام بار'],
-    analytics: ['مدیر ارشد زنجیره تامین و لجستیک', 'مدیر مالی و امور حسابداری'],
+    dashboard: ['مدیر ارشد زنجیره تامین و لجستیک', 'کارشناس لجستیک و هماهنگی بار', 'مدیر مالی و امور حسابداری', 'صاحب بار شخصی / حقیقی'],
+    quote: ['مدیر ارشد زنجیره تامین و لجستیک', 'کارشناس لجستیک و هماهنگی بار', 'صاحب بار شخصی / حقیقی'],
+    batch_orders: ['مدیر ارشد زنجیره تامین و لجستیک', 'کارشناس لجستیک و هماهنگی بار', 'صاحب بار شخصی / حقیقی'],
+    shipments: ['مدیر ارشد زنجیره تامین و لجستیک', 'کارشناس لجستیک و هماهنگی بار', 'مسئول انبار / اپراتور اعزام بار', 'صاحب بار شخصی / حقیقی'],
+    support: ['مدیر ارشد زنجیره تامین و لجستیک', 'کارشناس لجستیک و هماهنگی بار', 'مسئول انبار / اپراتور اعزام بار', 'صاحب بار شخصی / حقیقی'],
+    contracts: ['مدیر ارشد زنجیره تامین و لجستیک', 'مدیر مالی و امور حسابداری', 'صاحب بار شخصی / حقیقی'],
+    billing: ['مدیر ارشد زنجیره تامین و لجستیک', 'مدیر مالی و امور حسابداری', 'صاحب بار شخصی / حقیقی'],
+    master_data: ['مدیر ارشد زنجیره تامین و لجستیک', 'کارشناس لجستیک و هماهنگی بار', 'مسئول انبار / اپراتور اعزام بار', 'صاحب بار شخصی / حقیقی'],
+    analytics: ['مدیر ارشد زنجیره تامین و لجستیک', 'مدیر مالی و امور حسابداری', 'صاحب بار شخصی / حقیقی'],
     settings: ['مدیر ارشد زنجیره تامین و لجستیک', 'مدیر مالی و امور حسابداری'],
+    notifications: ['صاحب بار شخصی / حقیقی', 'Individual Shipper / Personal'],
   };
 
   const isCurrentTabAllowed = currentRoleDetail.allowedTabs.includes(activeTab);
@@ -192,14 +227,36 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
 
           {/* Center: Org & Active Role Badge */}
           <div className="hidden md:flex items-center gap-3 bg-slate-50/90 px-3.5 py-1.5 rounded-2xl border border-sky-100/80">
-            <div
-              id="shipper-header-org-identity"
-              className="flex items-center gap-1.5 px-2.5 py-1 bg-white text-slate-800 text-xs font-bold rounded-xl border border-slate-200"
-              title="شرکت صاحب بار فعال احراز هویت شده"
-            >
-              <Building2 className="w-3.5 h-3.5 text-sky-600 shrink-0" />
-              <span className="truncate max-w-[180px]">{userOrgName || currentShipperOrg?.nameFa || 'شرکت صاحب بار'}</span>
-            </div>
+            {/* Header Company/User Button */}
+            {(() => {
+              const isRetail = currentShipperOrg?.entityType === 'individual' || userOrgName?.includes('شخصی') || userOrgName?.includes('خرد');
+              const profileCheck = checkShipperProfileCompleteness(currentShipperOrg);
+              return (
+                <button
+                  type="button"
+                  id="shipper-header-org-identity-btn"
+                  onClick={() => openShipperOrgModal('basic')}
+                  className="flex items-center gap-1.5 px-3 py-1 bg-white hover:bg-sky-50 text-slate-800 hover:text-sky-900 text-xs font-bold rounded-xl border border-slate-200 hover:border-sky-300 transition-all cursor-pointer shadow-2xs group"
+                  title={isRetail ? 'مشاهده و ویرایش مدارک احراز هویت فردی (شاهکار و ثبت احوال)' : 'مشاهده و ویرایش مشخصات، پرونده حقوقی و مدارک ثبتی شرکت'}
+                >
+                  {isRetail ? (
+                    <User className="w-3.5 h-3.5 text-sky-600 group-hover:scale-110 transition-transform shrink-0" />
+                  ) : (
+                    <Building2 className="w-3.5 h-3.5 text-sky-600 group-hover:scale-110 transition-transform shrink-0" />
+                  )}
+                  <span className="truncate max-w-[180px]">{userOrgName || currentShipperOrg?.nameFa || 'شرکت صاحب بار'}</span>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.2 rounded font-mono font-medium ${
+                      profileCheck.isComplete
+                        ? 'bg-emerald-100 text-emerald-800'
+                        : 'bg-amber-100 text-amber-800 animate-pulse'
+                    }`}
+                  >
+                    {profileCheck.isComplete ? 'تکمیل' : 'نقص مدارک'}
+                  </span>
+                </button>
+              );
+            })()}
 
             <span className="text-slate-300">|</span>
 
@@ -389,19 +446,35 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
                       </div>
                     </div>
 
-                    {/* Navigation to Settings or Profile */}
+                    {/* Navigation to Settings or Notifications */}
                     <div className="pt-2 border-t border-slate-100 flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsUserDropdownOpen(false);
-                          setActiveTab('settings');
-                        }}
-                        className="flex-1 py-2 px-3 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-                      >
-                        <Settings className="w-3.5 h-3.5 text-slate-500" />
-                        <span>مدیریت تیم و دسترسی‌ها</span>
-                      </button>
+                      {isRetail ? (
+                        <button
+                          type="button"
+                          id="btn-dropdown-retail-notifications"
+                          onClick={() => {
+                            setIsUserDropdownOpen(false);
+                            setActiveTab('notifications');
+                          }}
+                          className="flex-1 py-2 px-3 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-900 border border-sky-200 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                        >
+                          <Bell className="w-3.5 h-3.5 text-sky-600" />
+                          <span>تنظیمات اطلاع‌رسانی پیامک / ایمیل</span>
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          id="btn-dropdown-corporate-settings"
+                          onClick={() => {
+                            setIsUserDropdownOpen(false);
+                            setActiveTab('settings');
+                          }}
+                          className="flex-1 py-2 px-3 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                        >
+                          <Settings className="w-3.5 h-3.5 text-slate-500" />
+                          <span>مدیریت تیم و دسترسی‌ها</span>
+                        </button>
+                      )}
 
                       <button
                         type="button"
@@ -654,6 +727,8 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
               {activeTab === 'analytics' && <ShipperAnalyticsView />}
 
               {activeTab === 'settings' && <ShipperSettingsView />}
+
+              {activeTab === 'notifications' && <ShipperRetailNotificationsView />}
             </>
           )}
         </main>
@@ -679,6 +754,12 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
 
       {/* AI Assistant Drawer Component */}
       <AICoPilotDrawer isOpen={isAiCoPilotOpen} onClose={() => setIsAiCoPilotOpen(false)} />
+
+      {/* Shipper Organization Profile & Legal Dossier Modal */}
+      <ShipperOrgProfileModal
+        isOpen={isShipperOrgModalOpen}
+        onClose={() => setIsShipperOrgModalOpen(false)}
+      />
     </div>
   );
 };

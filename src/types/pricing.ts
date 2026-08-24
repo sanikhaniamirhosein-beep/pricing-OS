@@ -10,7 +10,8 @@ export type ShipperUserRole =
   | 'Supply Chain Manager / Admin'
   | 'Logistics Specialist / Coordinator'
   | 'Warehouse / Dispatch Operator'
-  | 'Finance Manager / Billing Specialist';
+  | 'Finance Manager / Billing Specialist'
+  | 'Individual Shipper / Personal';
 
 export type UserRole =
   // نقش‌های اصلی سازمان حمل‌ونقل (Carrier Primary Roles)
@@ -24,6 +25,7 @@ export type UserRole =
   | 'Logistics Specialist / Coordinator'
   | 'Warehouse / Dispatch Operator'
   | 'Finance Manager / Billing Specialist'
+  | 'Individual Shipper / Personal'
   // نقش‌های خاص یا ثانویه - اختیاری بر اساس اندازه شرکت (Secondary Roles)
   | 'Fleet & Safety Manager'
   | 'Auditor / Read-Only'

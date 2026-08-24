@@ -520,6 +520,25 @@ export const CompanyDocumentsDossier: React.FC<CompanyDocumentsDossierProps> = (
 
   return (
     <div className="space-y-6">
+      {/* Top Header: احراز هویت حقوقی (منتقل شده به بالای منوی مدارک) */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-1 border-b border-slate-200">
+        <div className="flex items-center gap-2.5 text-xs font-black text-slate-900">
+          <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center">
+            <FileBadge2 className="w-4 h-4 text-emerald-600" />
+          </div>
+          <div>
+            <span className="text-sm font-black text-slate-900 block">احراز هویت حقوقی</span>
+            <span className="text-[11px] text-slate-500 font-normal">
+              پرونده مدارک ثبتی، پروانه‌های فعالیت و اسناد مالی و بیمه سازمان حمل‌ونقل
+            </span>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 text-[11px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-xl">
+          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+          <span>استعلام و احراز هویت شرکتی فعال</span>
+        </div>
+      </div>
+
       {/* Category Navigation Pills */}
       <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-100 p-2 rounded-2xl border border-slate-200">
         <div className="flex items-center gap-1.5 flex-wrap text-xs font-bold">
@@ -570,11 +589,6 @@ export const CompanyDocumentsDossier: React.FC<CompanyDocumentsDossierProps> = (
             <CreditCard className="w-3.5 h-3.5 text-emerald-400" />
             <span>۳. مدارک مالی و بیمه</span>
           </button>
-        </div>
-
-        <div className="flex items-center gap-2 text-xs font-bold text-slate-700 px-2">
-          <FileBadge2 className="w-4 h-4 text-emerald-600" />
-          <span>احراز هویت حقوقی Pricing OS</span>
         </div>
       </div>
 

@@ -42,7 +42,7 @@ export const ShipperDashboardView: React.FC<ShipperDashboardViewProps> = ({
   activeLoads,
 }) => {
   const { currentShipperOrg, userOrgName } = usePricing();
-  const currentLoads = activeLoads && activeLoads.length > 0 ? activeLoads : currentShipperOrg.activeLoads;
+  const currentLoads = (activeLoads && activeLoads.length > 0) ? activeLoads : (currentShipperOrg?.activeLoads || []);
   const inTransitCount = (currentLoads || []).filter((l) => l?.status === 'in_transit').length;
   const loadingCount = (currentLoads || []).filter((l) => l && (l.status === 'loading' || l.status === 'pending_driver')).length;
   const deliveredCount = (currentLoads || []).filter((l) => l?.status === 'delivered').length;

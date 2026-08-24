@@ -331,8 +331,8 @@ export const ShipperAuthModal: React.FC<ShipperAuthModalProps> = ({
       orgName: 'پنل اختصاصی بار خرد',
       userName: `${retailLoginFullName} (صاحب بار شخصی)`,
       userEmail: retailLoginEmail,
-      role: 'Logistics Specialist / Coordinator',
-      shipperRole: 'Logistics Specialist / Coordinator',
+      role: 'Individual Shipper / Personal',
+      shipperRole: 'Individual Shipper / Personal',
       isCorporate: false,
     });
   };
@@ -363,8 +363,8 @@ export const ShipperAuthModal: React.FC<ShipperAuthModalProps> = ({
       orgName: 'پنل اختصاصی بار خرد',
       userName: `${retailRegFullName} (صاحب بار شخصی)`,
       userEmail: retailRegEmail,
-      role: 'Logistics Specialist / Coordinator',
-      shipperRole: 'Logistics Specialist / Coordinator',
+      role: 'Individual Shipper / Personal',
+      shipperRole: 'Individual Shipper / Personal',
       isCorporate: false,
     });
   };

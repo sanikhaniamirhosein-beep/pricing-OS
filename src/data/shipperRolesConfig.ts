@@ -7,7 +7,8 @@ export type ShipperUserRole =
   | 'Supply Chain Manager / Admin'
   | 'Logistics Specialist / Coordinator'
   | 'Warehouse / Dispatch Operator'
-  | 'Finance Manager / Billing Specialist';
+  | 'Finance Manager / Billing Specialist'
+  | 'Individual Shipper / Personal';
 
 export interface ShipperRoleDetail {
   id: string;
@@ -199,9 +200,57 @@ export const SHIPPER_ROLE_DETAILS: ShipperRoleDetail[] = [
     canPayInvoices: true,
     canExportERP: true,
   },
+  {
+    id: 'shp-role-individual',
+    role: 'Individual Shipper / Personal',
+    titleFa: 'صاحب بار شخصی / حقیقی',
+    titleEn: 'Individual Shipper / Personal',
+    accessScopeFa: 'دسترسی کامل شخصی به ثبت سفارش، استعلام نرخ، قراردادها و تخفیف‌ها، امور مالی و تنظیمات اطلاع‌رسانی پیامک/ایمیل',
+    dutiesFa: [
+      'ثبت سفارش و استعلام فوری نرخ بارهای خرد و اثاثیه',
+      'مشاهده قراردادها، تخفیف‌های وفاداری و باشگاه مشتریان خرد',
+      'مشاهده صورتحساب‌ها، افزایش موجودی کیف‌پول و پرداخت آنلاین',
+      'رهگیری لحظه‌ای محموله‌ها روی نقشه و دریافت مدارک تحویل',
+      'تنظیمات پیشرفته اطلاع‌رسانی پیامک، ایمیل، کدهای رمز تحویل بار و هشدارهای راننده',
+      'مشاهده گزارش‌ها، نمودارها و تحلیل مسیرهای ارسال بار',
+    ],
+    allowedTabs: [
+      'dashboard',
+      'quote',
+      'batch_orders',
+      'shipments',
+      'support',
+      'contracts',
+      'billing',
+      'master_data',
+      'analytics',
+      'notifications',
+    ],
+    levelBadge: 'صاحب بار حقیقی',
+    departmentFa: 'پنل خدمات شخصی و بار خرد',
+    defaultUserName: 'علی مرادی',
+    defaultUserEmail: 'ali.moradi@gmail.com',
+    descriptionFa: 'کاربر شخصی با دسترسی کامل به تمامی بخش‌های استعلام، ثبت سفارش، تخفیف‌ها، صورتحساب‌ها و گزارش‌های شخصی.',
+    hasApprovalLimit: false,
+    defaultApprovalLimitToman: 0,
+    locationScoped: false,
+    defaultLocation: 'آدرس‌های منتخب شخصی',
+    canManageUsers: false,
+    canApproveContracts: true,
+    canCreateOrders: true,
+    canApproveHighValueOrders: true,
+    canUploadPOD: true,
+    canConfirmDispatch: true,
+    canPayInvoices: true,
+    canExportERP: false,
+  },
 ];
 
 export function getShipperRoleDetail(role: string): ShipperRoleDetail {
+  if (role?.includes('شخصی') || role?.includes('خرد') || role?.includes('حقیقی') || role === 'Individual Shipper / Personal') {
+    const individualRole = SHIPPER_ROLE_DETAILS.find((r) => r.id === 'shp-role-individual');
+    if (individualRole) return individualRole;
+  }
   const found = SHIPPER_ROLE_DETAILS.find((r) => r.role === role || r.titleFa === role || r.titleEn === role);
   return found || SHIPPER_ROLE_DETAILS[0];
 }

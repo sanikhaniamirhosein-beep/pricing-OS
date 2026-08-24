@@ -197,7 +197,10 @@ export const TransportOrgManagementModal: React.FC = () => {
     userRole,
   } = usePricing();
 
-  const isSeniorAdmin = userRole === 'System Admin / Fleet Director';
+  const isSeniorAdmin =
+    userRole === 'System Admin / Fleet Director' ||
+    userRole === 'System Admin' ||
+    userRole === 'Supply Chain Manager / Admin';
 
   const [activeTab, setActiveTab] = useState<'profile' | 'users' | 'drivers'>('profile');
 
@@ -210,6 +213,14 @@ export const TransportOrgManagementModal: React.FC = () => {
 
   // Company Profile Edit State
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+
+  // Automatically revoke edit mode if active user is not Senior Admin
+  useEffect(() => {
+    if (!isSeniorAdmin && isEditingProfile) {
+      setIsEditingProfile(false);
+    }
+  }, [isSeniorAdmin, isEditingProfile]);
+
   const [profileForm, setProfileForm] = useState({
     nameFa: '',
     nameEn: '',
@@ -253,9 +264,14 @@ export const TransportOrgManagementModal: React.FC = () => {
     }
   }, [currentCarrierOrg]);
 
-  // Save Profile Handler
+  // Save Profile Handler - Strictly Senior Admin Only
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isSeniorAdmin) {
+      alert('خطای دسترسی: ویرایش اطلاعات شرکت منحصراً در اختیار مدیر ارشد می‌باشد.');
+      setIsEditingProfile(false);
+      return;
+    }
     updateCarrierOrgProfile({
       nameFa: profileForm.nameFa,
       nameEn: profileForm.nameEn,
@@ -781,6 +797,26 @@ export const TransportOrgManagementModal: React.FC = () => {
               ) : (
                 /* VIEW PROFILE CARD */
                 <div className="space-y-6">
+                  {/* Read-Only Notice for Non-Senior Admin */}
+                  {!isSeniorAdmin && (
+                    <div className="p-3.5 bg-amber-50/90 border border-amber-200/90 rounded-2xl flex flex-wrap items-center justify-between gap-3 text-xs text-amber-950 shadow-xs">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-xl bg-amber-100 border border-amber-300 text-amber-800 flex items-center justify-center shrink-0">
+                          <Lock className="w-3.5 h-3.5" />
+                        </div>
+                        <div>
+                          <span className="font-bold block">پروفایل سازمانی در وضعیت فقط‌خواندنی (Read-Only)</span>
+                          <span className="text-[11px] text-amber-800">
+                            ویرایش مشخصات و مدارک رسمی شرکت منحصراً برای «مدیر ارشد» مجاز است.
+                          </span>
+                        </div>
+                      </div>
+                      <span className="text-[10px] bg-white text-slate-700 font-bold px-2.5 py-1 rounded-lg border border-amber-200 shrink-0">
+                        نقش فعال شما: {userRole}
+                      </span>
+                    </div>
+                  )}
+
                   {/* Hero Organization Identity Card */}
                   <div className="bg-gradient-to-br from-slate-900 via-slate-850 to-slate-900 text-white p-6 rounded-3xl border border-slate-700 shadow-md">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

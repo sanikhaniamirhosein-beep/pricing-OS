@@ -20,6 +20,7 @@ import {
 import { usePricing } from '../../store/PricingContext';
 import { INITIAL_SAVED_LOCATIONS, INITIAL_SAVED_COMMODITIES, ShipperActiveLoad } from '../../data/mockShipperData';
 import { getShipperRoleDetail } from '../../data/shipperRolesConfig';
+import { checkShipperProfileCompleteness } from '../../types/shipperLegal';
 import { CityPickerDropdown } from '../common/menus/CityPickerDropdown';
 import { CommodityPickerDropdown } from '../common/menus/CommodityPickerDropdown';
 import { AlertTriangle, Lock, Users, Warehouse } from 'lucide-react';
@@ -40,9 +41,25 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
     shipperUserRole,
     shipperLocationScope,
     shipperApprovalLimitToman,
+    currentShipperOrg,
+    openShipperOrgModal,
   } = usePricing();
 
   const currentRoleDetail = getShipperRoleDetail(shipperUserRole);
+  const isSeniorAdmin = shipperUserRole === 'Supply Chain Manager / Admin';
+  const completeness = checkShipperProfileCompleteness(currentShipperOrg?.legalDossier || {
+    companyLegalName: currentShipperOrg?.nameFa || userOrgName,
+    nationalId: currentShipperOrg?.nationalId,
+    economicCode: currentShipperOrg?.economicCode,
+    registrationNumber: '14820',
+    representativeName: currentShipperOrg?.contactPerson || userName,
+    representativeMobile: '۰۹۱۲۳۴۵۶۷۸۹',
+    representativeEmail: currentShipperOrg?.email,
+    headquartersAddress: currentShipperOrg?.address,
+    postalCode: '8488111111',
+    phoneLandline: currentShipperOrg?.phone,
+    bankShaba: 'IR820120000000001234567890',
+  });
 
   // Route specs
   const [originCity, setOriginCity] = useState('اصفهان');
@@ -495,6 +512,12 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
 
   // Handle Book Now Finalization
   const handleFinalizeBooking = () => {
+    if (!completeness.isComplete) {
+      alert(`ثبت بار امکان‌پذیر نیست!\nاطلاعات حقوقی و مشخصات رسمی شرکت هنوز تکمیل نشده است (${completeness.completionPercentage}٪ تکمیل شده).\nموارد ناقص:\n• ${completeness.missingFields.join('\n• ')}\n\nجهت تکمیل اطلاعات، مدیر ارشد باید از طریق منوی بالای صفحه (نام شرکت) اقدام نماید.`);
+      openShipperOrgModal('basic');
+      return;
+    }
+
     setIsSubmitting(true);
     setTimeout(() => {
       const newTracking = `TRK-${Math.floor(100000 + Math.random() * 900000)}`;
@@ -1130,6 +1153,39 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
               </div>
             </div>
 
+            {/* Profile Completeness Guard Warning */}
+            {!completeness.isComplete && (
+              <div className="p-4 bg-red-50 rounded-2xl border border-red-300 text-red-950 space-y-2 text-xs animate-in fade-in">
+                <div className="flex items-center gap-2 font-bold text-red-800">
+                  <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
+                  <span>
+                    ثبت بارنامه غیرفعال است (
+                    {currentShipperOrg?.entityType === 'individual'
+                      ? 'نقص احراز هویت فردی صاحب بار'
+                      : 'نقص پرونده حقوقی شرکت'}
+                    )
+                  </span>
+                </div>
+                <p className="text-[11px] leading-relaxed text-red-700">
+                  {currentShipperOrg?.entityType === 'individual'
+                    ? `تا زمانی که اطلاعات و مدارک هویتی (کد ملی، موبایل شاهکار، تصویر کارت ملی و تاریخ تولد) تکمیل نگردد، امکان صدور بارنامه وجود ندارد (${completeness.completionPercentage}٪ تکمیل شده).`
+                    : `تا زمانی که اطلاعات و مدارک رسمی شرکت تکمیل نگردد، امکان ثبت سفارش حمل و صدور بارنامه رسمی وجود ندارد (${completeness.completionPercentage}٪ تکمیل شده).`}
+                </p>
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-[10px] text-red-600 font-bold">
+                    موارد ناقص: {completeness.missingFields.slice(0, 2).join('، ')}...
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => openShipperOrgModal('basic')}
+                    className="px-2.5 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg text-[11px] font-bold cursor-pointer transition-colors"
+                  >
+                    {currentShipperOrg?.entityType === 'individual' ? 'تکمیل احراز هویت' : 'تکمیل مشخصات شرکت'}
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Financial Approval Warning if exceeds limit */}
             {requiresApproval && (
               <div className="p-3 bg-amber-50 rounded-2xl border border-amber-300 text-amber-900 space-y-1 text-xs">
@@ -1148,9 +1204,11 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
               <button
                 type="button"
                 onClick={handleFinalizeBooking}
-                disabled={isSubmitting}
+                disabled={isSubmitting || !completeness.isComplete}
                 className={`w-full py-3.5 ${
-                  requiresApproval
+                  !completeness.isComplete
+                    ? 'bg-slate-400 cursor-not-allowed text-white shadow-none'
+                    : requiresApproval
                     ? 'bg-amber-600 hover:bg-amber-700 shadow-amber-600/20'
                     : 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/20'
                 } active:scale-[0.99] text-white rounded-2xl font-bold flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer text-sm disabled:opacity-50`}
@@ -1159,6 +1217,11 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
                   <>
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     <span>در حال پردازش سفارش...</span>
+                  </>
+                ) : !completeness.isComplete ? (
+                  <>
+                    <Lock className="w-4 h-4" />
+                    <span>ثبت بار غیرفعال (نیازمند تکمیل اطلاعات شرکت)</span>
                   </>
                 ) : requiresApproval ? (
                   <>

@@ -22,13 +22,13 @@ import { ModernSelect } from '../common/menus/ModernSelect';
 export const ShipperBillingView: React.FC = () => {
   const { currentShipperOrg } = usePricing();
   const [activeSubTab, setActiveSubTab] = useState<'invoices' | 'transactions' | 'credit' | 'dispute'>('invoices');
-  const [invoices, setInvoices] = useState(currentShipperOrg.invoices);
-  const [transactions, setTransactions] = useState(currentShipperOrg.transactions);
+  const [invoices, setInvoices] = useState(currentShipperOrg?.invoices || []);
+  const [transactions, setTransactions] = useState(currentShipperOrg?.transactions || []);
 
   useEffect(() => {
     if (currentShipperOrg) {
-      setInvoices(currentShipperOrg.invoices);
-      setTransactions(currentShipperOrg.transactions);
+      setInvoices(currentShipperOrg.invoices || []);
+      setTransactions(currentShipperOrg.transactions || []);
     }
   }, [currentShipperOrg]);
 
