@@ -215,7 +215,7 @@ export const TransportOrgManagementModal: React.FC = () => {
     userRole === 'System Admin' ||
     userRole === 'Supply Chain Manager / Admin';
 
-  const [activeTab, setActiveTab] = useState<'profile' | 'users' | 'drivers'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'users' | 'drivers' | 'intelligence'>('profile');
 
   // Sync initial tab when modal opens
   useEffect(() => {

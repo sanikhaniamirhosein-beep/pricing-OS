@@ -78,7 +78,7 @@ export const ModernSelect: React.FC<ModernSelectProps> = ({
   return (
     <div className={`relative ${className}`} ref={containerRef} id={id}>
       {label && (
-        <label className="block text-slate-700 font-bold text-xs mb-1.5 flex items-center justify-between">
+        <label className="text-slate-700 font-bold text-xs mb-1.5 flex items-center justify-between">
           <span className="flex items-center gap-1.5">
             {icon}
             <span>{label}</span>

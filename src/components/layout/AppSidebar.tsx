@@ -223,8 +223,18 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
 
                     {!isCompact && (
                       <div className="min-w-0 flex-1">
-                        <span className="text-xs block font-display leading-tight truncate">{item.nameFa}</span>
-                        <span className={`text-[10px] font-mono block leading-tight truncate ${isActive ? 'text-slate-400' : 'text-slate-400'}`}>
+                        <span
+                          className={`text-xs block font-display leading-tight truncate font-bold ${
+                            isActive ? 'text-amber-300' : 'text-slate-800'
+                          }`}
+                        >
+                          {item.nameFa}
+                        </span>
+                        <span
+                          className={`text-[10px] font-mono block leading-tight truncate ${
+                            isActive ? 'text-slate-200 font-medium' : 'text-slate-500'
+                          }`}
+                        >
                           {item.nameEn}
                         </span>
                       </div>
@@ -286,13 +296,13 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                               className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-right text-xs transition-all duration-150 cursor-pointer ${
                                 isSubActive
                                   ? 'bg-slate-800 text-amber-300 font-bold shadow-xs border border-slate-700'
-                                  : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                                  : 'text-slate-200 hover:text-white hover:bg-slate-800/80 font-medium'
                               }`}
                             >
                               {SubIcon && (
                                 <SubIcon
                                   className={`w-3.5 h-3.5 shrink-0 ${
-                                    isSubActive ? 'text-amber-400' : 'text-slate-400'
+                                    isSubActive ? 'text-amber-400' : 'text-slate-300'
                                   }`}
                                 />
                               )}
