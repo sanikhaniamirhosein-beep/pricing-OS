@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import {
   UploadCloud,
   FileSpreadsheet,
@@ -48,6 +48,8 @@ import {
   calculateBatchRowPrice,
   convertBatchRowsToActiveLoads,
 } from '../../utils/excelBatchParser';
+import { CARRIER_ORGANIZATIONS, CarrierOrgProfile } from '../../data/mockOrganizationProfiles';
+import { BatchCarrierSelector } from './batch/BatchCarrierSelector';
 
 interface ShipperBatchOrdersViewProps {
   onNavigateTab?: (tabId: string) => void;
@@ -374,18 +376,60 @@ export const ShipperBatchOrdersView: React.FC<ShipperBatchOrdersViewProps> = ({
   const [filterStatus, setFilterStatus] = useState<'all' | 'valid' | 'warning' | 'error'>('all');
   const [parsedBannerShow, setParsedBannerShow] = useState(false);
 
-  // Totals calculations
-  const totalRowsCount = rows.length;
-  const validRowsCount = rows.filter((r) => r.status === 'valid').length;
-  const warningRowsCount = rows.filter((r) => r.status === 'warning').length;
-  const errorRowsCount = rows.filter((r) => r.status === 'error').length;
-  const totalWeightTons = rows.reduce((sum, r) => sum + r.weightTons, 0);
-  const totalEstimatedPriceRials = rows.reduce((sum, r) => sum + r.estimatedPriceRials, 0);
-  const totalDiscountRials = rows.reduce((sum, r) => sum + r.discountRials, 0);
-  const totalFinalPriceRials = rows.reduce((sum, r) => sum + r.finalPriceRials, 0);
+  // Carrier Selection States for Batch
+  const [selectedCarrierId, setSelectedCarrierId] = useState<string>('org-carrier-pg-freight');
+  const [allocationMode, setAllocationMode] = useState<'single' | 'smart_corridor'>('single');
+
+  const activeCarrier = useMemo(() => {
+    return CARRIER_ORGANIZATIONS.find((c) => c.id === selectedCarrierId) || CARRIER_ORGANIZATIONS[0];
+  }, [selectedCarrierId]);
+
+  // Compute row-level price and discounts dynamically based on selected carrier
+  const computedRows = useMemo(() => {
+    return rows.map((r) => {
+      let rowCarrier = activeCarrier;
+      if (allocationMode === 'smart_corridor') {
+        const match = CARRIER_ORGANIZATIONS.find((c) =>
+          c.dedicatedCorridors?.some(
+            (cor) =>
+              (cor.origin.includes(r.originCity) || r.originCity.includes(cor.origin)) &&
+              (cor.dest.includes(r.destCity) || r.destCity.includes(cor.dest))
+          )
+        );
+        if (match) rowCarrier = match;
+      }
+      const mult = rowCarrier.priceMultiplier || 1.0;
+      const discPct = rowCarrier.discountPercent || 7.0;
+      const adjustedEst = r.estimatedPriceRials * mult;
+      const discVal = (adjustedEst * discPct) / 100;
+      const finalVal = adjustedEst - discVal;
+
+      return {
+        ...r,
+        carrierId: rowCarrier.id,
+        carrierName: rowCarrier.nameFa,
+        carrierLogo: rowCarrier.logoText,
+        carrierRating: rowCarrier.rating,
+        carrierLogoBg: rowCarrier.logoBg,
+        carrierLogoColor: rowCarrier.logoColor,
+        discountRials: discVal,
+        finalPriceRials: finalVal,
+      };
+    });
+  }, [rows, activeCarrier, allocationMode]);
+
+  // Totals calculations based on dynamic carrier pricing
+  const totalRowsCount = computedRows.length;
+  const validRowsCount = computedRows.filter((r) => r.status === 'valid').length;
+  const warningRowsCount = computedRows.filter((r) => r.status === 'warning').length;
+  const errorRowsCount = computedRows.filter((r) => r.status === 'error').length;
+  const totalWeightTons = computedRows.reduce((sum, r) => sum + r.weightTons, 0);
+  const totalEstimatedPriceRials = computedRows.reduce((sum, r) => sum + r.estimatedPriceRials, 0);
+  const totalDiscountRials = computedRows.reduce((sum, r) => sum + r.discountRials, 0);
+  const totalFinalPriceRials = computedRows.reduce((sum, r) => sum + r.finalPriceRials, 0);
 
   // Filtered rows for preview table
-  const filteredRows = rows.filter((r) => {
+  const filteredRows = computedRows.filter((r) => {
     if (filterStatus === 'all') return true;
     return r.status === filterStatus;
   });
@@ -534,19 +578,22 @@ export const ShipperBatchOrdersView: React.FC<ShipperBatchOrdersViewProps> = ({
       fileName: fileNameDisplay,
       fileSizeKb: 145,
       uploadDate: '۱۴۰۳/۰۶/۰۱ - همین الان',
-      totalRows: rows.length,
-      validRows: rows.length,
+      totalRows: computedRows.length,
+      validRows: computedRows.length,
       totalPriceRials: totalFinalPriceRials,
       status: 'submitted',
       batchCode,
     };
 
-    const createdLoads = convertBatchRowsToActiveLoads(rows, batchCode);
+    const carrierMap = Object.fromEntries(
+      computedRows.map((r) => [r.id, (r as any).carrierId || selectedCarrierId])
+    );
+    const createdLoads = convertBatchRowsToActiveLoads(computedRows, batchCode, carrierMap);
 
     setHistories([newHistory, ...histories]);
     setIsSubmittedSuccess(true);
     if (onBatchSubmitted) {
-      onBatchSubmitted(rows.length, createdLoads);
+      onBatchSubmitted(computedRows.length, createdLoads);
     }
   };
 
@@ -832,7 +879,19 @@ export const ShipperBatchOrdersView: React.FC<ShipperBatchOrdersViewProps> = ({
             </div>
           </div>
 
-          {/* 3. Summary Price & Totals Ribbon (Calculated automatically from parsed rows) */}
+          {/* 3. Carrier Selection & Advantages Comparison Module (Dedicated Section) */}
+          <BatchCarrierSelector
+            selectedCarrierId={selectedCarrierId}
+            onSelectCarrier={setSelectedCarrierId}
+            allocationMode={allocationMode}
+            onToggleAllocationMode={setAllocationMode}
+            baseEstimatedRials={totalEstimatedPriceRials}
+            totalWeightTons={totalWeightTons}
+            totalLoadsCount={totalRowsCount}
+            batchRows={computedRows}
+          />
+
+          {/* 4. Summary Price & Totals Ribbon (Calculated automatically from parsed rows & selected carrier) */}
           <div className="bg-gradient-to-r from-amber-50 via-white to-amber-50 border border-amber-200/80 rounded-3xl p-5 shadow-xs">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 flex-1">
@@ -856,12 +915,14 @@ export const ShipperBatchOrdersView: React.FC<ShipperBatchOrdersViewProps> = ({
                 </div>
 
                 <div className="space-y-0.5">
-                  <span className="text-[11px] text-slate-500 font-medium block">تخفیف قرارداد طلایی:</span>
+                  <span className="text-[11px] text-slate-500 font-medium block">تخفیف قرارداد سازمانی:</span>
                   <div className="flex items-center gap-1.5">
                     <strong className="text-base font-bold text-emerald-700 font-mono">
                       {(totalDiscountRials / 10).toLocaleString('fa-IR')}
                     </strong>
-                    <span className="text-[11px] text-emerald-800 font-medium">تومان (۷٪)</span>
+                    <span className="text-[11px] text-emerald-800 font-medium font-mono">
+                      تومان ({activeCarrier.discountPercent}٪)
+                    </span>
                   </div>
                 </div>
 
@@ -1016,6 +1077,7 @@ export const ShipperBatchOrdersView: React.FC<ShipperBatchOrdersViewProps> = ({
                   <tr className="bg-slate-100/80 text-slate-600 font-bold border-b border-slate-200 text-[11px]">
                     <th className="p-3 text-center w-12">ردیف</th>
                     <th className="p-3">مسیر (مبدأ ➔ مقصد)</th>
+                    <th className="p-3">شرکت متصدی حمل</th>
                     <th className="p-3">شرح محموله و نوع بار</th>
                     <th className="p-3">وزن (تن)</th>
                     <th className="p-3">نوع ناوگان درخواستی</th>
@@ -1045,6 +1107,19 @@ export const ShipperBatchOrdersView: React.FC<ShipperBatchOrdersViewProps> = ({
                             {row.originHub}
                           </span>
                         )}
+                      </td>
+
+                      <td className="p-3">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`w-6 h-6 rounded-lg ${(row as any).carrierLogoBg || 'bg-amber-100'} ${(row as any).carrierLogoColor || 'text-amber-800'} flex items-center justify-center font-bold text-[10px] shrink-0 font-mono shadow-2xs`}
+                          >
+                            {(row as any).carrierLogo || 'خ'}
+                          </span>
+                          <span className="font-bold text-slate-800 text-[11px] truncate max-w-[140px]" title={(row as any).carrierName}>
+                            {(row as any).carrierName || activeCarrier.nameFa}
+                          </span>
+                        </div>
                       </td>
 
                       <td className="p-3">

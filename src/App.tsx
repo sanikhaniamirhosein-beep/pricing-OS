@@ -224,6 +224,10 @@ const AppContent: React.FC = () => {
             <SystemConsoleView
               activeSubTab={systemSubTab}
               onSubTabChange={(tab) => setSystemSubTab(tab)}
+              onNavigateToContracts={(contractId) => {
+                setActiveWorkspaceId('design');
+                setDesignSubTab('contracts');
+              }}
             />
           )}
         </main>

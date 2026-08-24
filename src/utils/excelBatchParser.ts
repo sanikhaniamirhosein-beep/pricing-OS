@@ -1,5 +1,6 @@
 import * as XLSX from 'xlsx';
 import { BatchShipmentRow, ShipperActiveLoad } from '../data/mockShipperData';
+import { CARRIER_ORGANIZATIONS, CarrierOrgProfile } from '../data/mockOrganizationProfiles';
 
 // Coordinates of major Iranian industrial & logistic hub cities
 export const IRAN_CITY_COORDINATES: Record<string, { lat: number; lng: number }> = {
@@ -520,7 +521,8 @@ const SAMPLE_DRIVERS = [
 
 export function convertBatchRowsToActiveLoads(
   rows: BatchShipmentRow[],
-  batchCode?: string
+  batchCode?: string,
+  carrierIdOrMap?: string | Record<string, string>
 ): ShipperActiveLoad[] {
   const currentTimestamp = Date.now();
 
@@ -529,6 +531,13 @@ export function convertBatchRowsToActiveLoads(
     const trackingCode = `TRK-${Math.floor(100000 + Math.random() * 900000)}`;
     const billOfLadingNo = `BL-1403-${Math.floor(8000 + Math.random() * 1900)}`;
     const loadId = `SHP-${currentTimestamp.toString().slice(-4)}${index + 1}`;
+
+    // Resolve carrier for this specific row
+    let targetCarrierId = typeof carrierIdOrMap === 'string' ? carrierIdOrMap : carrierIdOrMap?.[row.id];
+    if (!targetCarrierId) {
+      targetCarrierId = 'org-carrier-pg-freight';
+    }
+    const carrierProfile = CARRIER_ORGANIZATIONS.find((c) => c.id === targetCarrierId) || CARRIER_ORGANIZATIONS[0];
 
     // Cycle through realistic status distributions
     let status: ShipperActiveLoad['status'] = 'in_transit';
@@ -571,6 +580,17 @@ export function convertBatchRowsToActiveLoads(
       totalCostRials: row.finalPriceRials,
       insuranceValuationRials: (row.cargoValueToman || 250000000) * 10,
       podSigned: false,
+      carrierId: carrierProfile.id,
+      carrierName: carrierProfile.nameFa,
+      carrierLogo: carrierProfile.logoText,
+      carrierRating: carrierProfile.rating,
+      carrierPhone: carrierProfile.phone,
+      carrierAddress: carrierProfile.address,
+      carrierLicenseNo: carrierProfile.licenseNumber,
+      carrierNationalId: carrierProfile.nationalId,
+      carrierEconomicCode: carrierProfile.economicCode,
+      carrierRegistrationNo: carrierProfile.registrationNo,
+      carrierSelectionMode: 'managed',
     };
   });
 }

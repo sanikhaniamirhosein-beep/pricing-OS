@@ -1,5 +1,5 @@
 {
-  "name": "سیستم عامل قیمت‌گذاری لجستیک و حمل‌ونقل جاده‌ای (Pricing OS)",
+  "name": "سامانه هوشمند قیمت‌گذاری لجستیک و حمل‌ونقل جاده‌ای",
   "description": "سامانه یکپارچه تعریف سیاست‌های کرایه، شبیه‌سازی نرخ حمل جاده‌ای، پکیج‌های استراتژی، حاکمیت، تبارشناسی تصمیم (Decision Trace) و هوش مصنوعی",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

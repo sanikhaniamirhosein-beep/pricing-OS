@@ -106,6 +106,7 @@ export const WORKSPACE_NAV_ITEMS: WorkspaceItem[] = [
     icon: Sliders,
     subItems: [
       { id: 'fleet_master', labelFa: 'داده‌های پایه ناوگان و ظرفیت‌ها', labelEn: 'Fleet Master Data', icon: Database },
+      { id: 'expenses', labelFa: 'مدیریت هزینه‌ها و سقف بودجه', labelEn: 'Expense & Budget Control', icon: DollarSign },
       { id: 'zones_corridors', labelFa: 'مدیریت مناطق، فواصل و عوارض', labelEn: 'Zones, Corridors & Tolls', icon: Compass },
       { id: 'connectors', labelFa: 'هاب اتصالات (سوخت، GPS، TMS، گمرک)', labelEn: 'Connectors Hub', icon: PlugZap },
       { id: 'model_registry', labelFa: 'رجیستری مدل‌های خارجی و ML', labelEn: 'Model Registry', icon: Code2 },

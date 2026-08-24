@@ -267,6 +267,13 @@ export const ShipperOrgProfileModal: React.FC<ShipperOrgProfileModalProps> = ({
     }
   }, [currentShipperOrg, userOrgName, userName, userEmail]);
 
+  // Automatically revoke edit mode if active user is not Senior Admin for corporate
+  useEffect(() => {
+    if (entityType === 'corporate' && !isSeniorAdmin && isEditing) {
+      setIsEditing(false);
+    }
+  }, [entityType, isSeniorAdmin, isEditing]);
+
   if (!isOpen) return null;
 
   // Completeness check based on entity type
@@ -411,6 +418,11 @@ export const ShipperOrgProfileModal: React.FC<ShipperOrgProfileModalProps> = ({
   // Save Changes
   const handleSaveAll = () => {
     if (entityType === 'corporate') {
+      if (!isSeniorAdmin) {
+        alert('خطای دسترسی: ویرایش اطلاعات و پرونده ثبتی شرکت فقط در اختیار مدیر ارشد سازمان می‌باشد.');
+        setIsEditing(false);
+        return;
+      }
       const fullDossier: ShipperLegalDossier = {
         companyLegalName: corpFormData.companyLegalName || currentShipperOrg?.nameFa || userOrgName,
         nationalId: corpFormData.nationalId || '',
@@ -690,6 +702,14 @@ export const ShipperOrgProfileModal: React.FC<ShipperOrgProfileModalProps> = ({
                   <Save className="w-3.5 h-3.5" />
                   <span>{entityType === 'corporate' ? 'ذخیره مشخصات شرکت' : 'ذخیره اطلاعات و انبارها'}</span>
                 </button>
+              </div>
+            ) : (entityType === 'corporate' && !isSeniorAdmin) ? (
+              <div
+                className="flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-100 border border-slate-300 text-slate-500 rounded-xl text-xs font-bold shadow-xs cursor-not-allowed select-none"
+                title="ویرایش مشخصات و پرونده شرکت فقط برای مدیر ارشد زنجیره تأمین / مدیر سازمان مجاز است."
+              >
+                <Lock className="w-3.5 h-3.5 text-slate-400" />
+                <span>ویرایش مشخصات (مختص مدیر ارشد)</span>
               </div>
             ) : (
               <button

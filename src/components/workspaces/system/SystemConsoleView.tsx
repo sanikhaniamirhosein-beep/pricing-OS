@@ -23,18 +23,22 @@ import {
   Shield,
   ShieldCheck,
   Check,
+  DollarSign,
 } from 'lucide-react';
 import { usePricing } from '../../../store/PricingContext';
 import { RBACUsersView } from './RBACUsersView';
+import { ExpenseManagementView } from './expenses/ExpenseManagementView';
 
 interface SystemConsoleViewProps {
   activeSubTab?: string;
   onSubTabChange?: (tab: string) => void;
+  onNavigateToContracts?: (contractId?: string) => void;
 }
 
 export const SystemConsoleView: React.FC<SystemConsoleViewProps> = ({
   activeSubTab = 'fleet_master',
   onSubTabChange,
+  onNavigateToContracts,
 }) => {
   const {
     isSovereignMode,
@@ -91,6 +95,7 @@ export const SystemConsoleView: React.FC<SystemConsoleViewProps> = ({
 
   const tabs = [
     { id: 'fleet_master', labelFa: 'داده‌های پایه ناوگان و ظرفیت‌ها', labelEn: 'Fleet Master Data', icon: Database },
+    { id: 'expenses', labelFa: 'مدیریت هزینه‌ها و سقف بودجه', labelEn: 'Expense & Budget Control', icon: DollarSign },
     { id: 'zones_corridors', labelFa: 'مدیریت مناطق، فواصل و عوارض', labelEn: 'Zones & Corridors', icon: Compass },
     { id: 'connectors', labelFa: 'هاب اتصالات (سوخت، GPS، TMS، گمرک)', labelEn: 'Connectors Hub', icon: PlugZap },
     { id: 'model_registry', labelFa: 'رجیستری مدل‌های خارجی و ML', labelEn: 'Model Registry', icon: Code2 },
@@ -204,6 +209,11 @@ export const SystemConsoleView: React.FC<SystemConsoleViewProps> = ({
             </div>
           </div>
         </div>
+      )}
+
+      {/* Subtab: Expense & Budget Management */}
+      {currentTab === 'expenses' && (
+        <ExpenseManagementView onNavigateToContracts={onNavigateToContracts} />
       )}
 
       {/* Subtab 2: Zones & Corridors */}

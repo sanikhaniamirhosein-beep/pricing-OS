@@ -503,29 +503,48 @@ export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
 
               {/* Graphical Route Simulation Vector Canvas (Light Theme) */}
               <div className="my-8 px-6 relative">
-                {/* Route Background Track */}
-                <div className="relative h-3.5 bg-slate-100 rounded-full w-full overflow-hidden border border-slate-200">
-                  <div
-                    className="h-full bg-gradient-to-r from-teal-500 via-amber-400 to-amber-500 transition-all duration-700 rounded-full"
-                    style={{ width: `${selectedLoad.progressPercent}%` }}
-                  />
-                </div>
+                {/* Route Track Container */}
+                <div className="relative w-full py-4">
+                  {/* Route Background Track */}
+                  <div className="relative h-4 bg-slate-100 rounded-full w-full overflow-hidden border border-slate-200 shadow-inner">
+                    {/* Direction Flow Wave Markers (Pointing Left to Destination) */}
+                    <div className="absolute inset-0 flex items-center justify-around opacity-20 pointer-events-none text-[10px] text-slate-400 font-bold select-none">
+                      <span>◀</span>
+                      <span>◀</span>
+                      <span>◀</span>
+                      <span>◀</span>
+                      <span>◀</span>
+                    </div>
 
-                {/* Truck Marker */}
-                <div
-                  className="absolute -top-3.5 transition-all duration-700"
-                  style={{ left: `calc(${selectedLoad.progressPercent}% - 20px)` }}
-                >
-                  <div className="w-11 h-11 rounded-full bg-amber-500 text-white flex items-center justify-center shadow-lg border-2 border-white ring-4 ring-amber-400/25 animate-bounce">
-                    <Truck className="w-5 h-5" />
+                    {/* Progress Completed Fill - Origin on Right to Left */}
+                    <div
+                      className="absolute top-0 right-0 h-full bg-gradient-to-l from-amber-500 via-amber-400 to-emerald-500 transition-all duration-700 rounded-full shadow-xs"
+                      style={{ width: `${Math.min(100, Math.max(0, selectedLoad.progressPercent))}%` }}
+                    />
+                  </div>
+
+                  {/* Truck Marker (Traveling from Right Origin towards Left Destination) */}
+                  <div
+                    className="absolute top-0.5 transition-all duration-700 pointer-events-none"
+                    style={{
+                      right: `calc(${Math.min(100, Math.max(0, selectedLoad.progressPercent))}% - 22px)`,
+                    }}
+                  >
+                    <div className="w-11 h-11 rounded-full bg-amber-500 text-white flex items-center justify-center shadow-lg border-2 border-white ring-4 ring-amber-400/25 animate-bounce">
+                      {/* Flipped horizontally (scale-x-[-1]) so the truck cab faces left towards destination */}
+                      <Truck className="w-5 h-5 scale-x-[-1]" />
+                    </div>
                   </div>
                 </div>
 
                 {/* Milestones / Checkpoints */}
-                <div className="flex justify-between items-center text-xs pt-5 text-slate-700">
+                <div className="flex justify-between items-center text-xs pt-3 text-slate-700">
                   <div className="text-right bg-white p-2.5 rounded-xl border border-slate-200 shadow-2xs">
-                    <span className="block font-bold text-amber-700 text-xs">{selectedLoad?.originCity || '-'}</span>
-                    <span className="text-[10px] text-slate-500 font-mono">
+                    <span className="block font-bold text-amber-700 text-xs flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+                      <span>مبدأ: {selectedLoad?.originCity || '-'}</span>
+                    </span>
+                    <span className="text-[10px] text-slate-500 font-mono block mt-0.5">
                       خروج: {selectedLoad?.departureTime ? (selectedLoad.departureTime.split(' - ')?.[1] || selectedLoad.departureTime) : '-'}
                     </span>
                   </div>
@@ -536,8 +555,11 @@ export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
                   </div>
 
                   <div className="text-left bg-white p-2.5 rounded-xl border border-slate-200 shadow-2xs">
-                    <span className="block font-bold text-emerald-700 text-xs">{selectedLoad?.destCity || '-'}</span>
-                    <span className="text-[10px] text-slate-500 font-mono">
+                    <span className="block font-bold text-emerald-700 text-xs flex items-center gap-1 justify-end">
+                      <span>مقصد: {selectedLoad?.destCity || '-'}</span>
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
+                    </span>
+                    <span className="text-[10px] text-slate-500 font-mono block mt-0.5">
                       تخمین رسیدن: {selectedLoad?.estimatedArrival ? (selectedLoad.estimatedArrival.split(' - ')?.[1] || selectedLoad.estimatedArrival) : '-'}
                     </span>
                   </div>
