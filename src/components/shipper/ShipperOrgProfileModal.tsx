@@ -1195,23 +1195,32 @@ export const ShipperOrgProfileModal: React.FC<ShipperOrgProfileModalProps> = ({
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                         {corpFormData.hubs.map((hub) => (
                           <div key={hub.id} className="p-4 rounded-2xl border border-slate-200 bg-slate-50 space-y-3">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-blue-600" />
-                                <input
-                                  type="text"
-                                  disabled={!isEditing}
-                                  value={hub.name}
-                                  onChange={(e) => handleUpdateHub(hub.id, { name: e.target.value })}
-                                  placeholder="نام انبار"
-                                  className="font-bold text-slate-900 bg-transparent border-b border-transparent focus:border-blue-500 outline-none"
-                                />
-                              </div>
+                            <div className="flex items-start justify-between gap-2">
+                              {isEditing ? (
+                                <div className="flex items-center gap-2 flex-1">
+                                  <span className="w-2.5 h-2.5 rounded-full bg-blue-600 shrink-0" />
+                                  <input
+                                    type="text"
+                                    value={hub.name}
+                                    onChange={(e) => handleUpdateHub(hub.id, { name: e.target.value })}
+                                    placeholder="نام کامل انبار یا کارخانه"
+                                    className="w-full font-bold text-xs sm:text-sm text-slate-900 bg-white border border-slate-300 px-3 py-1.5 rounded-xl outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                  />
+                                </div>
+                              ) : (
+                                <div className="flex items-start gap-2.5 flex-1 min-w-0">
+                                  <span className="w-2.5 h-2.5 rounded-full bg-blue-600 shrink-0 mt-1" />
+                                  <h4 className="font-extrabold text-xs sm:text-sm text-slate-900 leading-snug break-words flex-1">
+                                    {hub.name}
+                                  </h4>
+                                </div>
+                              )}
                               {isEditing && (
                                 <button
                                   type="button"
                                   onClick={() => handleRemoveHub(hub.id)}
-                                  className="text-red-500 hover:text-red-700 p-1 cursor-pointer"
+                                  className="text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 cursor-pointer shrink-0 transition-colors"
+                                  title="حذف انبار"
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </button>
@@ -1220,38 +1229,53 @@ export const ShipperOrgProfileModal: React.FC<ShipperOrgProfileModalProps> = ({
 
                             <div className="grid grid-cols-2 gap-2 text-[11px]">
                               <div>
-                                <label className="text-slate-500 block mb-0.5">شهر:</label>
-                                <input
-                                  type="text"
-                                  disabled={!isEditing}
-                                  value={hub.city}
-                                  onChange={(e) => handleUpdateHub(hub.id, { city: e.target.value })}
-                                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg outline-none"
-                                />
+                                <label className="text-slate-500 font-bold block mb-1">شهر / استان:</label>
+                                {isEditing ? (
+                                  <input
+                                    type="text"
+                                    value={hub.city}
+                                    onChange={(e) => handleUpdateHub(hub.id, { city: e.target.value })}
+                                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-xl outline-none focus:border-blue-500"
+                                  />
+                                ) : (
+                                  <div className="p-2 bg-white rounded-xl border border-slate-200/60 font-bold text-slate-800 break-words">
+                                    {hub.city || 'ثبت نشده'}
+                                  </div>
+                                )}
                               </div>
                               <div>
-                                <label className="text-slate-500 block mb-0.5">مسئول انبار:</label>
-                                <input
-                                  type="text"
-                                  disabled={!isEditing}
-                                  value={hub.contactName}
-                                  onChange={(e) => handleUpdateHub(hub.id, { contactName: e.target.value })}
-                                  placeholder="نام مسئول"
-                                  className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg outline-none"
-                                />
+                                <label className="text-slate-500 font-bold block mb-1">مسئول انبار / باسکول:</label>
+                                {isEditing ? (
+                                  <input
+                                    type="text"
+                                    value={hub.contactName}
+                                    onChange={(e) => handleUpdateHub(hub.id, { contactName: e.target.value })}
+                                    placeholder="نام مسئول"
+                                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-xl outline-none focus:border-blue-500"
+                                  />
+                                ) : (
+                                  <div className="p-2 bg-white rounded-xl border border-slate-200/60 font-bold text-slate-800 break-words">
+                                    {hub.contactName || 'ثبت نشده'}
+                                  </div>
+                                )}
                               </div>
                             </div>
 
                             <div>
-                              <label className="text-slate-500 text-[11px] block mb-0.5">آدرس دقیق انبار:</label>
-                              <input
-                                type="text"
-                                disabled={!isEditing}
-                                value={hub.address}
-                                onChange={(e) => handleUpdateHub(hub.id, { address: e.target.value })}
-                                placeholder="آدرس پستی باسکول و بارگیری"
-                                className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-xs outline-none"
-                              />
+                              <label className="text-slate-500 font-bold text-[11px] block mb-1">آدرس دقیق انبار و بارگیری:</label>
+                              {isEditing ? (
+                                <input
+                                  type="text"
+                                  value={hub.address}
+                                  onChange={(e) => handleUpdateHub(hub.id, { address: e.target.value })}
+                                  placeholder="آدرس پستی باسکول و بارگیری"
+                                  className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-xl text-xs outline-none focus:border-blue-500"
+                                />
+                              ) : (
+                                <div className="p-2.5 bg-white rounded-xl border border-slate-200/60 text-xs text-slate-700 leading-relaxed break-words font-medium">
+                                  {hub.address || 'آدرس ثبت نشده است'}
+                                </div>
+                              )}
                             </div>
                           </div>
                         ))}
@@ -1717,9 +1741,9 @@ export const ShipperOrgProfileModal: React.FC<ShipperOrgProfileModalProps> = ({
                             key={hub.id}
                             className="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 hover:bg-white hover:border-amber-300 transition-all space-y-3 relative group"
                           >
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <span className="w-6 h-6 rounded-lg bg-blue-500/10 text-blue-700 flex items-center justify-center font-bold text-xs">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex items-start gap-2 flex-1 min-w-0">
+                                <span className="w-6 h-6 rounded-lg bg-blue-500/10 text-blue-700 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
                                   {index + 1}
                                 </span>
                                 {isEditing ? (
@@ -1728,21 +1752,25 @@ export const ShipperOrgProfileModal: React.FC<ShipperOrgProfileModalProps> = ({
                                     value={hub.name}
                                     onChange={(e) => handleUpdateIndivHub(hub.id, { name: e.target.value })}
                                     placeholder="نام مرکز / انبار"
-                                    className="font-bold text-xs text-slate-900 bg-white border border-slate-300 px-2 py-1 rounded-lg outline-none focus:border-amber-500"
+                                    className="w-full flex-1 font-bold text-xs sm:text-sm text-slate-900 bg-white border border-slate-300 px-2.5 py-1.5 rounded-xl outline-none focus:border-amber-500"
                                   />
                                 ) : (
-                                  <h4 className="font-bold text-xs text-slate-900">{hub.name}</h4>
+                                  <div className="flex-1 min-w-0">
+                                    <h4 className="font-extrabold text-xs sm:text-sm text-slate-900 leading-snug break-words">
+                                      {hub.name}
+                                    </h4>
+                                  </div>
                                 )}
                               </div>
 
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-2 shrink-0">
                                 {hub.isDefaultOrigin && (
-                                  <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-md">
+                                  <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-md shrink-0">
                                     مبدأ پیش‌فرض
                                   </span>
                                 )}
                                 {hub.isDefaultDest && (
-                                  <span className="text-[10px] bg-sky-100 text-sky-800 font-bold px-2 py-0.5 rounded-md">
+                                  <span className="text-[10px] bg-sky-100 text-sky-800 font-bold px-2 py-0.5 rounded-md shrink-0">
                                     مقصد پیش‌فرض
                                   </span>
                                 )}

@@ -107,25 +107,25 @@ export const ShipperDashboardView: React.FC<ShipperDashboardViewProps> = ({
           </div>
         </button>
 
-        {/* Quick Action 3: ثبت بار تک - Deep Navy / Indigo Card */}
+        {/* Quick Action 3: ثبت بار تک - Deep Navy / Indigo Card with High-Contrast Text */}
         <button
           type="button"
           onClick={() => onNavigateTab('quote')}
-          className="p-5 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 hover:from-slate-950 hover:to-indigo-950 text-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 text-right group cursor-pointer flex items-center justify-between border border-indigo-900/50"
+          className="p-5 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 hover:from-slate-950 hover:to-indigo-950 text-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 text-right group cursor-pointer flex items-center justify-between border border-indigo-700/60"
         >
           <div className="space-y-1">
-            <span className="text-[11px] font-medium text-indigo-200 uppercase tracking-wider block">
+            <span className="text-[11px] font-bold text-amber-300 uppercase tracking-wider block">
               درخواست ناوگان حمل
             </span>
-            <h3 className="text-base font-bold flex items-center gap-2">
-              <PlusCircle className="w-5 h-5 text-teal-400 group-hover:scale-110 transition-transform" />
+            <h3 className="text-base font-extrabold text-white flex items-center gap-2">
+              <PlusCircle className="w-5 h-5 text-emerald-400 group-hover:scale-110 transition-transform" />
               ثبت سفارش تکی
             </h3>
-            <p className="text-xs text-indigo-200/80 font-medium line-clamp-1">
+            <p className="text-xs text-slate-200 font-medium line-clamp-1">
               تخصیص فوری کامیون و صدور حواله
             </p>
           </div>
-          <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-white/20 group-hover:bg-white/30 flex items-center justify-center shrink-0 transition-colors">
             <ArrowLeft className="w-4 h-4 text-white" />
           </div>
         </button>

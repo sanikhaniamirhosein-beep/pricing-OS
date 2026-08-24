@@ -270,7 +270,10 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
             {currentRoleDetail.locationScoped && (
               <>
                 <span className="text-slate-300">|</span>
-                <div className="flex items-center gap-1 text-[11px] text-amber-900 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-200 font-bold truncate max-w-[200px]">
+                <div
+                  title={shipperLocationScope}
+                  className="flex items-center gap-1.5 text-[11px] text-amber-900 bg-amber-50 px-2.5 py-1 rounded-xl border border-amber-200 font-bold max-w-xs sm:max-w-sm md:max-w-md"
+                >
                   <Warehouse className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                   <span className="truncate">{shipperLocationScope}</span>
                 </div>
