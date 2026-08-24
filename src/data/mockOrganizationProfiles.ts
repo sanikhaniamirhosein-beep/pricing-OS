@@ -45,18 +45,25 @@ export interface CarrierOrgProfile {
   code: string;
   nameFa: string;
   nameEn: string;
+  shortName?: string;
+  logoText?: string;
+  logoBg?: string;
+  logoColor?: string;
   registrationNo: string;
   nationalId: string;
   economicCode?: string;
   licenseNumber: string;
   province: string;
   city: string;
+  address?: string;
   fleetCount: number;
   activeDriversCount: number;
   managerName: string;
   phone: string;
   email: string;
   rating: number;
+  ratingCount?: number;
+  completedTrips?: number;
   activeContractCodes: string[];
   dedicatedCorridors: { origin: string; dest: string; dailyCapacityTons: number }[];
   bankAccount: { bank: string; shaba: string; accountNo: string };
@@ -76,6 +83,11 @@ export interface CarrierOrgProfile {
   products?: LogisticsProduct[];
   routeMatrix?: RouteMatrixCell[];
   fuelIndexMultiplier?: number;
+  strengths?: string[];
+  insuranceCeilingToman?: number;
+  priceMultiplier?: number;
+  discountPercent?: number;
+  carrierCommissionPercent?: number;
 }
 
 export const SHIPPER_ORGANIZATIONS: ShipperOrgProfile[] = [
@@ -1353,18 +1365,31 @@ export const CARRIER_ORGANIZATIONS: CarrierOrgProfile[] = [
     code: 'CAR-PGF-01',
     nameFa: 'شرکت حمل و نقل سراسری خلیج فارس',
     nameEn: 'Persian Gulf Nationwide Freight Transport Co.',
+    shortName: 'خلیج فارس',
+    logoText: 'خلیج',
+    logoBg: 'bg-indigo-600',
+    logoColor: 'text-white',
     registrationNo: '88921',
     nationalId: '10101345678',
     economicCode: '411145678912',
     licenseNumber: 'LIC-RMTO-1405-9921',
     province: 'تهران',
-    city: 'تهران',
+    city: 'تهران / پایانه مرکزی',
+    address: 'تهران، خیابان ولیعصر، برج لجستیک خلیج فارس، طبقه ۶',
     fleetCount: 1450,
     activeDriversCount: 1820,
     managerName: 'سارا رضایی (مدیر ارشد قیمت‌گذاری و استراتژی)',
     phone: '۰۲۱-۶۶۵۵۴۴۳۳',
     email: 'info@pg-freight.ir',
-    rating: 4.9,
+    rating: 4.92,
+    ratingCount: 1840,
+    completedTrips: 28400,
+    priceMultiplier: 1.0,
+    discountPercent: 8.5,
+    carrierCommissionPercent: 7.5,
+    fuelIndexMultiplier: 1.04,
+    insuranceCeilingToman: 100000000000,
+    strengths: ['ناوگان ملکی ۱۰۰٪ تحت پوشش ردیابی برخط', 'پوشش بیمه ۱۰۰ میلیاردی بدون فرانشیز', 'تضمین زمان تخلیه و بارگیری'],
     activeContractCodes: ['PGPC-9941', 'MSC-7714', 'MHN-8802'],
     dedicatedCorridors: [
       { origin: 'تهران', dest: 'بندرعباس', dailyCapacityTons: 1200 },
@@ -1521,18 +1546,31 @@ export const CARRIER_ORGANIZATIONS: CarrierOrgProfile[] = [
     code: 'CAR-ITR-02',
     nameFa: 'شرکت ترانزیت بین‌المللی ایران تیر (Iran TIR)',
     nameEn: 'Iran TIR International Freight Corp.',
+    shortName: 'ایران تیر',
+    logoText: 'ایران',
+    logoBg: 'bg-rose-700',
+    logoColor: 'text-white',
     registrationNo: '44102',
     nationalId: '10260441020',
     economicCode: '411288991122',
     licenseNumber: 'LIC-RMTO-1405-3381',
     province: 'آذربایجان شرقی',
-    city: 'تبریز',
+    city: 'تبریز / پایانه صادراتی',
+    address: 'تبریز، جاده تبریز آذرشهر، شهرک لجستیک و ترانزیت بین‌المللی',
     fleetCount: 820,
     activeDriversCount: 950,
     managerName: 'مهندس بهزاد تبریزی',
     phone: '۰۴۱-۳۳۲۲۱۱۰۰',
     email: 'operations@irantir.ir',
-    rating: 4.8,
+    rating: 4.88,
+    ratingCount: 920,
+    completedTrips: 14200,
+    priceMultiplier: 1.06,
+    discountPercent: 6.0,
+    carrierCommissionPercent: 8.0,
+    fuelIndexMultiplier: 1.05,
+    insuranceCeilingToman: 75000000000,
+    strengths: ['پوشش ترانزیت سراسری و کارنه تیر بین‌المللی', 'ناوگان کشنده استاندارد یورو ۶ با سرعت اعزام بالا', 'تخصص کامل در حمل کالای ترافیکی و صادراتی'],
     activeContractCodes: ['MSC-7714', 'KSR-6620'],
     dedicatedCorridors: [
       { origin: 'تبریز', dest: 'چابهار', dailyCapacityTons: 700 },
@@ -1677,17 +1715,31 @@ export const CARRIER_ORGANIZATIONS: CarrierOrgProfile[] = [
     code: 'CAR-ALB-03',
     nameFa: 'ناوگان تخصصی زنجیره سرد البرز بار',
     nameEn: 'Alborz Cold-Chain Specialized Logistics',
+    shortName: 'البرز بار',
+    logoText: 'البرز',
+    logoBg: 'bg-teal-600',
+    logoColor: 'text-white',
     registrationNo: '77215',
     nationalId: '10103322119',
+    economicCode: '411599887766',
     licenseNumber: 'LIC-RMTO-1405-7712',
     province: 'البرز',
-    city: 'کرج',
+    city: 'کرج / پایانه البرز',
+    address: 'کرج، آزادراه کرج قزوین، پایانه ترابری البرز',
     fleetCount: 380,
     activeDriversCount: 420,
     managerName: 'دکتر افشین فراهانی',
     phone: '۰۲۶-۳۴۵۵۶۶۷۷',
     email: 'fleet@alborz-coldchain.com',
-    rating: 4.95,
+    rating: 4.97,
+    ratingCount: 640,
+    completedTrips: 9400,
+    priceMultiplier: 1.04,
+    discountPercent: 7.0,
+    carrierCommissionPercent: 8.5,
+    fuelIndexMultiplier: 1.03,
+    insuranceCeilingToman: 100000000000,
+    strengths: ['بالاترین رتبه رضایت و شاخص صفر خسارت', 'تجهیزات مدرن مهاربندی و ترموگراف ماهواره‌ای', 'واحد سلامت کالا و بازرسی دما'],
     activeContractCodes: ['MHN-8802'],
     dedicatedCorridors: [
       { origin: 'تهران', dest: 'بندرعباس', dailyCapacityTons: 450 },
@@ -1707,17 +1759,31 @@ export const CARRIER_ORGANIZATIONS: CarrierOrgProfile[] = [
     code: 'CAR-KHT-04',
     nameFa: 'مجتمع باربری شرق و ترانزیت خراسان',
     nameEn: 'Khorasan East Transit & Heavy Logistics',
+    shortName: 'ترانزیت خراسان',
+    logoText: 'خراسان',
+    logoBg: 'bg-sky-700',
+    logoColor: 'text-white',
     registrationNo: '62118',
     nationalId: '10380456789',
+    economicCode: '411366554433',
     licenseNumber: 'LIC-RMTO-1405-1109',
     province: 'خراسان رضوی',
-    city: 'مشهد',
+    city: 'مشهد / پایانه بار شرق',
+    address: 'مشهد، بلوار فرودگاه، پایانه بار مرکزی شرق',
     fleetCount: 650,
     activeDriversCount: 780,
     managerName: 'مهندس محمدرضا شریفی',
     phone: '۰۵۱-۳۷۶۶۵۵۴۴',
     email: 'dispatch@khorasan-transit.ir',
-    rating: 4.75,
+    rating: 4.79,
+    ratingCount: 1100,
+    completedTrips: 18200,
+    priceMultiplier: 0.98,
+    discountPercent: 8.0,
+    carrierCommissionPercent: 7.0,
+    fuelIndexMultiplier: 1.04,
+    insuranceCeilingToman: 75000000000,
+    strengths: ['تخصص در بارهای صنعتی، سنگین و کارگاهی', 'دارای باسکول دیجیتال ۶۰ تنی اختصاصی', 'پشتیبانی و دیسپچینگ ۲۴ ساعته'],
     activeContractCodes: ['KSR-6620', 'MSC-7714'],
     dedicatedCorridors: [
       { origin: 'مشهد', dest: 'بوشهر', dailyCapacityTons: 550 },
@@ -1730,6 +1796,50 @@ export const CARRIER_ORGANIZATIONS: CarrierOrgProfile[] = [
       activeEscrowToman: 5100000000,
       commissionCollectedToman: 2450000000,
       pendingPayoutToman: 820000000,
+    },
+  },
+  {
+    id: 'org-carrier-pars-logistics',
+    code: 'CAR-PLS-05',
+    nameFa: 'شرکت باربری پیشگامان ترابری پارس',
+    nameEn: 'Pars Logistics & Intermodal Transport',
+    shortName: 'پیشگامان پارس',
+    logoText: 'پارس',
+    logoBg: 'bg-emerald-700',
+    logoColor: 'text-white',
+    registrationNo: '55190',
+    nationalId: '10260334455',
+    economicCode: '411322114455',
+    licenseNumber: 'LIC-RMTO-1405-4421',
+    province: 'اصفهان',
+    city: 'اصفهان / پایانه امیرکبیر',
+    address: 'اصفهان، شهرک صنعتی محمودآباد، خیابان لجستیک ۲',
+    fleetCount: 720,
+    activeDriversCount: 890,
+    managerName: 'مهندس علیرضا سلیمانی',
+    phone: '۰۳۱-۳۳۸۸۹۹۰۰',
+    email: 'info@parslogistics.ir',
+    rating: 4.74,
+    ratingCount: 1420,
+    completedTrips: 22100,
+    priceMultiplier: 0.94, // Cheapest base matrix rates
+    discountPercent: 10.0,
+    carrierCommissionPercent: 6.5,
+    fuelIndexMultiplier: 1.02,
+    insuranceCeilingToman: 50000000000,
+    strengths: ['اقتصادی‌ترین نرخ کرایه خطی در سراسر کشور', 'بیش از ۷۰۰ ناوگان آماده اعزام در بنادر جنوبی', 'تخفیف ویژه قراردادهای تناژ بالا'],
+    activeContractCodes: ['MSC-7714'],
+    dedicatedCorridors: [
+      { origin: 'اصفهان', dest: 'تهران', dailyCapacityTons: 950 },
+      { origin: 'اصفهان', dest: 'بندرعباس', dailyCapacityTons: 1100 },
+      { origin: 'اصفهان', dest: 'اهواز', dailyCapacityTons: 700 },
+    ],
+    bankAccount: { bank: 'بانک سپه - شعبه محمودآباد', shaba: 'IR890150000000007788990011', accountNo: '3344556677' },
+    financialSummary: {
+      monthlyTurnoverToman: 28500000000,
+      activeEscrowToman: 4900000000,
+      commissionCollectedToman: 2850000000,
+      pendingPayoutToman: 730000000,
     },
   },
 ];

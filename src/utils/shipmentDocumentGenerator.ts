@@ -1,5 +1,5 @@
 import { ShipperActiveLoad } from '../data/mockShipperData';
-import { ShipperOrgProfile } from '../types/shipperLegal';
+import { ShipperOrgProfile } from '../data/mockOrganizationProfiles';
 import {
   FullShipmentDocumentPackage,
   GeneratedProformaInvoice,
@@ -43,14 +43,14 @@ export function generateFullShipmentDocumentPackage(
   const seed = hashSeed(load.id || load.billOfLadingNo || 'load');
 
   // Shipper / Buyer Details
-  const isIndividual = org?.entityType === 'individual' || !org?.legalDossier;
+  const isIndividual = org?.entityType === 'individual' || (!org?.legalDossier && !!org?.individualProfile);
   const companyName = org?.legalDossier?.companyLegalName || org?.nameFa || 'شرکت بازرگانی و صنعتی فولاد مبارکه اصفهان';
-  const nationalId = org?.legalDossier?.nationalId || (org?.individualProfile?.nationalCode ?? '10260289411');
-  const economicCode = org?.legalDossier?.economicCode || '411498321455';
+  const nationalId = org?.legalDossier?.nationalId || (org?.individualProfile?.nationalCode ?? org?.nationalId ?? '10260289411');
+  const economicCode = org?.legalDossier?.economicCode || org?.economicCode || '411498321455';
   const postalCode = org?.legalDossier?.postalCode || (org?.individualProfile?.postalCode ?? '8488111111');
-  const address = org?.legalDossier?.registeredAddress || (org?.individualProfile?.address ?? `${load.originCity}، ${load.originHub}`);
-  const contactPhone = org?.legalDossier?.companyPhone || (org?.individualProfile?.mobileNumber ?? '02188990000');
-  const contactPerson = org?.legalDossier?.ceoName || (org?.individualProfile?.fullName ?? 'مهندس جواد اکبری');
+  const address = org?.legalDossier?.headquartersAddress || (org?.individualProfile?.residentialAddress ?? org?.address ?? `${load.originCity}، ${load.originHub}`);
+  const contactPhone = org?.legalDossier?.phoneLandline || org?.legalDossier?.representativeMobile || (org?.individualProfile?.mobileNumber ?? org?.phone ?? '02188990000');
+  const contactPerson = org?.legalDossier?.representativeName || (org?.individualProfile?.fullName ?? org?.contactPerson ?? 'مهندس جواد اکبری');
 
   const senderParty: TransportDocumentParty = {
     name: isIndividual ? (org?.individualProfile?.fullName || 'علی مرادی (صاحب بار حقیقی)') : companyName,
@@ -60,6 +60,20 @@ export function generateFullShipmentDocumentPackage(
     phone: contactPhone,
     address: address,
     contactPerson: contactPerson,
+  };
+
+  // Dynamic Effective Carrier Company
+  const effectiveCarrierCompany: TransportCarrierCompany = {
+    companyName: load.carrierName || DEFAULT_CARRIER_COMPANY.companyName,
+    registrationNumber: load.carrierRegistrationNo || DEFAULT_CARRIER_COMPANY.registrationNumber,
+    nationalId: load.carrierNationalId || DEFAULT_CARRIER_COMPANY.nationalId,
+    economicCode: load.carrierEconomicCode || DEFAULT_CARRIER_COMPANY.economicCode,
+    postalCode: DEFAULT_CARRIER_COMPANY.postalCode,
+    phone: load.carrierPhone || DEFAULT_CARRIER_COMPANY.phone,
+    address: load.carrierAddress || DEFAULT_CARRIER_COMPANY.address,
+    terminalName: `${load.originCity} - پایانه حمل بار عمومی`,
+    licenseNumber: load.carrierLicenseNo || DEFAULT_CARRIER_COMPANY.licenseNumber,
+    stampImageText: DEFAULT_CARRIER_COMPANY.stampImageText,
   };
 
   // Consignee Party
@@ -174,7 +188,7 @@ export function generateFullShipmentDocumentPackage(
     paymentTerms: 'پرداخت ۶۰٪ پیش‌پرداخت قبل از بارگیری و ۴۰٪ باقیمانده پس از تحویل در مقصد',
     shipperParty: senderParty,
     consigneeParty: consigneeParty,
-    carrierCompany: DEFAULT_CARRIER_COMPANY,
+    carrierCompany: effectiveCarrierCompany,
     cargoDetails: {
       cargoName: load.cargoType,
       cargoCategory: load.cargoType.includes('شیمیایی') || load.cargoType.includes('پلی') ? 'صنعتی و پتروشیمی' : 'محصولات صنعتی و ساختمانی',
@@ -204,7 +218,7 @@ export function generateFullShipmentDocumentPackage(
     relatedBillOfLadingNo: load.billOfLadingNo,
     issueDate: load.departureTime ? load.departureTime.split(' - ')[0] : '۱۴۰۳/۰۶/۰۱',
     dueDate: '۱۴۰۳/۰۶/۳۰',
-    seller: DEFAULT_CARRIER_COMPANY,
+    seller: effectiveCarrierCompany,
     buyer: senderParty,
     paymentInfo: {
       paymentMethod: 'اعتباری ۳۰ روزه',
@@ -264,7 +278,7 @@ export function generateFullShipmentDocumentPackage(
     serialNumber: `BL-SER-${seed}-RMTO`,
     issueDateTime: load.departureTime || '۱۴۰۳/۰۶/۰۱ - ۰۷:۳۰',
     departureDateTime: load.departureTime || '۱۴۰۳/۰۶/۰۱ - ۰۸:۰۰',
-    carrierCompany: DEFAULT_CARRIER_COMPANY,
+    carrierCompany: effectiveCarrierCompany,
     sender: senderParty,
     consignee: consigneeParty,
     driverFleet: driverFleet,

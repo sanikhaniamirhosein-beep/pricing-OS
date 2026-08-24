@@ -1,5 +1,5 @@
 import { ShipperActiveLoad } from '../data/mockShipperData';
-import { ShipperOrgProfile } from '../types/shipperLegal';
+import { ShipperOrgProfile } from '../data/mockOrganizationProfiles';
 
 export interface TransportDocumentParty {
   name: string;

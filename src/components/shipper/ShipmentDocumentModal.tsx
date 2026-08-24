@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   FileText,
   Download,
@@ -46,7 +46,13 @@ export const ShipmentDocumentModal: React.FC<ShipmentDocumentModalProps> = ({
   const [selectedDoc, setSelectedDoc] = useState<'proforma' | 'official_invoice' | 'loading_order' | 'bill_of_lading'>(
     initialDocType
   );
-  const [isCopied, setIsCopied] = useState(false);
+  const [downloadNotice, setDownloadNotice] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (initialDocType && isOpen) {
+      setSelectedDoc(initialDocType);
+    }
+  }, [initialDocType, isOpen]);
 
   if (!isOpen) return null;
 
@@ -57,7 +63,76 @@ export const ShipmentDocumentModal: React.FC<ShipmentDocumentModalProps> = ({
   };
 
   const handleDownloadPdf = (docName: string) => {
-    alert(`سند "${docName}" با شناسه ${documentPackage.billOfLadingNo} در قالب PDF رسمی تمبردار آماده دانلود شد.`);
+    let docTitle = 'پیش‌فاکتور رسمی حمل کالا';
+    let docCode = proformaInvoice.documentNumber;
+    if (docName === 'official_invoice') {
+      docTitle = 'صورتحساب رسمی خدمات حمل و نقل';
+      docCode = officialInvoice.invoiceNumber;
+    } else if (docName === 'loading_order') {
+      docTitle = 'حواله بارگیری و مجوز خروج انبار';
+      docCode = loadingOrder.loadingOrderCode || loadingOrder.dispatchSlipNo;
+    } else if (docName === 'bill_of_lading') {
+      docTitle = 'بارنامه دولتی تمبردار راهداری';
+      docCode = billOfLading.rmtoTrackingCode || billOfLading.billOfLadingNo;
+    }
+
+    // Generate standalone printable HTML file with full styling
+    const docElement = document.getElementById('printable-document-content');
+    const docHtml = docElement ? docElement.innerHTML : '';
+    
+    const fullHtml = `<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>${docTitle} - ${docCode}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;800;900&display=swap');
+    body {
+      font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      direction: rtl;
+      text-align: right;
+      padding: 30px;
+      color: #0f172a;
+      background: #f8fafc;
+    }
+    .paper {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 32px;
+      border: 1px solid #cbd5e1;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+    }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+    th, td { border: 1px solid #e2e8f0; padding: 8px 10px; font-size: 12px; }
+    th { background: #f1f5f9; font-weight: bold; }
+    .font-mono { font-family: monospace; }
+    @media print {
+      body { background: #fff; padding: 0; }
+      .paper { border: none; box-shadow: none; padding: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="paper">
+    ${docHtml}
+  </div>
+</body>
+</html>`;
+
+    const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${docTitle.replace(/\s+/g, '_')}_${docCode}.html`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    setDownloadNotice(`فایل چاپی استاندارد "${docTitle}" با شناسه ${docCode} با موفقیت دانلود شد.`);
+    setTimeout(() => setDownloadNotice(null), 4000);
   };
 
   return (
@@ -112,6 +187,19 @@ export const ShipmentDocumentModal: React.FC<ShipmentDocumentModalProps> = ({
           </div>
         </div>
 
+        {/* Download Notice Notification Banner */}
+        {downloadNotice && (
+          <div className="bg-emerald-50 border-b border-emerald-200 px-4 py-2 text-xs text-emerald-900 font-bold flex items-center justify-between animate-in fade-in">
+            <span className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>{downloadNotice}</span>
+            </span>
+            <span className="text-[10px] text-emerald-700 font-normal">
+              جهت خروجی مستقیم PDF می‌توانید از دکمه «چاپ سند» نیز استفاده نمایید.
+            </span>
+          </div>
+        )}
+
         {/* 4 Tabs Selector Bar */}
         <div className="bg-slate-100 p-2 sm:px-5 border-b border-slate-200 flex items-center gap-1.5 sm:gap-2 overflow-x-auto shrink-0">
           {[
@@ -143,7 +231,10 @@ export const ShipmentDocumentModal: React.FC<ShipmentDocumentModalProps> = ({
 
         {/* Document Printable Paper Viewer Container */}
         <div className="flex-1 p-4 sm:p-6 overflow-y-auto bg-slate-50">
-          <div className="max-w-3xl mx-auto bg-white rounded-2xl border border-slate-300 shadow-md p-6 sm:p-8 space-y-6 text-right font-sans text-slate-900 relative">
+          <div
+            id="printable-document-content"
+            className="max-w-3xl mx-auto bg-white rounded-2xl border border-slate-300 shadow-md p-6 sm:p-8 space-y-6 text-right font-sans text-slate-900 relative"
+          >
             {/* DOCUMENT 1: PROFORMA INVOICE */}
             {selectedDoc === 'proforma' && <ProformaDocumentView doc={proformaInvoice} />}
 
@@ -665,10 +756,10 @@ const BillOfLadingDocumentView: React.FC<{ doc: GeneratedBillOfLading }> = ({ do
         </div>
       </div>
 
-      {/* Section 4: Financials & Pricing OS Integration */}
+      {/* Section 4: Financials */}
       <div className="border border-slate-900 rounded-xl p-3.5 bg-slate-900 text-white text-xs font-mono space-y-2">
         <div className="font-sans font-bold text-amber-400 border-b border-slate-800 pb-1 flex items-center justify-between">
-          <span>۵. مبالغ مالی، کرایه حمل و کسورات قانونی (Pricing OS):</span>
+          <span>۵. مبالغ مالی، کرایه حمل و کسورات قانونی:</span>
           <span className="text-[10px] text-slate-400">واحد: ریال</span>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-slate-300">

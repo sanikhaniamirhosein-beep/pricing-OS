@@ -162,6 +162,20 @@ interface PricingContextType {
 
   // Interactive Operations
   calculatePrice: (ctx: ShipmentPricingContext) => EngineExecutionResult;
+  calculatePriceForCarrier: (
+    carrierId: string,
+    ctx: ShipmentPricingContext
+  ) => EngineExecutionResult & {
+    carrier: CarrierOrgProfile;
+    isDedicatedCorridor: boolean;
+    carrierCommissionToman: number;
+    carrierDiscountPercent: number;
+    carrierFuelMultiplier: number;
+    effectiveCarrierBaseToman: number;
+  };
+  addCarrierOrganization: (org: CarrierOrgProfile) => void;
+  updateCarrierOrganization: (orgId: string, updated: Partial<CarrierOrgProfile>) => void;
+  deleteCarrierOrganization: (orgId: string) => void;
   updateRouteMatrixCell: (updatedCell: RouteMatrixCell) => void;
   updatePricingPolicyGuardrails: (minMargin: number, maxDiscountCap: number, mode: 'clamp' | 'reject') => void;
   createStrategyPackage: (pkg: Partial<StrategyPackage>) => StrategyPackage;
@@ -220,9 +234,9 @@ interface PricingContextType {
   // Carrier Organization Management Modal & Updates
   isTransportOrgModalOpen: boolean;
   setIsTransportOrgModalOpen: (open: boolean) => void;
-  transportOrgInitialTab: 'profile' | 'users' | 'drivers';
-  setTransportOrgInitialTab: (tab: 'profile' | 'users' | 'drivers') => void;
-  openTransportOrgModal: (tab?: 'profile' | 'users' | 'drivers') => void;
+  transportOrgInitialTab: 'profile' | 'users' | 'drivers' | 'intelligence';
+  setTransportOrgInitialTab: (tab: 'profile' | 'users' | 'drivers' | 'intelligence') => void;
+  openTransportOrgModal: (tab?: 'profile' | 'users' | 'drivers' | 'intelligence') => void;
   updateCarrierOrgProfile: (updated: Partial<CarrierOrgProfile>) => void;
 
   // Shipper Organization Profile Modal & Updates
@@ -263,9 +277,9 @@ export const PricingProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // Transport Org Modal State
   const [isTransportOrgModalOpen, setIsTransportOrgModalOpen] = useState<boolean>(false);
-  const [transportOrgInitialTab, setTransportOrgInitialTab] = useState<'profile' | 'users' | 'drivers'>('profile');
+  const [transportOrgInitialTab, setTransportOrgInitialTab] = useState<'profile' | 'users' | 'drivers' | 'intelligence'>('profile');
 
-  const openTransportOrgModal = (tab: 'profile' | 'users' | 'drivers' = 'profile') => {
+  const openTransportOrgModal = (tab: 'profile' | 'users' | 'drivers' | 'intelligence' = 'profile') => {
     setTransportOrgInitialTab(tab);
     setIsTransportOrgModalOpen(true);
   };
@@ -799,9 +813,92 @@ export const PricingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     strategyPackages.find((p) => p.environment === 'production' && p.status === 'Active') || strategyPackages?.[0];
   const activeStagingPackage = strategyPackages.find((p) => p.environment === 'staging' && (p.status === 'In Review' || p.status === 'Active'));
 
+  const addCarrierOrganization = (org: CarrierOrgProfile) => {
+    setCarrierOrganizations((prev) => [org, ...prev]);
+    addAuditLog({
+      eventType: 'rule.modified',
+      objectRef: `سازمان حمل‌ونقل: ${org.nameFa} (${org.code})`,
+      actorName: userName,
+      actorRole: userRole,
+      details: { action: 'carrier_registered', nationalId: org.nationalId, city: org.city },
+    });
+  };
+
+  const updateCarrierOrganization = (orgId: string, updated: Partial<CarrierOrgProfile>) => {
+    setCarrierOrganizations((prev) =>
+      prev.map((c) => (c.id === orgId ? { ...c, ...updated } : c))
+    );
+    if (currentCarrierOrgId === orgId && updated.nameFa) {
+      setUserOrgName(updated.nameFa);
+    }
+  };
+
+  const deleteCarrierOrganization = (orgId: string) => {
+    setCarrierOrganizations((prev) => prev.filter((c) => c.id !== orgId));
+  };
+
   const calculatePrice = (ctx: ShipmentPricingContext): EngineExecutionResult => {
     const pkgToUse = environment === 'staging' && activeStagingPackage ? activeStagingPackage : activeProductionPackage;
     return calculateShipmentPrice(ctx, pkgToUse, pricingPolicy, routeMatrix, contracts, fuelIndexMultiplier);
+  };
+
+  const calculatePriceForCarrier = (
+    carrierId: string,
+    ctx: ShipmentPricingContext
+  ): EngineExecutionResult & {
+    carrier: CarrierOrgProfile;
+    isDedicatedCorridor: boolean;
+    carrierCommissionToman: number;
+    carrierDiscountPercent: number;
+    carrierFuelMultiplier: number;
+    effectiveCarrierBaseToman: number;
+  } => {
+    const carrier = carrierOrganizations.find((c) => c.id === carrierId) || carrierOrganizations[0];
+    const pkgToUse = environment === 'staging' && activeStagingPackage ? activeStagingPackage : activeProductionPackage;
+
+    // Carrier specific route matrix override if exists
+    const matrixToUse = carrier.routeMatrix && carrier.routeMatrix.length > 0 ? carrier.routeMatrix : routeMatrix;
+    // Carrier fuel multiplier
+    const fuelMultiplierToUse = carrier.fuelIndexMultiplier ?? fuelIndexMultiplier;
+    // Carrier contracts
+    const contractsToUse = carrier.contracts && carrier.contracts.length > 0 ? carrier.contracts : contracts;
+
+    const baseResult = calculateShipmentPrice(
+      ctx,
+      pkgToUse,
+      pricingPolicy,
+      matrixToUse,
+      contractsToUse,
+      fuelMultiplierToUse
+    );
+
+    // Check if carrier operates a dedicated corridor for this route
+    const isDedicatedCorridor = (carrier.dedicatedCorridors || []).some(
+      (corridor) =>
+        (corridor.origin === ctx.originCity && corridor.dest === ctx.destCity) ||
+        (corridor.origin === ctx.destCity && corridor.dest === ctx.originCity)
+    );
+
+    // Pricing rules calculation with carrier's specific multiplier & corridor efficiency
+    const carrierMultiplier = carrier.priceMultiplier ?? 1.0;
+    const corridorDiscountPercent = isDedicatedCorridor ? 4.0 : 0;
+    const carrierDiscountPercent = (carrier.discountPercent ?? 8.0) + corridorDiscountPercent;
+
+    const rawToman = baseResult.finalPriceToman > 0 ? baseResult.finalPriceToman : 28500000;
+    const adjustedCarrierBaseToman = Math.round(rawToman * carrierMultiplier);
+    const carrierCommissionPercent = carrier.carrierCommissionPercent ?? 7.5;
+    const carrierCommissionToman = Math.round(adjustedCarrierBaseToman * (carrierCommissionPercent / 100));
+
+    return {
+      ...baseResult,
+      finalPriceToman: adjustedCarrierBaseToman,
+      carrier,
+      isDedicatedCorridor,
+      carrierCommissionToman,
+      carrierDiscountPercent,
+      carrierFuelMultiplier: fuelMultiplierToUse,
+      effectiveCarrierBaseToman: adjustedCarrierBaseToman,
+    };
   };
 
   const updateRouteMatrixCell = (updatedCell: RouteMatrixCell) => {
@@ -1479,6 +1576,10 @@ export const PricingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         activeProductionPackage,
         activeStagingPackage,
         calculatePrice,
+        calculatePriceForCarrier,
+        addCarrierOrganization,
+        updateCarrierOrganization,
+        deleteCarrierOrganization,
         updateRouteMatrixCell,
         updatePricingPolicyGuardrails,
         createStrategyPackage,

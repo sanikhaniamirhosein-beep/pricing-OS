@@ -34,7 +34,20 @@ import {
   FileSpreadsheet,
   Lock,
   FileBadge2,
+  Sparkles,
+  Brain,
+  Bot,
+  Zap,
+  RefreshCw,
+  Sliders,
+  Wand2,
+  TrendingUp,
+  LineChart,
+  Target,
+  Send,
+  SlidersHorizontal,
 } from 'lucide-react';
+import Markdown from 'react-markdown';
 import { motion, AnimatePresence } from 'motion/react';
 import { usePricing } from '../../store/PricingContext';
 import { CarrierDriver, CarrierTeamMember, DriverIdentityDocuments, VehicleFleetDocuments, CompanyLegalDossier, CompanyUploadedDoc } from '../../types/pricing';
@@ -476,21 +489,21 @@ export const TransportOrgManagementModal: React.FC = () => {
         className="relative w-full max-w-5xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh] my-auto animate-in fade-in zoom-in-95 duration-150"
       >
         {/* Modal Top Header */}
-        <div className="px-6 py-4.5 bg-slate-900 text-white flex items-center justify-between shrink-0 border-b border-slate-800">
+        <div className="px-6 py-4.5 bg-gradient-to-r from-amber-50/80 via-slate-50 to-white text-slate-900 flex items-center justify-between shrink-0 border-b border-slate-200 shadow-2xs">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-400/40 text-amber-400 flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-2xl bg-amber-100 border border-amber-300 text-amber-800 flex items-center justify-center font-bold shadow-2xs">
               <Building2 className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-lg font-bold text-slate-100 font-title">
+                <h2 className="text-base sm:text-lg font-black text-slate-950 font-title">
                   پورتال مدیریت سازمان حمل‌ونقل و پرونده ناوگان
                 </h2>
-                <span className="px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 font-mono text-[11px] font-bold border border-amber-400/30">
+                <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 font-mono text-[11px] font-bold border border-amber-300 shadow-2xs">
                   {currentCarrierOrg?.code || 'CARRIER-ORG'}
                 </span>
               </div>
-              <p className="text-xs text-slate-300 font-medium mt-0.5">
+              <p className="text-xs text-slate-600 font-medium mt-0.5">
                 مدیریت هویت شرکت، کاربران سازمانی، صدور مجوزها و ثبت جامع مدارک رانندگان و ناوگان
               </p>
             </div>
@@ -498,7 +511,7 @@ export const TransportOrgManagementModal: React.FC = () => {
           <button
             type="button"
             onClick={() => setIsTransportOrgModalOpen(false)}
-            className="p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+            className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-200/70 rounded-xl transition-colors cursor-pointer"
             title="بستن پنجره"
           >
             <X className="w-5 h-5" />
@@ -818,46 +831,46 @@ export const TransportOrgManagementModal: React.FC = () => {
                   )}
 
                   {/* Hero Organization Identity Card */}
-                  <div className="bg-gradient-to-br from-slate-900 via-slate-850 to-slate-900 text-white p-6 rounded-3xl border border-slate-700 shadow-md">
+                  <div className="bg-gradient-to-br from-amber-50/70 via-white to-slate-50 text-slate-900 p-6 rounded-3xl border border-amber-200/90 shadow-xs">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                       <div className="flex items-start gap-4">
-                        <div className="w-14 h-14 rounded-2xl bg-amber-500 text-slate-950 flex items-center justify-center font-black text-xl shadow-md shrink-0 ring-4 ring-amber-500/20">
+                        <div className="w-14 h-14 rounded-2xl bg-amber-500 text-slate-950 flex items-center justify-center font-black text-xl shadow-xs shrink-0 ring-4 ring-amber-500/20">
                           <Truck className="w-8 h-8" />
                         </div>
                         <div>
                           <div className="flex flex-wrap items-center gap-2.5">
-                            <h1 className="text-lg sm:text-xl font-black tracking-tight text-white font-title">
+                            <h1 className="text-lg sm:text-xl font-black tracking-tight text-slate-950 font-title">
                               {currentCarrierOrg?.nameFa || 'شرکت حمل و نقل سراسری'}
                             </h1>
-                            <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[11px] font-bold">
+                            <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 text-[11px] font-bold shadow-2xs">
                               پروانه معتبر راهداری
                             </span>
                           </div>
-                          <p className="text-xs text-amber-200/90 font-bold mt-1 font-mono tracking-wide">
+                          <p className="text-xs text-slate-600 font-bold mt-1 font-mono tracking-wide">
                             {currentCarrierOrg?.nameEn}
                           </p>
-                          <div className="flex flex-wrap items-center gap-3 text-xs text-slate-100 mt-3 font-medium">
-                            <span className="flex items-center gap-1.5 bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700">
-                              <MapPin className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                              <span className="text-slate-100 font-semibold">{currentCarrierOrg?.province} - {currentCarrierOrg?.city}</span>
+                          <div className="flex flex-wrap items-center gap-3 text-xs text-slate-800 mt-3 font-medium">
+                            <span className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-2xs">
+                              <MapPin className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                              <span className="text-slate-800 font-semibold">{currentCarrierOrg?.province} - {currentCarrierOrg?.city}</span>
                             </span>
-                            <span className="flex items-center gap-1.5 bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700">
-                              <Phone className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                              <span dir="ltr" className="text-slate-100 font-mono font-bold">{currentCarrierOrg?.phone}</span>
+                            <span className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-2xs">
+                              <Phone className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                              <span dir="ltr" className="text-slate-800 font-mono font-bold">{currentCarrierOrg?.phone}</span>
                             </span>
-                            <span className="flex items-center gap-1.5 bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-700">
-                              <Mail className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                              <span className="text-slate-100 font-medium">{currentCarrierOrg?.email}</span>
+                            <span className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-2xs">
+                              <Mail className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                              <span className="text-slate-800 font-medium">{currentCarrierOrg?.email}</span>
                             </span>
                           </div>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-3 self-end md:self-center">
-                        <div className="text-left bg-slate-800/90 px-4 py-2.5 rounded-2xl border border-slate-600 shadow-sm">
-                          <span className="text-[11px] text-slate-200 font-semibold block mb-0.5">امتیاز کیفیت ناوگان</span>
-                          <span className="text-base font-black text-amber-300 flex items-center gap-1">
-                            ★ {currentCarrierOrg?.rating || 4.9} <span className="text-xs font-bold text-slate-300">/ ۵.۰</span>
+                        <div className="text-left bg-white px-4 py-2.5 rounded-2xl border border-amber-300 shadow-2xs">
+                          <span className="text-[11px] text-slate-600 font-semibold block mb-0.5">امتیاز کیفیت ناوگان</span>
+                          <span className="text-base font-black text-amber-700 flex items-center gap-1">
+                            ★ {currentCarrierOrg?.rating || 4.9} <span className="text-xs font-bold text-slate-500">/ ۵.۰</span>
                           </span>
                         </div>
                       </div>
@@ -867,7 +880,7 @@ export const TransportOrgManagementModal: React.FC = () => {
                   {/* Detailed Specs Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {/* Legal & Regulatory */}
-                    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                    <div className="bg-white p-4.5 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
                       <div className="flex items-center gap-2 text-slate-900 font-bold text-xs border-b border-slate-200 pb-2">
                         <ShieldCheck className="w-4 h-4 text-emerald-600" />
                         <span>مجوزها و هویت ثبتی</span>
@@ -875,11 +888,11 @@ export const TransportOrgManagementModal: React.FC = () => {
                       <div className="space-y-2 text-xs">
                         <div className="flex justify-between">
                           <span className="text-slate-500">شماره ثبت:</span>
-                          <span className="font-mono font-bold text-slate-800">{currentCarrierOrg?.registrationNo}</span>
+                          <span className="font-mono font-bold text-slate-900">{currentCarrierOrg?.registrationNo}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-slate-500">شناسه ملی:</span>
-                          <span className="font-mono font-bold text-slate-800">{currentCarrierOrg?.nationalId}</span>
+                          <span className="font-mono font-bold text-slate-900">{currentCarrierOrg?.nationalId}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-slate-500">پروانه راهداری:</span>
@@ -887,13 +900,13 @@ export const TransportOrgManagementModal: React.FC = () => {
                         </div>
                         <div className="flex justify-between">
                           <span className="text-slate-500">مدیرعامل:</span>
-                          <span className="font-bold text-slate-800">{currentCarrierOrg?.managerName}</span>
+                          <span className="font-bold text-slate-900">{currentCarrierOrg?.managerName}</span>
                         </div>
                       </div>
                     </div>
 
                     {/* Fleet Capacity & Operational Metrics */}
-                    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                    <div className="bg-white p-4.5 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
                       <div className="flex items-center gap-2 text-slate-900 font-bold text-xs border-b border-slate-200 pb-2">
                         <Truck className="w-4 h-4 text-sky-600" />
                         <span>ظرفیت ناوگان و رانندگان</span>
@@ -901,7 +914,7 @@ export const TransportOrgManagementModal: React.FC = () => {
                       <div className="space-y-2 text-xs">
                         <div className="flex justify-between">
                           <span className="text-slate-500">کل ناوگان تحت پوشش:</span>
-                          <span className="font-mono font-bold text-slate-800">
+                          <span className="font-mono font-bold text-slate-900">
                             {currentCarrierOrg?.fleetCount?.toLocaleString('fa-IR')} دستگاه
                           </span>
                         </div>
@@ -913,17 +926,17 @@ export const TransportOrgManagementModal: React.FC = () => {
                         </div>
                         <div className="flex justify-between">
                           <span className="text-slate-500">پرسنل و کاربران سیستم:</span>
-                          <span className="font-mono font-bold text-slate-800">{carrierUsers.length} کاربر</span>
+                          <span className="font-mono font-bold text-slate-900">{carrierUsers.length} کاربر</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-slate-500">پوشش کشوری:</span>
-                          <span className="font-bold text-slate-800">۳۱ استان کشور</span>
+                          <span className="font-bold text-slate-900">۳۱ استان کشور</span>
                         </div>
                       </div>
                     </div>
 
                     {/* Financial & Banking Account */}
-                    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                    <div className="bg-white p-4.5 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
                       <div className="flex items-center gap-2 text-slate-900 font-bold text-xs border-b border-slate-200 pb-2">
                         <CreditCard className="w-4 h-4 text-amber-600" />
                         <span>حساب بانکی تسویه بارنامه</span>
@@ -931,15 +944,15 @@ export const TransportOrgManagementModal: React.FC = () => {
                       <div className="space-y-2 text-xs">
                         <div className="flex justify-between">
                           <span className="text-slate-500">بانک عامل:</span>
-                          <span className="font-bold text-slate-800">{currentCarrierOrg?.bankAccount?.bank}</span>
+                          <span className="font-bold text-slate-900">{currentCarrierOrg?.bankAccount?.bank}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-slate-500">شماره حساب:</span>
-                          <span className="font-mono font-bold text-slate-800">{currentCarrierOrg?.bankAccount?.accountNo}</span>
+                          <span className="font-mono font-bold text-slate-900">{currentCarrierOrg?.bankAccount?.accountNo}</span>
                         </div>
                         <div className="space-y-1">
                           <span className="text-slate-500 block text-[11px]">شماره شبا:</span>
-                          <span className="font-mono font-bold text-[11px] text-slate-800 block truncate" dir="ltr">
+                          <span className="font-mono font-bold text-[11px] text-slate-900 block truncate" dir="ltr">
                             {currentCarrierOrg?.bankAccount?.shaba}
                           </span>
                         </div>
@@ -1272,22 +1285,24 @@ export const TransportOrgManagementModal: React.FC = () => {
       {/* ======================================================== */}
       <AnimatePresence>
         {isAddUserModalOpen && (
-          <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
+          <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               className="w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden"
             >
-              <div className="px-5 py-4 bg-slate-900 text-white flex items-center justify-between">
+              <div className="px-5 py-4 bg-gradient-to-r from-amber-50/80 via-slate-50 to-white text-slate-900 flex items-center justify-between border-b border-slate-200">
                 <div className="flex items-center gap-2.5">
-                  <User className="w-5 h-5 text-amber-400" />
-                  <h3 className="font-bold text-sm">افزودن کاربر جدید به سازمان حمل‌ونقل</h3>
+                  <div className="w-9 h-9 rounded-xl bg-amber-100 border border-amber-300 text-amber-800 flex items-center justify-center font-bold">
+                    <User className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-black text-sm text-slate-900 font-title">افزودن کاربر جدید به سازمان حمل‌ونقل</h3>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsAddUserModalOpen(false)}
-                  className="p-1.5 text-slate-400 hover:text-white rounded-lg cursor-pointer"
+                  className="p-1.5 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg cursor-pointer transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -1302,7 +1317,7 @@ export const TransportOrgManagementModal: React.FC = () => {
                     placeholder="مثال: علیرضا حسینی"
                     value={userForm.fullName}
                     onChange={(e) => setUserForm({ ...userForm, fullName: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none"
+                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none text-slate-900 font-bold"
                   />
                 </div>
 
@@ -1314,7 +1329,7 @@ export const TransportOrgManagementModal: React.FC = () => {
                       placeholder="۱۰ رقم کد ملی"
                       value={userForm.nationalId}
                       onChange={(e) => setUserForm({ ...userForm, nationalId: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono"
+                      className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none font-mono text-slate-900"
                     />
                   </div>
                   <div className="space-y-1">
@@ -1324,7 +1339,7 @@ export const TransportOrgManagementModal: React.FC = () => {
                       placeholder="0912xxxxxxx"
                       value={userForm.phone}
                       onChange={(e) => setUserForm({ ...userForm, phone: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono"
+                      className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none font-mono text-slate-900"
                       dir="ltr"
                     />
                   </div>
@@ -1338,7 +1353,7 @@ export const TransportOrgManagementModal: React.FC = () => {
                     placeholder="user@domain.ir"
                     value={userForm.email}
                     onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono"
+                    className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none font-mono text-slate-900"
                     dir="ltr"
                   />
                 </div>
@@ -1351,7 +1366,7 @@ export const TransportOrgManagementModal: React.FC = () => {
                       placeholder="مثال: کارشناس دیسپاچینگ"
                       value={userForm.roleTitle}
                       onChange={(e) => setUserForm({ ...userForm, roleTitle: e.target.value })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none"
+                      className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none text-slate-900"
                     />
                   </div>
                   <div className="space-y-1">
@@ -1359,7 +1374,7 @@ export const TransportOrgManagementModal: React.FC = () => {
                     <select
                       value={userForm.accessLevel}
                       onChange={(e) => setUserForm({ ...userForm, accessLevel: e.target.value as any })}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none"
+                      className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none text-slate-900 font-bold"
                     >
                       <option value="operational">دسترسی عملیاتی و دیسپاچینگ</option>
                       <option value="pricing_only">دسترسی مالی و قیمت‌گذاری</option>
@@ -1373,13 +1388,13 @@ export const TransportOrgManagementModal: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setIsAddUserModalOpen(false)}
-                    className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl"
+                    className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors cursor-pointer"
                   >
                     انصراف
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl shadow-xs"
+                    className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl shadow-xs transition-colors cursor-pointer"
                   >
                     ثبت و ایجاد کاربر
                   </button>
@@ -1395,7 +1410,7 @@ export const TransportOrgManagementModal: React.FC = () => {
       {/* ======================================================== */}
       <AnimatePresence>
         {isAddDriverModalOpen && (
-          <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs overflow-y-auto">
+          <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -1403,14 +1418,14 @@ export const TransportOrgManagementModal: React.FC = () => {
               className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh] my-auto"
             >
               {/* Header */}
-              <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between shrink-0 border-b border-slate-800">
+              <div className="px-6 py-4 bg-gradient-to-r from-emerald-50/80 via-slate-50 to-white text-slate-900 flex items-center justify-between shrink-0 border-b border-slate-200">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+                  <div className="w-10 h-10 rounded-2xl bg-emerald-100 border border-emerald-300 text-emerald-800 flex items-center justify-center font-bold shadow-2xs">
                     <Truck className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-sm text-slate-100">ثبت جامع مدارک رانندگان و ناوگان حمل‌ونقل</h3>
-                    <p className="text-[11px] text-slate-300 font-medium">
+                    <h3 className="font-black text-sm text-slate-950 font-title">ثبت جامع مدارک رانندگان و ناوگان حمل‌ونقل</h3>
+                    <p className="text-[11px] text-slate-600 font-medium">
                       مطابق با ضوابط سازمان راهداری جهت صدور برخط بارنامه و احراز صلاحیت
                     </p>
                   </div>
@@ -1418,7 +1433,7 @@ export const TransportOrgManagementModal: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsAddDriverModalOpen(false)}
-                  className="p-1.5 text-slate-300 hover:text-white rounded-xl cursor-pointer"
+                  className="p-1.5 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-xl cursor-pointer transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -2102,35 +2117,35 @@ export const TransportOrgManagementModal: React.FC = () => {
       {/* ======================================================== */}
       <AnimatePresence>
         {selectedDriverDossier && (
-          <div className="fixed inset-0 z-70 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs overflow-y-auto">
+          <div className="fixed inset-0 z-70 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               className="w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden"
             >
-              <div className="px-6 py-4.5 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
+              <div className="px-6 py-4.5 bg-gradient-to-r from-amber-50/80 via-slate-50 to-white text-slate-900 flex items-center justify-between border-b border-slate-200">
                 <div className="flex items-center gap-3">
                   <img
                     src={selectedDriverDossier.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80'}
                     alt={selectedDriverDossier.fullName}
-                    className="w-12 h-12 rounded-2xl object-cover border border-slate-700"
+                    className="w-12 h-12 rounded-2xl object-cover border border-slate-300 shadow-2xs"
                     referrerPolicy="no-referrer"
                   />
                   <div>
-                    <h3 className="font-bold text-sm text-slate-100">
+                    <h3 className="font-black text-sm text-slate-950 font-title">
                       پرونده الکترونیکی مدارک: {selectedDriverDossier.fullName}
                     </h3>
-                    <p className="text-xs text-slate-300 font-medium mt-0.5">
-                      کدملی: {selectedDriverDossier.identityDocs.nationalIdNumber} • هوشمند:{' '}
-                      {selectedDriverDossier.identityDocs.smartCardNumber}
+                    <p className="text-xs text-slate-600 font-medium mt-0.5">
+                      کدملی: <span className="font-mono font-bold text-slate-900">{selectedDriverDossier.identityDocs.nationalIdNumber}</span> • هوشمند:{' '}
+                      <span className="font-mono font-bold text-emerald-700">{selectedDriverDossier.identityDocs.smartCardNumber}</span>
                     </p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setSelectedDriverDossier(null)}
-                  className="p-1.5 text-slate-300 hover:text-white rounded-lg cursor-pointer"
+                  className="p-1.5 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg cursor-pointer transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -2138,14 +2153,14 @@ export const TransportOrgManagementModal: React.FC = () => {
 
               <div className="p-6 space-y-5 text-xs max-h-[75vh] overflow-y-auto">
                 {/* Driver Identity Summary */}
-                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
-                  <span className="font-bold text-slate-900 block text-xs border-b border-slate-200 pb-2">
+                <div className="bg-white p-4.5 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
+                  <span className="font-black text-slate-900 block text-xs border-b border-slate-200 pb-2">
                     مدارک هویت و صلاحیت فردی
                   </span>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                     <div>
                       <span className="text-slate-500 block text-[10px]">کارت ملی و شناسنامه:</span>
-                      <span className="font-bold text-slate-800">
+                      <span className="font-bold text-slate-900">
                         {selectedDriverDossier.identityDocs.nationalIdNumber} (شماره ش: {selectedDriverDossier.identityDocs.birthCertificateNo})
                       </span>
                     </div>
@@ -2157,7 +2172,7 @@ export const TransportOrgManagementModal: React.FC = () => {
                     </div>
                     <div>
                       <span className="text-slate-500 block text-[10px]">گواهینامه رانندگی:</span>
-                      <span className="font-bold text-slate-800">
+                      <span className="font-bold text-slate-900">
                         {selectedDriverDossier.identityDocs.licenseType === 'grade1' ? 'پایه یک' : 'پایه دو'} (ش: {selectedDriverDossier.identityDocs.licenseNumber})
                       </span>
                     </div>
@@ -2169,7 +2184,7 @@ export const TransportOrgManagementModal: React.FC = () => {
                     </div>
                     <div>
                       <span className="text-slate-500 block text-[10px]">گواهی عدم سوءپیشینه:</span>
-                      <span className="font-bold text-slate-800">
+                      <span className="font-bold text-slate-900">
                         {selectedDriverDossier.identityDocs.noCriminalRecordNumber || 'ثبت شده'}
                       </span>
                     </div>
@@ -2181,18 +2196,18 @@ export const TransportOrgManagementModal: React.FC = () => {
                 </div>
 
                 {/* Fleet Summary */}
-                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
-                  <span className="font-bold text-slate-900 block text-xs border-b border-slate-200 pb-2">
+                <div className="bg-white p-4.5 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
+                  <span className="font-black text-slate-900 block text-xs border-b border-slate-200 pb-2">
                     مدارک فنی و قانونی وسیله نقلیه (ناوگان)
                   </span>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                     <div>
                       <span className="text-slate-500 block text-[10px]">نوع خودرو:</span>
-                      <span className="font-bold text-slate-800">{selectedDriverDossier.vehicleDocs.vehicleType}</span>
+                      <span className="font-bold text-slate-900">{selectedDriverDossier.vehicleDocs.vehicleType}</span>
                     </div>
                     <div>
                       <span className="text-slate-500 block text-[10px]">پلاک انتظامی:</span>
-                      <span className="font-mono font-bold text-slate-900 bg-white px-2 py-0.5 rounded border border-slate-300">
+                      <span className="font-mono font-bold text-slate-900 bg-slate-50 px-2 py-0.5 rounded border border-slate-300">
                         {selectedDriverDossier.vehicleDocs.plateNumber}
                       </span>
                     </div>
@@ -2204,19 +2219,19 @@ export const TransportOrgManagementModal: React.FC = () => {
                     </div>
                     <div>
                       <span className="text-slate-500 block text-[10px]">معاینه فنی معتبر:</span>
-                      <span className="font-bold text-slate-800">
+                      <span className="font-bold text-slate-900">
                         تا {selectedDriverDossier.vehicleDocs.technicalInspectionExpiryDate} ({selectedDriverDossier.vehicleDocs.technicalInspectionCenterName})
                       </span>
                     </div>
                     <div>
                       <span className="text-slate-500 block text-[10px]">بیمه شخص ثالث:</span>
-                      <span className="font-bold text-slate-800">
+                      <span className="font-bold text-slate-900">
                         {selectedDriverDossier.vehicleDocs.thirdPartyInsuranceProvider} (انقضا: {selectedDriverDossier.vehicleDocs.thirdPartyExpiryDate})
                       </span>
                     </div>
                     <div>
                       <span className="text-slate-500 block text-[10px]">مجوز مخزن (ADR / CNG):</span>
-                      <span className="font-bold text-slate-800">
+                      <span className="font-bold text-slate-900">
                         {selectedDriverDossier.vehicleDocs.hasTankInspectionPermit
                           ? `دارد (${selectedDriverDossier.vehicleDocs.tankInspectionPermitNo})`
                           : 'مشمول نمی‌باشد'}
@@ -2226,11 +2241,11 @@ export const TransportOrgManagementModal: React.FC = () => {
                 </div>
               </div>
 
-              <div className="px-6 py-3 bg-slate-100 border-t border-slate-200 flex justify-end">
+              <div className="px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex justify-end">
                 <button
                   type="button"
                   onClick={() => setSelectedDriverDossier(null)}
-                  className="px-4 py-2 bg-slate-900 text-white font-bold rounded-xl text-xs cursor-pointer"
+                  className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs transition-colors cursor-pointer"
                 >
                   بستن
                 </button>

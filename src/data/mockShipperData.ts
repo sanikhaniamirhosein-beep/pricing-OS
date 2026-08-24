@@ -21,6 +21,17 @@ export interface ShipperActiveLoad {
   totalCostRials: number;
   insuranceValuationRials: number;
   podSigned?: boolean;
+  carrierId?: string;
+  carrierName?: string;
+  carrierLogo?: string;
+  carrierRating?: number;
+  carrierPhone?: string;
+  carrierAddress?: string;
+  carrierLicenseNo?: string;
+  carrierNationalId?: string;
+  carrierEconomicCode?: string;
+  carrierRegistrationNo?: string;
+  carrierSelectionMode?: 'marketplace' | 'managed';
 }
 
 export interface ShipperInvoice {

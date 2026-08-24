@@ -16,6 +16,16 @@ import {
   Send,
   Download,
   Check,
+  Eye,
+  FileCheck,
+  Building2,
+  Star,
+  Scale,
+  BadgeCheck,
+  AlertTriangle,
+  Lock,
+  Users,
+  Warehouse,
 } from 'lucide-react';
 import { usePricing } from '../../store/PricingContext';
 import { INITIAL_SAVED_LOCATIONS, INITIAL_SAVED_COMMODITIES, ShipperActiveLoad } from '../../data/mockShipperData';
@@ -23,7 +33,13 @@ import { getShipperRoleDetail } from '../../data/shipperRolesConfig';
 import { checkShipperProfileCompleteness } from '../../types/shipperLegal';
 import { CityPickerDropdown } from '../common/menus/CityPickerDropdown';
 import { CommodityPickerDropdown } from '../common/menus/CommodityPickerDropdown';
-import { AlertTriangle, Lock, Users, Warehouse } from 'lucide-react';
+import { ShipmentDocumentModal } from './ShipmentDocumentModal';
+import { generateFullShipmentDocumentPackage } from '../../utils/shipmentDocumentGenerator';
+import { FullShipmentDocumentPackage } from '../../types/shipmentDocuments';
+import {
+  CarrierSelectionMarketplace,
+  CarrierQuoteOption,
+} from './CarrierSelectionMarketplace';
 
 interface ShipperQuoteBookingViewProps {
   onOrderCreated?: (newLoad: ShipperActiveLoad) => void;
@@ -36,6 +52,8 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
 }) => {
   const {
     calculatePrice,
+    calculatePriceForCarrier,
+    carrierOrganizations,
     userName,
     userOrgName,
     shipperUserRole,
@@ -83,6 +101,59 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
   const [urgencyLevel, setUrgencyLevel] = useState<'standard' | 'express'>('standard');
   const [fleetFilterCategory, setFleetFilterCategory] = useState<'all' | 'heavy' | 'medium' | 'specialized'>('all');
 
+  // Carrier Selection & Allocation Model State
+  const [carrierSelectionMode, setCarrierSelectionMode] = useState<'marketplace' | 'managed'>('marketplace');
+  const [selectedCarrier, setSelectedCarrier] = useState<CarrierQuoteOption | null>(null);
+
+  // Fallback initial carrier from registered carrierOrganizations
+  const firstCarrier = carrierOrganizations[0];
+  const defaultCarrierOption: CarrierQuoteOption = {
+    id: firstCarrier?.id || 'org-carrier-pg-freight',
+    code: firstCarrier?.code || 'CAR-PGF-01',
+    name: firstCarrier?.nameFa || 'شرکت حمل و نقل سراسری خلیج فارس',
+    shortName: firstCarrier?.shortName || 'خلیج فارس',
+    logoText: firstCarrier?.logoText || 'خلیج',
+    logoBg: firstCarrier?.logoBg || 'bg-indigo-600',
+    logoColor: firstCarrier?.logoColor || 'text-white',
+    city: firstCarrier?.city || 'تهران',
+    licenseNo: firstCarrier?.licenseNumber || 'LIC-RMTO-1405-9921',
+    nationalId: firstCarrier?.nationalId || '10101345678',
+    economicCode: firstCarrier?.economicCode || '411145678912',
+    registrationNumber: firstCarrier?.registrationNo || '88921',
+    phone: firstCarrier?.phone || '۰۲۱-۶۶۵۵۴۴۳۳',
+    address: firstCarrier?.address || 'تهران، پایانه مرکزی',
+    managerName: firstCarrier?.managerName || 'مدیر لجستیک',
+    email: firstCarrier?.email || 'info@carrier.ir',
+    rating: firstCarrier?.rating || 4.92,
+    ratingCount: firstCarrier?.ratingCount || 1840,
+    completedTrips: firstCarrier?.completedTrips || 28400,
+    fleetCount: firstCarrier?.fleetCount || 1450,
+    availableDriversNearby: 18,
+    dispatchTimeMinutes: 25,
+    estimatedTransitHours: 12,
+    isSmartRecommended: true,
+    isCheapest: false,
+    isFastest: false,
+    isTopRated: false,
+    isDedicatedCorridor: false,
+    priceMultiplier: firstCarrier?.priceMultiplier || 1.0,
+    discountPercent: firstCarrier?.discountPercent || 8.5,
+    strengths: firstCarrier?.strengths || ['پوشش بیمه ۱۰۰ میلیاردی', 'ردیابی برخط ناوگان'],
+    insuranceCeilingToman: firstCarrier?.insuranceCeilingToman || 100000000000,
+    badgeTitle: 'پیشنهاد هوشمند سیستم',
+    badgeType: 'smart',
+    carrierCommissionPercent: firstCarrier?.carrierCommissionPercent || 7.5,
+    carrierCommissionToman: 0,
+    fuelIndexMultiplier: 1.0,
+    calculatedBaseRials: 0,
+    calculatedBaseToman: 0,
+    calculatedTaxRials: 0,
+    calculatedDiscountRials: 0,
+    calculatedTotalPayableRials: 0,
+    calculatedTotalPayableToman: 0,
+    rawCarrierProfile: firstCarrier,
+  };
+
   // Loading/Unloading service addon
   const [includeLoadingService, setIncludeLoadingService] = useState(true);
   const [includeFullInsurance, setIncludeFullInsurance] = useState(true);
@@ -90,6 +161,55 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
   // Booking Confirmation State
   const [bookedOrder, setBookedOrder] = useState<ShipperActiveLoad | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Proforma / Shipment Document Modal State
+  const [isDocModalOpen, setIsDocModalOpen] = useState(false);
+  const [docModalPackage, setDocModalPackage] = useState<FullShipmentDocumentPackage | null>(null);
+
+  // Effective Carrier based on active mode
+  const effectiveCarrier: CarrierQuoteOption = selectedCarrier || defaultCarrierOption;
+
+  const handleOpenProformaInvoice = (targetLoad?: ShipperActiveLoad | null) => {
+    const loadToUse: ShipperActiveLoad = targetLoad || {
+      id: `QUO-${Math.floor(10000 + Math.random() * 90000)}`,
+      trackingCode: `TRK-QUO-${Math.floor(100000 + Math.random() * 900000)}`,
+      billOfLadingNo: `PRF-1403-${Math.floor(1000 + Math.random() * 9000)}`,
+      originCity,
+      originHub: originHub || 'انبار مرکزی مبدأ',
+      destCity,
+      destHub: destHub || 'انبار مقصد تحویل',
+      cargoType: cargoTitle || cargoType,
+      weightTons,
+      truckType: selectedTruck,
+      driverName: 'در انتظار تخصیص راننده پس از تایید پیش‌فاکتور',
+      driverPhone: '۰۲۱-۸۸۹۹۰۰۱۱',
+      truckPlate: 'ناوگان سراسری معتبر',
+      status: 'pending_driver',
+      statusLabelFa: 'پیش‌فاکتور آماده تایید',
+      departureTime: '۱۴۰۳/۰۶/۰۲ - توافقی',
+      estimatedArrival: '۱۴۰۳/۰۶/۰۲ - توافقی',
+      progressPercent: 0,
+      currentLocation: `مبدأ: ${originCity}`,
+      totalCostRials: finalPayableRials,
+      insuranceValuationRials: cargoValueToman * 10,
+      podSigned: false,
+      carrierId: effectiveCarrier.id,
+      carrierName: effectiveCarrier.name,
+      carrierLogo: effectiveCarrier.logoText,
+      carrierRating: effectiveCarrier.rating,
+      carrierPhone: effectiveCarrier.phone,
+      carrierAddress: effectiveCarrier.address,
+      carrierLicenseNo: effectiveCarrier.licenseNo,
+      carrierNationalId: effectiveCarrier.nationalId,
+      carrierEconomicCode: effectiveCarrier.economicCode,
+      carrierRegistrationNo: effectiveCarrier.registrationNumber,
+      carrierSelectionMode: carrierSelectionMode,
+    };
+
+    const pkg = generateFullShipmentDocumentPackage(loadToUse, currentShipperOrg);
+    setDocModalPackage(pkg);
+    setIsDocModalOpen(true);
+  };
 
   // Comprehensive Fleet Database
   const AVAILABLE_FLEET_LIST = [
@@ -471,11 +591,12 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
     slaSpeed: urgencyLevel,
   });
 
-  const basePriceRials = (engineResult?.finalPriceToman ? engineResult.finalPriceToman * 10 : 0) || (weightTons * 6500000 + 45000000);
+  const rawBaseFreightRials = (engineResult?.finalPriceToman ? engineResult.finalPriceToman * 10 : 0) || (weightTons * 6500000 + 45000000);
+  const basePriceRials = Math.round(rawBaseFreightRials * (effectiveCarrier?.priceMultiplier || 1.0));
   const insuranceRials = includeFullInsurance ? Math.round((cargoValueToman * 10) * 0.0015) : 15000000;
   const loadingFeeRials = includeLoadingService ? 18000000 : 0;
   const taxAndRoadTollRials = Math.round((basePriceRials + insuranceRials + loadingFeeRials) * 0.09);
-  const tierDiscountRials = Math.round(basePriceRials * 0.085); // 8.5% Gold Tier
+  const tierDiscountRials = Math.round(basePriceRials * ((effectiveCarrier?.discountPercent || 8.5) / 100));
   const finalPayableRials = basePriceRials + insuranceRials + loadingFeeRials + taxAndRoadTollRials - tierDiscountRials;
   const finalPayableToman = Math.round(finalPayableRials / 10);
 
@@ -548,6 +669,17 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
         totalCostRials: finalPayableRials,
         insuranceValuationRials: cargoValueToman * 10,
         podSigned: false,
+        carrierId: effectiveCarrier.id,
+        carrierName: effectiveCarrier.name,
+        carrierLogo: effectiveCarrier.logoText,
+        carrierRating: effectiveCarrier.rating,
+        carrierPhone: effectiveCarrier.phone,
+        carrierAddress: effectiveCarrier.address,
+        carrierLicenseNo: effectiveCarrier.licenseNo,
+        carrierNationalId: effectiveCarrier.nationalId,
+        carrierEconomicCode: effectiveCarrier.economicCode,
+        carrierRegistrationNo: effectiveCarrier.registrationNumber,
+        carrierSelectionMode: carrierSelectionMode,
       };
 
       setBookedOrder(newLoad);
@@ -609,7 +741,16 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                type="button"
+                id="btn-booked-view-proforma"
+                onClick={() => handleOpenProformaInvoice(bookedOrder)}
+                className="px-3 py-1.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-950 rounded-xl text-xs font-bold border border-emerald-300 flex items-center gap-1.5 cursor-pointer transition-colors"
+              >
+                <FileText className="w-3.5 h-3.5 text-emerald-800" />
+                <span>مشاهده و چاپ اسناد بارنامه</span>
+              </button>
               <button
                 type="button"
                 onClick={() => setBookedOrder(null)}
@@ -630,7 +771,7 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-white/80 p-3.5 rounded-xl text-xs border border-emerald-200 text-emerald-950">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 bg-white/80 p-3.5 rounded-xl text-xs border border-emerald-200 text-emerald-950">
             <div>
               <span className="text-emerald-700 block text-[11px]">مبدأ و مقصد:</span>
               <strong className="font-bold">{bookedOrder.originCity} ➔ {bookedOrder.destCity}</strong>
@@ -640,13 +781,24 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
               <strong className="font-bold font-mono">{bookedOrder.truckType}</strong>
             </div>
             <div>
+              <span className="text-emerald-700 block text-[11px]">شرکت باربری منتخب:</span>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="font-bold text-slate-900 truncate">{bookedOrder.carrierName || 'خلیج فارس'}</span>
+                {bookedOrder.carrierRating && (
+                  <span className="text-[10px] text-amber-700 font-bold flex items-center">
+                    ★ {bookedOrder.carrierRating}
+                  </span>
+                )}
+              </div>
+            </div>
+            <div>
               <span className="text-emerald-700 block text-[11px]">مبلغ نهایی فاکتور:</span>
               <strong className="font-bold font-mono">{(bookedOrder.totalCostRials / 10).toLocaleString('fa-IR')} تومان</strong>
             </div>
             <div>
-              <span className="text-emerald-700 block text-[11px]">وضعیت تسویه:</span>
+              <span className="text-emerald-700 block text-[11px]">مدل تخصیص / تسویه:</span>
               <span className="inline-block px-2 py-0.5 rounded bg-emerald-200 text-emerald-950 font-bold text-[10px]">
-                کسر از اعتبار حساب طلایی
+                {bookedOrder.carrierSelectionMode === 'managed' ? 'تخصیص هوشمند تک‌نرخی' : 'بازارگاه رقابتی'}
               </span>
             </div>
           </div>
@@ -1068,6 +1220,24 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
               </label>
             </div>
           </div>
+
+          {/* 4. انتخاب شرکت حمل‌ونقل و مدل تخصیص (Marketplace vs Managed) */}
+          <CarrierSelectionMarketplace
+            basePriceRials={rawBaseFreightRials}
+            insuranceRials={insuranceRials}
+            loadingFeeRials={loadingFeeRials}
+            selectedCarrierId={effectiveCarrier.id}
+            selectionMode={carrierSelectionMode}
+            onSelectCarrier={(carrier) => setSelectedCarrier(carrier)}
+            onToggleSelectionMode={(mode) => setCarrierSelectionMode(mode)}
+            originCity={originCity}
+            destCity={destCity}
+            weightTons={weightTons}
+            selectedTruck={selectedTruck}
+            cargoType={cargoType}
+            cargoValueToman={cargoValueToman}
+            urgencyLevel={urgencyLevel}
+          />
         </div>
 
         {/* Right Transparent Quote Breakdown: 5 Columns - Deep Navy/Purple Price Card */}
@@ -1096,6 +1266,46 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
               <div className="flex justify-between text-slate-700">
                 <span className="text-slate-400">شرکت صاحب بار:</span>
                 <span className="font-bold text-sky-900">{userOrgName || 'فولاد مبارکه اصفهان'}</span>
+              </div>
+            </div>
+
+            {/* Carrier Summary Box */}
+            <div className="p-3 bg-indigo-50/60 rounded-xl border border-indigo-200/80 text-xs space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] text-indigo-950 font-bold flex items-center gap-1.5">
+                  <Building2 className="w-3.5 h-3.5 text-indigo-600" />
+                  شرکت باربری مجری:
+                </span>
+                <span className="text-[9px] px-2 py-0.5 rounded-full font-bold bg-indigo-100 text-indigo-900 border border-indigo-200">
+                  {carrierSelectionMode === 'managed' ? 'تخصیص هوشمند الگوریتمی' : 'انتخاب از بازارگاه'}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2.5">
+                <div
+                  className={`w-7 h-7 rounded-lg ${effectiveCarrier.logoBg} ${effectiveCarrier.logoColor} flex items-center justify-center font-bold text-[10px] shrink-0`}
+                >
+                  {effectiveCarrier.logoText}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-bold text-slate-900 text-xs truncate">
+                    {effectiveCarrier.name}
+                  </h4>
+                  <div className="flex items-center gap-2 text-[10px] text-slate-500 mt-0.5">
+                    <span className="flex items-center gap-0.5 text-amber-700 font-bold">
+                      <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
+                      {effectiveCarrier.rating}
+                    </span>
+                    <span>•</span>
+                    <span className="text-slate-600 font-mono">
+                      تحویل: ~{effectiveCarrier.estimatedTransitHours} ساعت
+                    </span>
+                    <span>•</span>
+                    <span className="text-emerald-700 font-bold">
+                      {effectiveCarrier.availableDriversNearby} راننده آماده
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -1132,7 +1342,7 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
               </div>
 
               <div className="flex justify-between items-center pt-2 text-emerald-700 font-bold">
-                <span>تخفیف مشتری طلایی (۸.۵٪ Volume Tier):</span>
+                <span>تخفیف همکاری شرکتی ({effectiveCarrier.discountPercent}٪):</span>
                 <span className="font-mono">
                   -{(tierDiscountRials / 10).toLocaleString('fa-IR')} تومان
                 </span>
@@ -1238,16 +1448,27 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
 
               <button
                 type="button"
-                onClick={() => alert('پیش‌فاکتور رسمی به صورت PDF صادر شد و برای ایمیل سازمانی شما ارسال گردید.')}
-                className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer text-xs"
+                id="btn-view-proforma-invoice"
+                onClick={() => handleOpenProformaInvoice()}
+                className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-800 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer text-xs border border-slate-300/80 shadow-2xs hover:shadow-xs"
               >
-                <Download className="w-3.5 h-3.5" />
-                <span>دریافت پیش‌فاکتور رسمی PDF</span>
+                <FileText className="w-4 h-4 text-amber-600" />
+                <span>مشاهده و دانلود پیش‌فاکتور رسمی</span>
               </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Official Proforma Invoice & Documents Modal */}
+      {docModalPackage && (
+        <ShipmentDocumentModal
+          isOpen={isDocModalOpen}
+          onClose={() => setIsDocModalOpen(false)}
+          documentPackage={docModalPackage}
+          initialDocType="proforma"
+        />
+      )}
     </div>
   );
 };
