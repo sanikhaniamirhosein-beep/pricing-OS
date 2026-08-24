@@ -555,6 +555,14 @@ export interface AuditLogEvent {
     | 'canary.stepped'
     | 'contract.created'
     | 'contract.updated'
+    | 'service.created'
+    | 'service.updated'
+    | 'product.created'
+    | 'product.updated'
+    | 'discount.created'
+    | 'discount.updated'
+    | 'eligibility.created'
+    | 'eligibility.updated'
     | 'rule.modified';
   actorName: string;
   actorRole: UserRole;
@@ -650,5 +658,165 @@ export interface HistoricalSimulationRecord {
   variancePercent: number;
   status: 'profit_gain' | 'neutral' | 'risk_detected';
 }
+
+// -------------------------------------------------------------
+// مدارک و پرونده رانندگان و ناوگان حمل و نقل (Driver & Fleet Dossier)
+// -------------------------------------------------------------
+
+export interface DriverIdentityDocuments {
+  // ۱. کارت ملی و شناسنامه
+  nationalIdNumber: string;
+  birthCertificateNo: string;
+  birthDate: string;
+  mobilePhone: string;
+  nationalCardUploaded?: boolean;
+  birthCertificateUploaded?: boolean;
+
+  // ۲. کارت هوشمند راننده (سازمان راهداری)
+  smartCardNumber: string;
+  smartCardIssueDate: string;
+  smartCardExpiryDate: string;
+  smartCardStatus: 'valid' | 'expired' | 'suspended';
+
+  // ۳. گواهینامه رانندگی
+  licenseType: 'grade1' | 'grade2' | 'special';
+  licenseNumber: string;
+  licenseExpiryDate: string;
+
+  // ۴. کارت سلامت راننده (طب کار)
+  healthCardNumber: string;
+  healthCardExpiryDate: string;
+  healthCardValid: boolean;
+
+  // ۵. گواهی عدم سوءپیشینه و عدم اعتیاد
+  noCriminalRecordNumber?: string;
+  noCriminalRecordIssueDate?: string;
+  drugTestPassed?: boolean;
+  drugTestDate?: string;
+
+  // ۶. دفترچه ثبت ساعت (در صورت لزوم)
+  hasLogbook?: boolean;
+  logbookNumber?: string;
+  logbookLastCheckDate?: string;
+}
+
+export interface VehicleFleetDocuments {
+  // ۱. کارت خودرو یا سند مالکیت (برگ سبز)
+  vehicleType: string;
+  plateNumber: string;
+  vinCode: string;
+  greenSheetDocNo: string;
+  ownerName: string;
+  ownershipType: 'self' | 'company' | 'leased';
+
+  // ۲. کارت هوشمند ناوگان
+  fleetSmartCardNumber: string;
+  fleetSmartCardExpiryDate: string;
+  maxAllowedCapacityTons: number;
+
+  // ۳. کارت معاینه فنی معتبر
+  technicalInspectionDocNo: string;
+  technicalInspectionCenterName: string;
+  technicalInspectionExpiryDate: string;
+
+  // ۴. بیمه‌نامه شخص ثالث و بیمه بدنه خودرو
+  thirdPartyInsuranceProvider: string;
+  thirdPartyPolicyNumber: string;
+  thirdPartyExpiryDate: string;
+  bodyInsurancePolicyNumber?: string;
+  bodyInsuranceExpiryDate?: string;
+
+  // ۵. مجوز معاینه مخزن (برای دوگانه‌سوز یا تانکر حمل مواد خاص)
+  hasTankInspectionPermit?: boolean;
+  tankType?: 'cng' | 'hazardous_adr' | 'chemical_liquid' | 'none';
+  tankInspectionPermitNo?: string;
+  tankPermitExpiryDate?: string;
+}
+
+export interface CarrierDriver {
+  id: string;
+  orgId: string;
+  fullName: string;
+  avatar?: string;
+  rating: number;
+  totalTrips: number;
+  status: 'active' | 'in_trip' | 'inactive' | 'pending_verification';
+  joinedDate: string;
+  identityDocs: DriverIdentityDocuments;
+  vehicleDocs: VehicleFleetDocuments;
+}
+
+export interface CarrierTeamMember {
+  id: string;
+  orgId: string;
+  fullName: string;
+  nationalId: string;
+  email: string;
+  phone: string;
+  roleTitle: string;
+  department: string;
+  accessLevel: 'full_admin' | 'operational' | 'pricing_only' | 'read_only';
+  status: 'active' | 'suspended';
+  lastActive: string;
+  avatar?: string;
+}
+
+// -------------------------------------------------------------
+// پرونده ثبتی، مجوزها و مدارک رسمی شرکت حمل‌ونقل (Carrier Legal & Regulatory Dossier)
+// -------------------------------------------------------------
+
+export interface CompanyUploadedDoc {
+  id: string;
+  docKey:
+    | 'official_gazette' // آگهی تأسیس و آخرین آگهی تغییرات روزنامه رسمی (دارندگان حق امضا)
+    | 'national_id_eco' // شناسه ملی شرکت و کد اقتصادی
+    | 'ceo_identity' // کارت ملی و شناسنامه مدیرعامل یا نماینده معرفی‌شده
+    | 'rmto_permit' // پروانه فعالیت معتبر از سازمان راهداری و حمل‌ونقل جاده‌ای
+    | 'specialized_cargo_permit' // مجوزهای حمل تخصصی (مواد سوختی، ترافیکی، فاسدشدنی، CMR)
+    | 'vat_registration' // گواهی ثبت‌نام مالیات بر ارزش افزوده
+    | 'bank_account_confirmation' // تأییدیه شماره حساب و شبای بانکی به نام شرکت
+    | 'carrier_liability_insurance'; // نمونه بیمه‌نامه مسئولیت حمل‌کننده (باربری)
+  titleFa: string;
+  category: 'legal' | 'logistics' | 'financial_insurance';
+  required: boolean;
+  fileName?: string;
+  fileSize?: string;
+  uploadedAt?: string;
+  fileDataUrl?: string; // Base64 or Blob URL for PDF preview/download
+  status: 'verified' | 'uploaded' | 'pending' | 'missing';
+  documentNumber?: string;
+  issueDate?: string;
+  expiryDate?: string;
+  notes?: string;
+  authorityName?: string;
+}
+
+export interface CompanyLegalDossier {
+  // ۱. پرونده ثبتی و حقوقی
+  officialGazetteDoc: CompanyUploadedDoc;
+  nationalIdAndEconomicCodeDoc: CompanyUploadedDoc;
+  ceoIdentityDoc: CompanyUploadedDoc;
+  economicCode: string;
+  ceoNationalId: string;
+  officialGazetteNo: string;
+
+  // ۲. مجوزهای فعالیت لجستیکی
+  rmtoPermitDoc: CompanyUploadedDoc;
+  specializedCargoPermitDoc: CompanyUploadedDoc;
+  logisticsAuthority: 'RMTO' | 'RAI' | 'CAO' | 'PMO';
+  specializedServices: string[]; // e.g. ['حمل مواد سوختی و پتروشیمی (ADR)', 'حمل بار ترافیکی سنگین', 'حمل مواد فاسدشدنی و زنجیره سرد', 'ترانزیت بین‌المللی (CMR/TIR)']
+
+  // ۳. مدارک مالی و بیمه
+  vatRegistrationDoc: CompanyUploadedDoc;
+  vatTaxNumber: string;
+  isVatExempt: boolean;
+  bankAccountConfirmationDoc: CompanyUploadedDoc;
+  carrierLiabilityInsuranceDoc: CompanyUploadedDoc;
+  insuranceProviderName: string;
+  insurancePolicyNumber: string;
+  insuranceCoverageCeilingToman: number;
+  insuranceExpiryDate: string;
+}
+
 
 

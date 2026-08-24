@@ -114,8 +114,8 @@ export const CommercialDesignStudioView: React.FC<CommercialDesignStudioViewProp
         {currentTab === 'catalog' && <CatalogStudioView />}
         {currentTab === 'pricing' && <PricingStudioView onNavigateToValidation={onNavigateToValidation} />}
         {currentTab === 'matrix' && <GeoZoneMatrixView />}
-        {currentTab === 'eligibility' && <EligibilityDiscountView />}
-        {currentTab === 'discounts' && <EligibilityDiscountView />}
+        {currentTab === 'eligibility' && <EligibilityDiscountView initialTab="eligibility" />}
+        {currentTab === 'discounts' && <EligibilityDiscountView initialTab="discounts" />}
         {currentTab === 'contracts' && <ContractStudioView />}
       </div>
     </div>

@@ -24,6 +24,8 @@ import {
   AlertCircle,
   X,
   ChevronLeft,
+  Edit2,
+  Users,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { usePricing } from '../../store/PricingContext';
@@ -54,6 +56,7 @@ export const Header: React.FC<HeaderProps> = ({
     strategyPackages,
     setIsQuickQuoteOpen,
     currentCarrierOrg,
+    openTransportOrgModal,
   } = usePricing();
 
   const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
@@ -201,15 +204,18 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* 2. Action Controls: Active Organization Badge, Quick Quote, AI Assistant, Notification Popover, Minimal Profile Menu */}
           <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-            {/* Logged-in Organization Identity Badge (Static - Isolated Data) */}
-            <div
+            {/* Logged-in Organization Identity Button (Interactive Portal & Driver Management Trigger) */}
+            <button
+              type="button"
               id="header-org-identity"
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100/90 text-slate-800 text-xs font-bold rounded-xl border border-slate-300/80 shadow-2xs max-w-[220px]"
-              title="سازمان فعال احراز هویت شده"
+              onClick={() => openTransportOrgModal('profile')}
+              className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 hover:bg-amber-50/80 text-slate-800 hover:text-slate-900 text-xs font-bold rounded-xl border border-slate-300/80 hover:border-amber-400/70 shadow-2xs transition-all duration-150 cursor-pointer group max-w-[240px]"
+              title="مدیریت عنوان شرکت، ویرایش، کاربران و ثبت مدارک رانندگان و ناوگان"
             >
-              <Building className="w-3.5 h-3.5 text-slate-600 shrink-0" />
-              <span className="truncate text-[11px]">{currentCarrierOrg?.nameFa || userOrgName || 'سازمان حمل‌ونقل'}</span>
-            </div>
+              <Building className="w-3.5 h-3.5 text-amber-600 shrink-0 group-hover:scale-110 transition-transform" />
+              <span className="truncate text-[11px] font-bold">{currentCarrierOrg?.nameFa || userOrgName || 'سازمان حمل‌ونقل'}</span>
+              <Edit2 className="w-3 h-3 text-slate-400 group-hover:text-amber-700 shrink-0 mr-0.5" />
+            </button>
 
             {/* Quick Quote Button */}
             <button

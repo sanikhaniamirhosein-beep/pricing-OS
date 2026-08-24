@@ -40,12 +40,12 @@ export const StepUpMFAModal: React.FC = () => {
             </div>
             <div>
               <h3 className="font-bold text-slate-100 text-sm">احراز هویت دومرحله‌ای (Step-Up MFA)</h3>
-              <p className="text-xs text-slate-400">گیت امنیتی حاکمیتی بر اساس قانون BR-013</p>
+              <p className="text-xs text-slate-300">گیت امنیتی حاکمیتی بر اساس قانون BR-013</p>
             </div>
           </div>
           <button
             onClick={handleClose}
-            className="p-1.5 text-slate-400 hover:text-slate-100 hover:bg-slate-800 rounded-lg transition-colors"
+            className="p-1.5 text-slate-300 hover:text-slate-100 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -53,7 +53,7 @@ export const StepUpMFAModal: React.FC = () => {
 
         {/* Content */}
         <div className="p-5 space-y-4 text-xs">
-          <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-200/90 leading-relaxed flex items-start gap-2.5">
+          <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-200 leading-relaxed flex items-start gap-2.5">
             <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
             <span>
               این اقدام مستقیماً محیط عملیاتی (Production) و تعرفه‌های فعال را تحت تاثیر قرار می‌دهد. جهت ثبت در دفترکل
@@ -62,17 +62,17 @@ export const StepUpMFAModal: React.FC = () => {
           </div>
 
           <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800 space-y-2">
-            <div className="flex justify-between text-slate-400">
+            <div className="flex justify-between text-slate-300 font-medium">
               <span>کاربر مجری:</span>
-              <span className="text-slate-200 font-medium">{userName}</span>
+              <span className="text-slate-100 font-bold">{userName}</span>
             </div>
-            <div className="flex justify-between text-slate-400">
+            <div className="flex justify-between text-slate-300 font-medium">
               <span>نقش سازمانی:</span>
-              <span className="text-slate-200 font-medium">{userRole}</span>
+              <span className="text-slate-100 font-bold">{userRole}</span>
             </div>
-            <div className="flex justify-between text-slate-400">
+            <div className="flex justify-between text-slate-300 font-medium">
               <span>توکن سخت‌افزاری / OTP:</span>
-              <span className="text-emerald-400 font-mono">FIDO2 / YubiKey متصل</span>
+              <span className="text-emerald-400 font-mono font-bold">FIDO2 / YubiKey متصل</span>
             </div>
           </div>
 

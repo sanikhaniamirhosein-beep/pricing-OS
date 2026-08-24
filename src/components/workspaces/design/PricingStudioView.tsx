@@ -648,7 +648,7 @@ export const PricingStudioView: React.FC<{ onNavigateToValidation?: () => void }
                       </div>
 
                       <div className="space-y-1">
-                        <label className="text-slate-400 text-[10px]">اولویت خط‌لوله (Priority):</label>
+                        <label className="text-slate-200 text-[10px] font-medium">اولویت خط‌لوله (Priority):</label>
                         <input
                           type="number"
                           value={blockPriority}
@@ -658,7 +658,7 @@ export const PricingStudioView: React.FC<{ onNavigateToValidation?: () => void }
                       </div>
 
                       <div className="space-y-1">
-                        <label className="text-slate-400 text-[10px]">درصد اضافه کرایه:</label>
+                        <label className="text-slate-200 text-[10px] font-medium">درصد اضافه کرایه:</label>
                         <input
                           type="number"
                           value={blockPercent}
@@ -669,9 +669,9 @@ export const PricingStudioView: React.FC<{ onNavigateToValidation?: () => void }
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-slate-400 text-[10px] flex items-center justify-between">
+                      <label className="text-slate-200 text-[10px] font-medium flex items-center justify-between">
                         <span>عبارت محاسباتی (AST Expression):</span>
-                        <span className="text-[9px] text-amber-400 font-mono">متغیرها: base, distance, weight, fuel_index</span>
+                        <span className="text-[9px] text-amber-400 font-mono font-bold">متغیرها: base, distance, weight, fuel_index</span>
                       </label>
                       <textarea
                         rows={2}
@@ -684,7 +684,7 @@ export const PricingStudioView: React.FC<{ onNavigateToValidation?: () => void }
 
                     {selectedBlock.type === 'fuel_surcharge_hook' && (
                       <div className="space-y-1">
-                        <label className="text-slate-400 text-[10px]">آدرس وب‌سرویس نرخ سوخت (Webhook Endpoint):</label>
+                        <label className="text-slate-200 text-[10px] font-medium">آدرس وب‌سرویس نرخ سوخت (Webhook Endpoint):</label>
                         <input
                           type="text"
                           value={blockHookUrl}
@@ -697,7 +697,7 @@ export const PricingStudioView: React.FC<{ onNavigateToValidation?: () => void }
 
                     {selectedBlock.type === 'mountainous_surcharge' && (
                       <div className="space-y-1.5">
-                        <label className="text-slate-400 text-[10px]">کریدورهای مشمول اضافه کرایه کوهستانی:</label>
+                        <label className="text-slate-200 text-[10px] font-medium">کریدورهای مشمول اضافه کرایه کوهستانی:</label>
                         <div className="flex flex-wrap gap-1">
                           {blockRoutes.map((route, i) => (
                             <span
@@ -1100,7 +1100,7 @@ export const PricingStudioView: React.FC<{ onNavigateToValidation?: () => void }
 
                 {/* Transparent Applied Rule Steps */}
                 <div className="pt-2 border-t border-slate-800/80 space-y-1.5">
-                  <span className="text-[10px] font-bold text-slate-400 block">گام‌های محاسباتی و افزودنی‌های اعمال‌شده:</span>
+                  <span className="text-[10px] font-bold text-slate-300 block">گام‌های محاسباتی و افزودنی‌های اعمال‌شده:</span>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {previewResult.trace.appliedRules.map((rule, idx) => (
                       <div
@@ -1109,7 +1109,7 @@ export const PricingStudioView: React.FC<{ onNavigateToValidation?: () => void }
                       >
                         <div className="min-w-0 flex-1 pl-2">
                           <span className="text-slate-200 font-bold block truncate text-[11px]">{rule.nameFa}</span>
-                          <span className="text-[9px] text-slate-400 block truncate">{rule.note}</span>
+                          <span className="text-[10px] text-slate-300 block truncate">{rule.note}</span>
                         </div>
                         <span className="font-mono font-bold text-amber-400 shrink-0 text-xs">
                           +{rule.valueToman.toLocaleString('fa-IR')} ت
@@ -1243,7 +1243,7 @@ export const PricingStudioView: React.FC<{ onNavigateToValidation?: () => void }
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-slate-400 text-[10px]">کف حاشیه سود برای ناوگان سنگین (٪):</label>
+                  <label className="text-slate-200 text-[10px] font-medium">کف حاشیه سود برای ناوگان سنگین (٪):</label>
                   <input
                     type="number"
                     value={minMargin}
@@ -1253,7 +1253,7 @@ export const PricingStudioView: React.FC<{ onNavigateToValidation?: () => void }
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-slate-400 text-[10px]">حداقل مبلغ مطلق صدور بارنامه (تومان):</label>
+                  <label className="text-slate-200 text-[10px] font-medium">حداقل مبلغ مطلق صدور بارنامه (تومان):</label>
                   <input
                     type="number"
                     value={minAbsolutePrice}

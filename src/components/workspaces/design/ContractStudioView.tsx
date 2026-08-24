@@ -84,9 +84,9 @@ export const ContractStudioView: React.FC = () => {
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div>
                 <div className="flex items-center gap-2.5">
-                  <h3 className="font-bold text-slate-900 text-base font-display">{activeContract.customerNameFa}</h3>
+                  <h3 className="font-bold text-slate-900 text-base font-display">{activeContract?.customerNameFa || 'قرارداد سازمانی'}</h3>
                   <span className="text-xs font-mono bg-amber-50 text-amber-900 px-2 py-0.5 rounded border border-amber-200 font-bold">
-                    {activeContract.customerCode}
+                    {activeContract?.customerCode || '-'}
                   </span>
                   <span className="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-0.5 rounded-full border border-emerald-200 font-semibold">
                     رده مشتری: {activeContract?.tier || 'استاندارد'}

@@ -20,6 +20,7 @@ import { StepUpMFAModal } from './components/common/StepUpMFAModal';
 import { QuickQuoteSandboxModal } from './components/common/QuickQuoteSandboxModal';
 import { PublicQuickQuoteModal } from './components/login/PublicQuickQuoteModal';
 import { AICoPilotDrawer } from './components/common/AICoPilotDrawer';
+import { TransportOrgManagementModal } from './components/common/TransportOrgManagementModal';
 
 const AppContent: React.FC = () => {
   const {
@@ -254,6 +255,7 @@ const AppContent: React.FC = () => {
       <DecisionTraceModal />
       <StepUpMFAModal />
       <QuickQuoteSandboxModal />
+      <TransportOrgManagementModal />
       <AICoPilotDrawer isOpen={isAiCoPilotOpen} onClose={() => setIsAiCoPilotOpen(false)} />
     </div>
   );

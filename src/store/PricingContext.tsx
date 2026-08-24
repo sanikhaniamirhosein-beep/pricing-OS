@@ -17,6 +17,7 @@ import {
   LogisticsProduct,
   LogisticsService,
   DiscountPolicy,
+  EligibilityPolicy,
   LogisticsOffer,
   SimulationScenario,
   PricingAnomaly,
@@ -32,6 +33,8 @@ import {
   StakeholderSplitConfig,
   RBACRoleDefinition,
   ApprovalRequest,
+  CarrierDriver,
+  CarrierTeamMember,
 } from '../types/pricing';
 import { getRoleDetail } from '../data/carrierRolesConfig';
 import { getShipperRoleDetail, SHIPPER_AVAILABLE_LOCATIONS } from '../data/shipperRolesConfig';
@@ -63,6 +66,7 @@ import {
   CarrierOrgProfile,
   ShipperOrgProfile,
 } from '../data/mockOrganizationProfiles';
+import { INITIAL_CARRIER_DRIVERS, INITIAL_CARRIER_USERS } from '../data/mockDriverData';
 import { calculateShipmentPrice, ShipmentPricingContext, EngineExecutionResult } from '../engine/pricingEngine';
 
 interface PricingContextType {
@@ -182,6 +186,43 @@ interface PricingContextType {
   setIsMfaModalOpen: (open: boolean) => void;
   pendingMfaAction: (() => void) | null;
   setPendingMfaAction: (action: (() => void) | null) => void;
+
+  // Services & Products Management
+  addService: (service: LogisticsService) => void;
+  updateService: (service: LogisticsService) => void;
+  deleteService: (serviceId: string) => void;
+  addProduct: (product: LogisticsProduct) => void;
+  updateProduct: (product: LogisticsProduct) => void;
+  deleteProduct: (productId: string) => void;
+
+  // Discount & Eligibility Policies Management
+  addDiscountPolicy: (discount: DiscountPolicy) => void;
+  updateDiscountPolicy: (discount: DiscountPolicy) => void;
+  deleteDiscountPolicy: (discountId: string) => void;
+  eligibilityPolicies: EligibilityPolicy[];
+  addEligibilityPolicy: (policy: EligibilityPolicy) => void;
+  updateEligibilityPolicy: (policy: EligibilityPolicy) => void;
+  deleteEligibilityPolicy: (policyId: string) => void;
+
+  // Driver & Fleet Management
+  carrierDrivers: CarrierDriver[];
+  addCarrierDriver: (driver: CarrierDriver) => void;
+  updateCarrierDriver: (driver: CarrierDriver) => void;
+  deleteCarrierDriver: (driverId: string) => void;
+
+  // Carrier Users & Team Management
+  carrierUsers: CarrierTeamMember[];
+  addCarrierUser: (user: CarrierTeamMember) => void;
+  updateCarrierUser: (user: CarrierTeamMember) => void;
+  deleteCarrierUser: (userId: string) => void;
+
+  // Carrier Organization Management Modal & Updates
+  isTransportOrgModalOpen: boolean;
+  setIsTransportOrgModalOpen: (open: boolean) => void;
+  transportOrgInitialTab: 'profile' | 'users' | 'drivers';
+  setTransportOrgInitialTab: (tab: 'profile' | 'users' | 'drivers') => void;
+  openTransportOrgModal: (tab?: 'profile' | 'users' | 'drivers') => void;
+  updateCarrierOrgProfile: (updated: Partial<CarrierOrgProfile>) => void;
 }
 
 const PricingContext = createContext<PricingContextType | undefined>(undefined);
@@ -201,11 +242,91 @@ export const PricingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [fuelIndexMultiplier, setFuelIndexMultiplier] = useState<number>(1.04);
 
   // Multi-Tenancy & Isolation State
-  const [carrierOrganizations] = useState<CarrierOrgProfile[]>(CARRIER_ORGANIZATIONS);
-  const [shipperOrganizations] = useState<ShipperOrgProfile[]>(SHIPPER_ORGANIZATIONS);
+  const [carrierOrganizations, setCarrierOrganizations] = useState<CarrierOrgProfile[]>(CARRIER_ORGANIZATIONS);
+  const [shipperOrganizations, setShipperOrganizations] = useState<ShipperOrgProfile[]>(SHIPPER_ORGANIZATIONS);
   const [currentCarrierOrgId, setCurrentCarrierOrgId] = useState<string>('org-carrier-pg-freight');
   const [currentShipperOrgId, setCurrentShipperOrgId] = useState<string>('org-shipper-mobarakeh');
   const [isOrgSwitcherOpen, setIsOrgSwitcherOpen] = useState<boolean>(false);
+
+  // Drivers and Users State
+  const [carrierDrivers, setCarrierDrivers] = useState<CarrierDriver[]>(INITIAL_CARRIER_DRIVERS);
+  const [carrierUsers, setCarrierUsers] = useState<CarrierTeamMember[]>(INITIAL_CARRIER_USERS);
+
+  // Transport Org Modal State
+  const [isTransportOrgModalOpen, setIsTransportOrgModalOpen] = useState<boolean>(false);
+  const [transportOrgInitialTab, setTransportOrgInitialTab] = useState<'profile' | 'users' | 'drivers'>('profile');
+
+  const openTransportOrgModal = (tab: 'profile' | 'users' | 'drivers' = 'profile') => {
+    setTransportOrgInitialTab(tab);
+    setIsTransportOrgModalOpen(true);
+  };
+
+  const addCarrierDriver = (driver: CarrierDriver) => {
+    setCarrierDrivers((prev) => [driver, ...prev]);
+    // update driver count in org
+    setCarrierOrganizations((prev) =>
+      prev.map((org) =>
+        org.id === driver.orgId ? { ...org, activeDriversCount: (org.activeDriversCount || 0) + 1 } : org
+      )
+    );
+    addAuditLog({
+      eventType: 'rule.modified',
+      objectRef: `راننده: ${driver.fullName} (${driver.identityDocs.nationalIdNumber})`,
+      actorName: userName,
+      actorRole: userRole,
+      details: {
+        action: 'driver_registered',
+        smartCard: driver.identityDocs.smartCardNumber,
+        plate: driver.vehicleDocs.plateNumber,
+      },
+    });
+  };
+
+  const updateCarrierDriver = (driver: CarrierDriver) => {
+    setCarrierDrivers((prev) => prev.map((d) => (d.id === driver.id ? driver : d)));
+  };
+
+  const deleteCarrierDriver = (driverId: string) => {
+    setCarrierDrivers((prev) => prev.filter((d) => d.id !== driverId));
+  };
+
+  const addCarrierUser = (user: CarrierTeamMember) => {
+    setCarrierUsers((prev) => [user, ...prev]);
+    addAuditLog({
+      eventType: 'rule.modified',
+      objectRef: `کاربر سازمانی: ${user.fullName} (${user.roleTitle})`,
+      actorName: userName,
+      actorRole: userRole,
+      details: {
+        action: 'user_created',
+        email: user.email,
+        accessLevel: user.accessLevel,
+      },
+    });
+  };
+
+  const updateCarrierUser = (user: CarrierTeamMember) => {
+    setCarrierUsers((prev) => prev.map((u) => (u.id === user.id ? user : u)));
+  };
+
+  const deleteCarrierUser = (userId: string) => {
+    setCarrierUsers((prev) => prev.filter((u) => u.id !== userId));
+  };
+
+  const updateCarrierOrgProfile = (updated: Partial<CarrierOrgProfile>) => {
+    setCarrierOrganizations((prev) =>
+      prev.map((org) => {
+        if (org.id === currentCarrierOrgId || org.nameFa === userOrgName) {
+          const newOrg = { ...org, ...updated };
+          if (updated.nameFa) {
+            setUserOrgName(updated.nameFa);
+          }
+          return newOrg;
+        }
+        return org;
+      })
+    );
+  };
 
   const currentCarrierOrg = carrierOrganizations.find((c) => c.id === currentCarrierOrgId || c.nameFa === userOrgName) || carrierOrganizations[0];
   
@@ -262,6 +383,54 @@ export const PricingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [anomalies, setAnomalies] = useState<PricingAnomaly[]>(INITIAL_ANOMALIES);
   const [auditLogs, setAuditLogs] = useState<AuditLogEvent[]>(INITIAL_AUDIT_LOGS);
   const [connectors, setConnectors] = useState<ExternalConnector[]>(INITIAL_CONNECTORS);
+
+  // Default Initial Eligibility Policies
+  const INITIAL_ELIGIBILITY_POLICIES: EligibilityPolicy[] = [
+    {
+      eligibilityId: 'elg-all-commercial',
+      displayId: 'ELG-01',
+      nameFa: 'شرایط عمومی پذیرش ناوگان بار تجاری و FTL استاندارد',
+      nameEn: 'General Commercial Freight & FTL Eligibility',
+      version: 2,
+      conditions: {
+        minTonnage: 5,
+        allowedVehicles: ['تریلی چادری', 'تریلر کفی', 'کامیون تک ۱۰ تن'],
+        allowedShipperTiers: ['Diamond', 'Platinum', 'Gold', 'Silver'],
+        activeContractRequired: false,
+      },
+      status: 'Approved',
+    },
+    {
+      eligibilityId: 'elg-coldchain-certified',
+      displayId: 'ELG-02',
+      nameFa: 'شرایط احراز حمل زنجیره سرد و محموله‌های دارویی/غذایی',
+      nameEn: 'Cold-Chain Telemetry & Pharma Certification Policy',
+      version: 2,
+      conditions: {
+        minTonnage: 2,
+        allowedVehicles: ['کشنده یخچال‌دار'],
+        coldChainCertifiedOnly: true,
+        activeContractRequired: true,
+      },
+      status: 'Approved',
+    },
+    {
+      eligibilityId: 'elg-adr-hazardous',
+      displayId: 'ELG-03',
+      nameFa: 'محدودیت و الزامات ناوگان حمل مواد شیمیایی خطرناک ADR',
+      nameEn: 'ADR Dangerous Goods Fleet Constraint & Certification',
+      version: 1,
+      conditions: {
+        minTonnage: 10,
+        allowedVehicles: ['تریلی چادری', 'تانکر استیل', 'تریلر کفی'],
+        hazardousCertifiedOnly: true,
+        activeContractRequired: true,
+      },
+      status: 'Approved',
+    },
+  ];
+
+  const [eligibilityPolicies, setEligibilityPolicies] = useState<EligibilityPolicy[]>(INITIAL_ELIGIBILITY_POLICIES);
 
   // Switch Carrier Org with isolated domain state update
   const switchCarrierOrg = (orgId: string) => {
@@ -401,6 +570,114 @@ export const PricingProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const deleteContract = (contractId: string) => {
     setContracts((prev) => prev.filter((c) => c.contractId !== contractId));
+  };
+
+  // Services Management
+  const addService = (service: LogisticsService) => {
+    setServices((prev) => [service, ...prev]);
+    addAuditLog({
+      eventType: 'service.created',
+      objectRef: `${service.displayId} (${service.nameFa})`,
+      actorName: userName,
+      actorRole: userRole,
+      details: { category: service.category, version: service.version },
+    });
+  };
+
+  const updateService = (service: LogisticsService) => {
+    setServices((prev) => prev.map((s) => (s.serviceId === service.serviceId ? service : s)));
+    addAuditLog({
+      eventType: 'service.updated',
+      objectRef: `${service.displayId} (${service.nameFa})`,
+      actorName: userName,
+      actorRole: userRole,
+      details: { category: service.category },
+    });
+  };
+
+  const deleteService = (serviceId: string) => {
+    setServices((prev) => prev.filter((s) => s.serviceId !== serviceId));
+  };
+
+  // Products Management
+  const addProduct = (product: LogisticsProduct) => {
+    setProducts((prev) => [product, ...prev]);
+    addAuditLog({
+      eventType: 'product.created',
+      objectRef: `${product.displayId} (${product.nameFa})`,
+      actorName: userName,
+      actorRole: userRole,
+      details: { vehicleType: product.vehicleType },
+    });
+  };
+
+  const updateProduct = (product: LogisticsProduct) => {
+    setProducts((prev) => prev.map((p) => (p.productId === product.productId ? product : p)));
+    addAuditLog({
+      eventType: 'product.updated',
+      objectRef: `${product.displayId} (${product.nameFa})`,
+      actorName: userName,
+      actorRole: userRole,
+      details: { vehicleType: product.vehicleType },
+    });
+  };
+
+  const deleteProduct = (productId: string) => {
+    setProducts((prev) => prev.filter((p) => p.productId !== productId));
+  };
+
+  // Discount Policies Management
+  const addDiscountPolicy = (discount: DiscountPolicy) => {
+    setDiscountPolicies((prev) => [discount, ...prev]);
+    addAuditLog({
+      eventType: 'discount.created',
+      objectRef: `${discount.displayId} (${discount.nameFa})`,
+      actorName: userName,
+      actorRole: userRole,
+      details: { type: discount.type, valuePercent: discount.valuePercent },
+    });
+  };
+
+  const updateDiscountPolicy = (discount: DiscountPolicy) => {
+    setDiscountPolicies((prev) => prev.map((d) => (d.discountId === discount.discountId ? discount : d)));
+    addAuditLog({
+      eventType: 'discount.updated',
+      objectRef: `${discount.displayId} (${discount.nameFa})`,
+      actorName: userName,
+      actorRole: userRole,
+      details: { type: discount.type },
+    });
+  };
+
+  const deleteDiscountPolicy = (discountId: string) => {
+    setDiscountPolicies((prev) => prev.filter((d) => d.discountId !== discountId));
+  };
+
+  // Eligibility Policies Management
+  const addEligibilityPolicy = (policy: EligibilityPolicy) => {
+    setEligibilityPolicies((prev) => [policy, ...prev]);
+    addAuditLog({
+      eventType: 'eligibility.created',
+      objectRef: `${policy.displayId} (${policy.nameFa})`,
+      actorName: userName,
+      actorRole: userRole,
+      details: { nameEn: policy.nameEn },
+    });
+  };
+
+  const updateEligibilityPolicy = (policy: EligibilityPolicy) => {
+    setEligibilityPolicies((prev) => prev.map((p) => (p.eligibilityId === policy.eligibilityId ? policy : p)));
+    addAuditLog({
+      eventType: 'eligibility.updated',
+      objectRef: `${policy.displayId} (${policy.nameFa})`,
+      actorName: userName,
+      actorRole: userRole,
+      details: { version: policy.version },
+    });
+  };
+
+  const deleteEligibilityPolicy = (policyId: string) => {
+    setEligibilityPolicies((prev) => prev.filter((p) => p.eligibilityId !== policyId));
   };
 
   // Modals & UI Traces
@@ -1126,6 +1403,33 @@ export const PricingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setIsMfaModalOpen,
         pendingMfaAction,
         setPendingMfaAction,
+        carrierDrivers,
+        addCarrierDriver,
+        updateCarrierDriver,
+        deleteCarrierDriver,
+        carrierUsers,
+        addCarrierUser,
+        updateCarrierUser,
+        deleteCarrierUser,
+        addService,
+        updateService,
+        deleteService,
+        addProduct,
+        updateProduct,
+        deleteProduct,
+        addDiscountPolicy,
+        updateDiscountPolicy,
+        deleteDiscountPolicy,
+        eligibilityPolicies,
+        addEligibilityPolicy,
+        updateEligibilityPolicy,
+        deleteEligibilityPolicy,
+        isTransportOrgModalOpen,
+        setIsTransportOrgModalOpen,
+        transportOrgInitialTab,
+        setTransportOrgInitialTab,
+        openTransportOrgModal,
+        updateCarrierOrgProfile,
       }}
     >
       {children}

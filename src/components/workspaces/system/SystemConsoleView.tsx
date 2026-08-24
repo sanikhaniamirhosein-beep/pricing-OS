@@ -43,6 +43,7 @@ export const SystemConsoleView: React.FC<SystemConsoleViewProps> = ({
     geoZones,
     connectors,
     rbacRoles,
+    openTransportOrgModal,
   } = usePricing();
 
   const [localTab, setLocalTab] = useState<string>('fleet_master');
@@ -149,7 +150,7 @@ export const SystemConsoleView: React.FC<SystemConsoleViewProps> = ({
       {currentTab === 'fleet_master' && (
         <div className="space-y-6">
           <div className="bg-white border border-[#D3D1C7] p-6 rounded-3xl shadow-xs space-y-4">
-            <div className="flex items-center justify-between border-b border-[#D3D1C7] pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#D3D1C7] pb-4">
               <div>
                 <h3 className="font-bold text-[#2C2C2A] text-base font-display">
                   دسته‌بندی و مشخصات فنی ناوگان حمل‌ونقل (Fleet Master Data)
@@ -158,6 +159,14 @@ export const SystemConsoleView: React.FC<SystemConsoleViewProps> = ({
                   مشخصات ظرفیت وزنی، حجم محفظه، تعداد محور و ضرایب پایه استهلاک انواع کشنده و تریلر
                 </p>
               </div>
+              <button
+                type="button"
+                onClick={() => openTransportOrgModal('drivers')}
+                className="flex items-center gap-2 px-4 py-2 bg-[#085041] hover:bg-[#04342C] text-white text-xs font-bold rounded-xl shadow-xs transition-colors cursor-pointer shrink-0"
+              >
+                <Truck className="w-4 h-4 text-[#9FE1CB]" />
+                <span>پرونده مدارک رانندگان و ناوگان</span>
+              </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 font-mono text-xs">
