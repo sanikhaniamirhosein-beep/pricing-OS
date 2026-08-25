@@ -30,7 +30,8 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { usePricing } from '../../store/PricingContext';
 import { UserRole } from '../../types/pricing';
-import { CARRIER_ROLE_DETAILS, getRoleDetail } from '../../data/carrierRolesConfig';
+import { CARRIER_ROLE_DETAILS, getRoleDetail, CarrierRoleDetail } from '../../data/carrierRolesConfig';
+import { RolePasswordAuthModal, RoleAuthTarget } from '../common/RolePasswordAuthModal';
 
 interface HeaderProps {
   onToggleAiCoPilot: () => void;
@@ -63,9 +64,36 @@ export const Header: React.FC<HeaderProps> = ({
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [roleSearch, setRoleSearch] = useState('');
   const [activeMenuTab, setActiveMenuTab] = useState<'roles' | 'profile'>('roles');
+  const [targetRoleForAuth, setTargetRoleForAuth] = useState<RoleAuthTarget | null>(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
+
+  const handleRequestRoleSwitch = (role: CarrierRoleDetail) => {
+    if (role.role === userRole) {
+      setIsRoleDropdownOpen(false);
+      return;
+    }
+    setTargetRoleForAuth({
+      roleKey: role.role,
+      titleFa: role.titleFa,
+      titleEn: role.titleEn,
+      levelBadge: role.levelBadge,
+      departmentFa: role.departmentFa,
+      defaultUserName: role.defaultUserName,
+      defaultUserEmail: role.defaultUserEmail,
+      defaultPassword: role.defaultPassword || 'admin@pass123',
+    });
+    setIsRoleDropdownOpen(false);
+    setIsAuthModalOpen(true);
+  };
+
+  const handleConfirmRoleSwitch = () => {
+    if (targetRoleForAuth) {
+      setUserRole(targetRoleForAuth.roleKey as UserRole);
+    }
+  };
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -464,10 +492,7 @@ export const Header: React.FC<HeaderProps> = ({
                                   <button
                                     key={role.id}
                                     type="button"
-                                    onClick={() => {
-                                      setUserRole(role.role);
-                                      setIsRoleDropdownOpen(false);
-                                    }}
+                                    onClick={() => handleRequestRoleSwitch(role)}
                                     className={`w-full text-right p-2 rounded-xl transition-all flex items-start justify-between cursor-pointer border ${
                                       isSelected
                                         ? 'bg-slate-900 text-white border-slate-800 font-bold shadow-xs'
@@ -514,10 +539,7 @@ export const Header: React.FC<HeaderProps> = ({
                                   <button
                                     key={role.id}
                                     type="button"
-                                    onClick={() => {
-                                      setUserRole(role.role);
-                                      setIsRoleDropdownOpen(false);
-                                    }}
+                                    onClick={() => handleRequestRoleSwitch(role)}
                                     className={`w-full text-right p-2 rounded-xl transition-all flex items-start justify-between cursor-pointer border ${
                                       isSelected
                                         ? 'bg-slate-900 text-white border-slate-800 font-bold shadow-xs'
@@ -621,6 +643,18 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Role Switch Security Verification Modal */}
+      <RolePasswordAuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => {
+          setIsAuthModalOpen(false);
+          setTargetRoleForAuth(null);
+        }}
+        targetRole={targetRoleForAuth}
+        onConfirm={handleConfirmRoleSwitch}
+        portalType="carrier"
+      />
     </header>
   );
 };

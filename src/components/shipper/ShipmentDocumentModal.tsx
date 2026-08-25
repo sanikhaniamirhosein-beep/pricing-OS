@@ -138,21 +138,21 @@ export const ShipmentDocumentModal: React.FC<ShipmentDocumentModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5 overflow-y-auto animate-in fade-in duration-150">
       <div className="bg-white rounded-3xl max-w-4xl w-full shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
-        {/* Modal Top Control Bar */}
-        <div className="p-4 sm:p-5 bg-slate-900 text-white flex flex-wrap items-center justify-between gap-3 shrink-0 border-b border-slate-800">
+        {/* Modal Top Control Bar - Bright Modern & Clear */}
+        <div className="p-4 sm:p-5 bg-white text-slate-900 flex flex-wrap items-center justify-between gap-3 shrink-0 border-b border-slate-200 shadow-xs">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-400 font-bold shrink-0">
+            <div className="w-10 h-10 rounded-2xl bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-700 font-bold shrink-0">
               <FileCheck className="w-5 h-5" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h3 className="font-bold text-sm sm:text-base font-title">اسناد الکترونیکی و مدارک رسمی محموله</h3>
-                <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-mono text-[11px] border border-amber-500/30">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="font-bold text-sm sm:text-base text-slate-900 font-display">اسناد الکترونیکی و مدارک رسمی محموله</h3>
+                <span className="px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-800 font-mono text-xs border border-teal-200 font-bold">
                   {documentPackage.billOfLadingNo}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 mt-0.5">
-                تولیدشده مطابق استانداردهای سازمان امور مالیاتی و راهداری و حمل‌ونقل جاده‌ای کشور
+              <p className="text-[11px] text-slate-500 mt-0.5">
+                تولیدشده مطابق استانداردهای رسمی سازمان امور مالیاتی و راهداری و حمل‌ونقل جاده‌ای کشور
               </p>
             </div>
           </div>
@@ -162,25 +162,25 @@ export const ShipmentDocumentModal: React.FC<ShipmentDocumentModalProps> = ({
               type="button"
               id="btn-print-doc"
               onClick={handlePrint}
-              className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer border border-slate-700"
+              className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer border border-slate-200"
             >
-              <Printer className="w-3.5 h-3.5" />
+              <Printer className="w-3.5 h-3.5 text-slate-600" />
               <span className="hidden sm:inline">چاپ سند</span>
             </button>
             <button
               type="button"
               id="btn-download-active-doc"
               onClick={() => handleDownloadPdf(selectedDoc)}
-              className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+              className="px-3.5 py-2 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
             >
-              <Download className="w-3.5 h-3.5" />
+              <Download className="w-3.5 h-3.5 text-teal-200" />
               <span>دانلود PDF</span>
             </button>
             <button
               type="button"
               id="btn-close-doc-modal"
               onClick={onClose}
-              className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-colors cursor-pointer"
+              className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer border border-slate-200"
             >
               <X className="w-5 h-5" />
             </button>
@@ -189,7 +189,7 @@ export const ShipmentDocumentModal: React.FC<ShipmentDocumentModalProps> = ({
 
         {/* Download Notice Notification Banner */}
         {downloadNotice && (
-          <div className="bg-emerald-50 border-b border-emerald-200 px-4 py-2 text-xs text-emerald-900 font-bold flex items-center justify-between animate-in fade-in">
+          <div className="bg-emerald-50 border-b border-emerald-200 px-4 py-2.5 text-xs text-emerald-900 font-bold flex items-center justify-between animate-in fade-in">
             <span className="flex items-center gap-1.5">
               <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
               <span>{downloadNotice}</span>
@@ -201,7 +201,7 @@ export const ShipmentDocumentModal: React.FC<ShipmentDocumentModalProps> = ({
         )}
 
         {/* 4 Tabs Selector Bar */}
-        <div className="bg-slate-100 p-2 sm:px-5 border-b border-slate-200 flex items-center gap-1.5 sm:gap-2 overflow-x-auto shrink-0">
+        <div className="bg-slate-50 p-2 sm:px-5 border-b border-slate-200 flex items-center gap-1.5 sm:gap-2 overflow-x-auto shrink-0">
           {[
             { id: 'proforma', label: '۱. پیش‌فاکتور (Proforma)', icon: FileText, number: 'PRF' },
             { id: 'official_invoice', label: '۲. فاکتور رسمی مالیاتی (Tax Invoice)', icon: Receipt, number: 'INV' },
@@ -216,13 +216,13 @@ export const ShipmentDocumentModal: React.FC<ShipmentDocumentModalProps> = ({
                 type="button"
                 id={`tab-doc-${tab.id}`}
                 onClick={() => setSelectedDoc(tab.id as any)}
-                className={`px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 whitespace-nowrap transition-all cursor-pointer ${
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 whitespace-nowrap transition-all cursor-pointer ${
                   isSelected
-                    ? 'bg-white text-slate-900 shadow-xs border border-slate-200'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'
+                    ? 'bg-teal-700 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70 border border-transparent'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isSelected ? 'text-amber-600' : 'text-slate-500'}`} />
+                <Icon className={`w-4 h-4 ${isSelected ? 'text-white' : 'text-slate-500'}`} />
                 <span>{tab.label}</span>
               </button>
             );
@@ -368,22 +368,22 @@ const ProformaDocumentView: React.FC<{ doc: GeneratedProformaInvoice }> = ({ doc
       </div>
 
       {/* Totals & Financial Breakdown */}
-      <div className="bg-slate-900 text-white p-4 rounded-xl space-y-2 text-xs font-mono">
-        <div className="flex justify-between text-slate-300">
+      <div className="bg-slate-50 text-slate-900 p-4 rounded-xl border border-slate-200 space-y-2 text-xs font-mono">
+        <div className="flex justify-between text-slate-600">
           <span className="font-sans">مجموع کرایه پایه و هزینه‌های جانبی:</span>
-          <span>{(doc.pricingBreakdown.totalNetPayableRials - doc.pricingBreakdown.vatAmountRials + doc.pricingBreakdown.discountRials).toLocaleString('fa-IR')} ریال</span>
+          <span className="font-bold text-slate-800">{(doc.pricingBreakdown.totalNetPayableRials - doc.pricingBreakdown.vatAmountRials + doc.pricingBreakdown.discountRials).toLocaleString('fa-IR')} ریال</span>
         </div>
-        <div className="flex justify-between text-emerald-400">
-          <span className="font-sans">تخفیف قرارداد وفاداری / سازمانی:</span>
-          <span>- {doc.pricingBreakdown.discountRials.toLocaleString('fa-IR')} ریال</span>
+        <div className="flex justify-between text-emerald-700">
+          <span className="font-sans font-bold">تخفیف قرارداد وفاداری / سازمانی:</span>
+          <span className="font-bold">- {doc.pricingBreakdown.discountRials.toLocaleString('fa-IR')} ریال</span>
         </div>
-        <div className="flex justify-between text-slate-300">
+        <div className="flex justify-between text-slate-600">
           <span className="font-sans">مالیات بر ارزش افزوده (۱۰٪ VAT):</span>
-          <span>+ {doc.pricingBreakdown.vatAmountRials.toLocaleString('fa-IR')} ریال</span>
+          <span className="font-bold text-slate-800">+ {doc.pricingBreakdown.vatAmountRials.toLocaleString('fa-IR')} ریال</span>
         </div>
-        <div className="pt-2 border-t border-slate-800 flex justify-between items-center text-base font-bold text-amber-400">
-          <span className="font-sans text-white">مبلغ کل قابل پرداخت نهایی:</span>
-          <span>{doc.pricingBreakdown.totalNetPayableRials.toLocaleString('fa-IR')} ریال</span>
+        <div className="pt-2 border-t border-slate-200 flex justify-between items-center text-base font-bold text-teal-800">
+          <span className="font-sans text-slate-900 font-bold">مبلغ کل قابل پرداخت نهایی:</span>
+          <span className="text-teal-800 text-lg">{doc.pricingBreakdown.totalNetPayableRials.toLocaleString('fa-IR')} ریال</span>
         </div>
       </div>
 
@@ -493,18 +493,18 @@ const OfficialInvoiceDocumentView: React.FC<{ doc: GeneratedOfficialInvoice }> =
           <div>وضعیت: <strong className="text-emerald-700 font-sans">{doc.paymentInfo.paymentStatusFa}</strong></div>
         </div>
 
-        <div className="p-3.5 bg-slate-900 text-white rounded-xl space-y-1.5 font-mono">
-          <div className="flex justify-between text-slate-300 text-[11px]">
+        <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5 font-mono text-xs">
+          <div className="flex justify-between text-slate-600 text-[11px]">
             <span className="font-sans">جمع کل قبل از مالیات:</span>
-            <span>{(doc.pricingBreakdown.totalNetPayableRials - doc.pricingBreakdown.vatAmountRials).toLocaleString('fa-IR')} ریال</span>
+            <span className="font-bold text-slate-800">{(doc.pricingBreakdown.totalNetPayableRials - doc.pricingBreakdown.vatAmountRials).toLocaleString('fa-IR')} ریال</span>
           </div>
-          <div className="flex justify-between text-slate-300 text-[11px]">
+          <div className="flex justify-between text-slate-600 text-[11px]">
             <span className="font-sans">مالیات و عوارض ارزش افزوده (۱۰٪):</span>
-            <span>{doc.pricingBreakdown.vatAmountRials.toLocaleString('fa-IR')} ریال</span>
+            <span className="font-bold text-slate-800">{doc.pricingBreakdown.vatAmountRials.toLocaleString('fa-IR')} ریال</span>
           </div>
-          <div className="pt-2 border-t border-slate-800 flex justify-between font-bold text-amber-400 text-sm">
-            <span className="font-sans text-white">مبلغ کل قابل پرداخت:</span>
-            <span>{doc.pricingBreakdown.totalNetPayableRials.toLocaleString('fa-IR')} ریال</span>
+          <div className="pt-2 border-t border-slate-200 flex justify-between font-bold text-teal-800 text-sm">
+            <span className="font-sans text-slate-900 font-bold">مبلغ کل قابل پرداخت:</span>
+            <span className="text-teal-800 text-base">{doc.pricingBreakdown.totalNetPayableRials.toLocaleString('fa-IR')} ریال</span>
           </div>
         </div>
       </div>
@@ -556,50 +556,50 @@ const LoadingOrderDocumentView: React.FC<{ doc: GeneratedLoadingOrder }> = ({ do
       </div>
 
       {/* Driver and Fleet Card */}
-      <div className="p-4 bg-slate-900 text-white rounded-2xl space-y-3">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-          <h4 className="text-xs font-bold text-amber-400 flex items-center gap-1.5">
-            <Truck className="w-4 h-4" />
+      <div className="p-4.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-3 text-slate-800">
+        <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+          <h4 className="text-xs font-bold text-slate-900 flex items-center gap-1.5 font-display">
+            <Truck className="w-4 h-4 text-teal-700" />
             مشخصات راننده مجاز و ناوگان باربری
           </h4>
-          <span className="text-[10px] text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-700 font-mono">
+          <span className="text-[10px] text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-200 font-mono font-bold">
             کارت هوشمند فعال
           </span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
           <div>
-            <span className="text-slate-400 text-[10px] block font-sans">نام راننده:</span>
-            <strong className="text-white text-sm font-sans">{doc.driverFleet.driverFullName}</strong>
+            <span className="text-slate-500 text-[10px] block font-sans">نام راننده:</span>
+            <strong className="text-slate-900 text-sm font-sans">{doc.driverFleet.driverFullName}</strong>
           </div>
           <div>
-            <span className="text-slate-400 text-[10px] block font-sans">کد ملی راننده:</span>
-            <span className="text-slate-200">{doc.driverFleet.driverNationalCode}</span>
+            <span className="text-slate-500 text-[10px] block font-sans">کد ملی راننده:</span>
+            <span className="text-slate-700 font-bold">{doc.driverFleet.driverNationalCode}</span>
           </div>
           <div>
-            <span className="text-slate-400 text-[10px] block font-sans">کارت هوشمند راننده:</span>
-            <span className="text-amber-300 font-bold">{doc.driverFleet.driverSmartCardNo}</span>
+            <span className="text-slate-500 text-[10px] block font-sans">کارت هوشمند راننده:</span>
+            <span className="text-teal-800 font-bold">{doc.driverFleet.driverSmartCardNo}</span>
           </div>
           <div>
-            <span className="text-slate-400 text-[10px] block font-sans">تلفن همراه:</span>
-            <span className="text-slate-200">{doc.driverFleet.driverPhone}</span>
+            <span className="text-slate-500 text-[10px] block font-sans">تلفن همراه:</span>
+            <span className="text-slate-700">{doc.driverFleet.driverPhone}</span>
           </div>
 
-          <div className="pt-2 border-t border-slate-800">
-            <span className="text-slate-400 text-[10px] block font-sans">شماره پلاک ناوگان:</span>
-            <strong className="text-amber-400 text-sm">{doc.driverFleet.truckPlate}</strong>
+          <div className="pt-2 border-t border-slate-200">
+            <span className="text-slate-500 text-[10px] block font-sans">شماره پلاک ناوگان:</span>
+            <strong className="text-slate-900 text-sm font-mono">{doc.driverFleet.truckPlate}</strong>
           </div>
-          <div className="pt-2 border-t border-slate-800">
-            <span className="text-slate-400 text-[10px] block font-sans">نوع وسیله نقلیه:</span>
-            <span className="text-slate-200 font-sans">{doc.driverFleet.truckType}</span>
+          <div className="pt-2 border-t border-slate-200">
+            <span className="text-slate-500 text-[10px] block font-sans">نوع وسیله نقلیه:</span>
+            <span className="text-slate-800 font-sans font-medium">{doc.driverFleet.truckType}</span>
           </div>
-          <div className="pt-2 border-t border-slate-800">
-            <span className="text-slate-400 text-[10px] block font-sans">کارت هوشمند ناوگان:</span>
-            <span className="text-slate-200">{doc.driverFleet.fleetSmartCardNo}</span>
+          <div className="pt-2 border-t border-slate-200">
+            <span className="text-slate-500 text-[10px] block font-sans">کارت هوشمند ناوگان:</span>
+            <span className="text-slate-700">{doc.driverFleet.fleetSmartCardNo}</span>
           </div>
-          <div className="pt-2 border-t border-slate-800">
-            <span className="text-slate-400 text-[10px] block font-sans">بیمه‌نامه شخص ثالث:</span>
-            <span className="text-slate-200">{doc.driverFleet.thirdPartyInsuranceNo}</span>
+          <div className="pt-2 border-t border-slate-200">
+            <span className="text-slate-500 text-[10px] block font-sans">بیمه‌نامه شخص ثالث:</span>
+            <span className="text-slate-700">{doc.driverFleet.thirdPartyInsuranceNo}</span>
           </div>
         </div>
       </div>
@@ -757,22 +757,22 @@ const BillOfLadingDocumentView: React.FC<{ doc: GeneratedBillOfLading }> = ({ do
       </div>
 
       {/* Section 4: Financials */}
-      <div className="border border-slate-900 rounded-xl p-3.5 bg-slate-900 text-white text-xs font-mono space-y-2">
-        <div className="font-sans font-bold text-amber-400 border-b border-slate-800 pb-1 flex items-center justify-between">
+      <div className="border border-slate-300 rounded-xl p-3.5 bg-slate-50/90 text-slate-800 text-xs font-mono space-y-2">
+        <div className="font-sans font-bold text-slate-900 border-b border-slate-200 pb-1 flex items-center justify-between">
           <span>۵. مبالغ مالی، کرایه حمل و کسورات قانونی:</span>
-          <span className="text-[10px] text-slate-400">واحد: ریال</span>
+          <span className="text-[10px] text-slate-500 font-sans">واحد: ریال</span>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-slate-300">
-          <div>کرایه پایه حمل: <strong className="text-white block">{doc.financials.baseFreightRials.toLocaleString('fa-IR')}</strong></div>
-          <div>حق کمیسیون شرکت: <span>{doc.financials.commissionRials.toLocaleString('fa-IR')}</span></div>
-          <div>حق بیمه کالا: <span>{doc.financials.insuranceCostRials.toLocaleString('fa-IR')}</span></div>
-          <div>عوارض جاده‌ای و باسکول: <span>{doc.financials.roadTaxWeighbridgeRials.toLocaleString('fa-IR')}</span></div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-slate-600">
+          <div>کرایه پایه حمل: <strong className="text-slate-900 block">{doc.financials.baseFreightRials.toLocaleString('fa-IR')}</strong></div>
+          <div>حق کمیسیون شرکت: <span className="font-bold text-slate-800">{doc.financials.commissionRials.toLocaleString('fa-IR')}</span></div>
+          <div>حق بیمه کالا: <span className="font-bold text-slate-800">{doc.financials.insuranceCostRials.toLocaleString('fa-IR')}</span></div>
+          <div>عوارض جاده‌ای و باسکول: <span className="font-bold text-slate-800">{doc.financials.roadTaxWeighbridgeRials.toLocaleString('fa-IR')}</span></div>
 
-          <div className="pt-2 border-t border-slate-800">پیش‌پرداخت در مبدأ: <strong className="text-emerald-400 block">{doc.financials.prepaymentAdvanceRials.toLocaleString('fa-IR')}</strong></div>
-          <div className="pt-2 border-t border-slate-800">باقیمانده پس‌کرایه: <strong className="text-amber-300 block">{doc.financials.remainingDestinationPayableRials.toLocaleString('fa-IR')}</strong></div>
-          <div className="pt-2 border-t border-slate-800">مالیات ارزش افزوده: <span>{doc.financials.vatAmountRials.toLocaleString('fa-IR')}</span></div>
-          <div className="pt-2 border-t border-slate-800 text-white font-bold text-sm">
-            جمع کل کرایه: <span className="text-amber-400 block">{doc.financials.totalNetPayableRials.toLocaleString('fa-IR')}</span>
+          <div className="pt-2 border-t border-slate-200">پیش‌پرداخت در مبدأ: <strong className="text-emerald-700 block">{doc.financials.prepaymentAdvanceRials.toLocaleString('fa-IR')}</strong></div>
+          <div className="pt-2 border-t border-slate-200">باقیمانده پس‌کرایه: <strong className="text-slate-800 block">{doc.financials.remainingDestinationPayableRials.toLocaleString('fa-IR')}</strong></div>
+          <div className="pt-2 border-t border-slate-200">مالیات ارزش افزوده: <span className="font-bold text-slate-800">{doc.financials.vatAmountRials.toLocaleString('fa-IR')}</span></div>
+          <div className="pt-2 border-t border-slate-200 text-slate-900 font-bold text-sm">
+            جمع کل کرایه: <span className="text-teal-800 text-base block">{doc.financials.totalNetPayableRials.toLocaleString('fa-IR')}</span>
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import {
   Sparkles,
   X,
@@ -15,6 +15,9 @@ import {
   BrainCircuit,
   MessageSquareQuote,
   AlertCircle,
+  Building2,
+  Truck,
+  Shield,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Markdown from 'react-markdown';
@@ -34,51 +37,132 @@ interface ChatMessage {
 }
 
 export const AICoPilotDrawer: React.FC<AICoPilotDrawerProps> = ({ isOpen, onClose }) => {
-  const { activeProductionPackage, pricingPolicy, routeMatrix } = usePricing();
+  const { activeProductionPackage, pricingPolicy, routeMatrix, currentCarrierOrg } = usePricing();
   const [prompt, setPrompt] = useState('');
   const [mode, setMode] = useState<'authoring' | 'explanation' | 'simulation' | 'investigation'>('authoring');
   const [isLoading, setIsLoading] = useState(false);
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const initialWelcomeMessage: ChatMessage = {
-    sender: 'ai',
-    text: `سلام و درود! من دستیار هوشمند و متصل به موتور هوش مصنوعی **Gemini** برای **سیستم عامل قیمت‌گذاری و مدیریت تعرفه لجستیک جاده‌ای** هستم.
+  const carrierName = currentCarrierOrg?.nameFa || 'شرکت حمل‌ونقل';
+  const carrierCode = currentCarrierOrg?.code || 'CAR-01';
+  const fleetCount = currentCarrierOrg?.fleetCount || 1200;
+  const licenseNo = currentCarrierOrg?.licenseNumber || currentCarrierOrg?.legalDossier?.rmtoPermitDoc?.documentNumber || 'LIC-RMTO-1405-9921';
+  const insuranceCeilingBillion = currentCarrierOrg?.insuranceCeilingToman
+    ? (currentCarrierOrg.insuranceCeilingToman / 1000000000).toFixed(0)
+    : '۱۰۰';
 
-آماده‌ام به هرگونه پرسش شما در زمینه‌های زیر به صورت **زنده، پویا و تخصصی** پاسخ دهم:
-- **فرمول‌نویسی تعرفه و رول‌بلاک‌ها:** محاسبه نرخ تن/کیلومتر بر اساس نوع ناوگان، ضرایب سوخت و شرایط کوهستانی.
-- **تحلیل تبارشناسی بارنامه (Decision Trace):** بررسی علل مالی و محاسباتی کرایه هر بارنامه و سهم راننده/باربری.
-- **طراحی گاردریل‌ها:** تنظیم کف و سقف سود ناخالص و پیشگیری از نشتی تخفیفات.
-- **شبیه‌سازی سناریوهای بازار:** شوک قیمت گازوئیل، نوسانات فصلی تقاضا و بار برگشت یک‌سرخالی.
+  const initialWelcomeMessage: ChatMessage = useMemo(() => {
+    return {
+      sender: 'ai',
+      text: `سلام و درود! من **دستیار هوشمند مدیریت تعرفه، ممیزی بارنامه و هدایت ناوگان** ویژه **${carrierName}** (\`${carrierCode}\`) هستم.
 
-پرسش یا دستور مد نظرتان را بفرمایید تا مستقیماً تحلیل و فرمول‌سازی نمایم.`,
-    timestamp: new Date().toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' }),
-  };
+اتصال به موتور هوش مصنوعی **Gemini 3.7 Flash** با اشراف کامل بر پرونده حقوقی (پروانه راهداری \`${licenseNo}\` و بیمه‌نامه **${insuranceCeilingBillion} میلیارد تومانی**) و ${fleetCount} ناوگان فعال برقرار است.
+
+زمینه‌های اصلی تحلیل و اقدام:
+- 📊 **طراحی و تنظیم تعرفه و رول‌بلاک‌ها:** فرمول‌بندی نرخ تن/کیلومتر، قلاب سوخت و شرایط کوهستانی.
+- 🔍 **تحلیل تبارشناسی بارنامه (Decision Trace):** تفکیک سهم باربری، راننده، عوارض راهداری و بیمه.
+- 🛡️ **گاردریل کف سود و صیانت از درآمد:** تثبیت حاشیه سود بالای ۱۵٪ و جلوگیری از نشت تخفیفات.
+- 🚛 **شبیه‌سازی بار برگشت و تخصیص ناوگان:** کاهش ضریب یک‌سرخالی و بهینه‌سازی دیسپاچینگ.
+
+پرسش یا دستور مد نظرتان را بفرمایید:`,
+      timestamp: new Date().toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' }),
+    };
+  }, [carrierName, carrierCode, fleetCount, licenseNo, insuranceCeilingBillion]);
 
   const [messages, setMessages] = useState<ChatMessage[]>([initialWelcomeMessage]);
 
-  const quickPrompts = [
-    {
-      labelFa: 'فرمول اضافه کرایه زمستانه گردنه‌های کوهستانی',
-      mode: 'authoring' as const,
-      text: 'لطفاً یک رول بلاک (Rule Block) تعرفه برای گردنه‌های کوهستانی زاگرس و البرز با ضریب +۱۲٪ و گاردریل کف سود ۱۵٪ پیشنهاد بده و نحوه محاسبه آن را شرح بده.',
-    },
-    {
-      labelFa: 'تحلیل تبارشناسی کرایه تریلی کفی تهران به بندرعباس',
-      mode: 'explanation' as const,
-      text: 'کرایه تریلی کفی با ۲۲ تن بار برای مسافت ۱۲۸۰ کیلومتر محور تهران به بندرعباس چگونه بر مبنای تن/کیلومتر و عوارض راهداری محاسبه می‌شود؟',
-    },
-    {
-      labelFa: 'سناریوهای تست استرس و شوک تقاضای فصلی',
-      mode: 'simulation' as const,
-      text: 'برای پکیج تعرفه جدید جنوب، چه سناریوهای شوک تقاضا، افزایش قیمت سوخت گازوئیل یا کمبود ناوگان را باید قبل از انتشار شبیه‌سازی کنیم؟',
-    },
-    {
-      labelFa: 'بررسی نشت تخفیف و افت حاشیه سود کشنده یخچال‌دار',
-      mode: 'investigation' as const,
-      text: 'ناهنجاری اخیراً ثبت‌شده در محورهای جنوب برای کشنده یخچال‌دار با افت سود به زیر ۱۵٪ را بررسی و راهکار اصلاحی برای جلوگیری از زیان ارائه کن.',
-    },
-  ];
+  useEffect(() => {
+    setMessages([initialWelcomeMessage]);
+  }, [initialWelcomeMessage]);
+
+  const quickPrompts = useMemo(() => {
+    const orgId = currentCarrierOrg?.id || '';
+    const nameLower = (currentCarrierOrg?.nameFa || '').toLowerCase();
+
+    if (orgId.includes('safir') || nameLower.includes('سفیران') || nameLower.includes('سرد') || nameLower.includes('انجماد')) {
+      return [
+        {
+          labelFa: 'فرمول ضریب یخچالی و قلاب سوخت ژنراتور',
+          badge: 'زنجیره سرد',
+          mode: 'authoring' as const,
+          text: `برای ناوگان کشنده یخچالی شرکت ${carrierName} در فصول گرم و محورهای جنوب، چه رول‌بلاک تعرفه‌ای با ضریب سوخت ژنراتور ترموکینگ پیشنهاد می‌دهید؟`,
+        },
+        {
+          labelFa: 'کاهش بار برگشت خالی ناوگان کانتینر سرد',
+          badge: 'بار برگشت',
+          mode: 'simulation' as const,
+          text: `راهکار بهینه‌سازی بار برگشت با جذب محمولات سبزیجات منجمد و کنسانتره برای ناوگان یخچالی ${carrierName} جهت کاهش تردد خالی به زیر ۶٪ چیست؟`,
+        },
+        {
+          labelFa: 'تبارشناسی بارنامه محمولات دارویی و پروتئینی',
+          badge: 'تحلیل بارنامه',
+          mode: 'explanation' as const,
+          text: `نحوه تفکیک و محاسبه حق بیمه فساد کالا، عوارض راهداری و سهم خالص متصدی در بارنامه حمل فرآورده‌های دارویی با ارزش بالا را تحلیل کن.`,
+        },
+        {
+          labelFa: 'پایش نشت تخفیف و حاشیه سود شعب استانی',
+          badge: 'کف سود ۱۵٪',
+          mode: 'investigation' as const,
+          text: `بررسی راهکار گاردریل کلمپ برای جلوگیری از افت حاشیه سود شعب اصفهان و مشهد به زیر کف قانونی ۱۵.۰٪.`,
+        },
+      ];
+    } else if (orgId.includes('petro') || nameLower.includes('پترو') || nameLower.includes('نفت') || nameLower.includes('شیمی')) {
+      return [
+        {
+          labelFa: 'رول‌بلاک اضافه کرایه محمولات خطرناک ADR',
+          badge: 'مواد خطرناک',
+          mode: 'authoring' as const,
+          text: `لطفاً رول‌بلاک تعرفه حمل مواد شیمیایی کلاس ۳ و ۸ (ADR) با ضریب +۱۸٪ و الزام اسکورت ایمنی برای تانکرهای ${carrierName} را تعریف و تحلیل نما.`,
+        },
+        {
+          labelFa: 'تبارشناسی کرایه تانکر استیل ماهشهر به تبریز',
+          badge: 'محاسبه خطی',
+          mode: 'explanation' as const,
+          text: `کرایه تانکر ۲۵ تن متانول از پتروشیمی ماهشهر به مقصد تبریز با احتساب عوارض ۹٪ راهداری و بیمه مسئولیت مدنی چگونه محاسبه می‌شود؟`,
+        },
+        {
+          labelFa: 'شبیه‌سازی شوک افزایش قیمت سوخت و استهلاک مخزن',
+          badge: 'تست استرس',
+          mode: 'simulation' as const,
+          text: `در صورت افزایش نرخ سوخت و استهلاک تانکرهای دوجداره استیل، چه تغییری در ضرایب تعرفه برای حفظ سودآوری بالای ۲۱٪ لازم است؟`,
+        },
+        {
+          labelFa: 'پایش سقف تعهد بیمه‌نامه و تطابق بارنامه‌ها',
+          badge: 'ممیزی رگولاتوری',
+          mode: 'investigation' as const,
+          text: `تحلیل انطباق سقف بیمه‌نامه ${insuranceCeilingBillion} میلیارد تومانی شرکت با ارزش اظهارشده محمولات پتروشیمی در استعلام‌های آنلاین.`,
+        },
+      ];
+    } else {
+      return [
+        {
+          labelFa: 'فرمول اضافه کرایه زمستانه گردنه‌های کوهستانی',
+          badge: 'رول‌بلاک جدید',
+          mode: 'authoring' as const,
+          text: 'یک رول‌بلاک تعرفه برای گردنه‌های کوهستانی زاگرس و البرز با ضریب +۱۲٪ و گاردریل کف سود ۱۵٪ پیشنهاد بده و نحوه محاسبه آن را شرح بده.',
+        },
+        {
+          labelFa: 'تحلیل تبارشناسی کرایه تریلی کفی تهران به بندرعباس',
+          badge: 'تبارشناسی مالی',
+          mode: 'explanation' as const,
+          text: 'کرایه تریلی کفی با ۲۲ تن بار برای مسافت ۱۲۸۰ کیلومتر محور تهران به بندرعباس چگونه بر مبنای تن/کیلومتر و عوارض راهداری محاسبه می‌شود؟',
+        },
+        {
+          labelFa: 'شبیه‌سازی شوک تقاضای فصلی و تعادل بار برگشت',
+          badge: 'شبیه‌سازی ریسک',
+          mode: 'simulation' as const,
+          text: `برای خطوط اختصاصی شرکت ${carrierName}، چه سناریوهای شوک تقاضا و جذب بار برگشت را باید قبل از انتشار پکیج تعرفه جدید شبیه‌سازی کنیم؟`,
+        },
+        {
+          labelFa: 'بررسی نشت تخفیف مشتریان VIP و افت حاشیه سود',
+          badge: 'کشف ناهنجاری',
+          mode: 'investigation' as const,
+          text: 'ناهنجاری‌های اخیراً ثبت‌شده ناشی از هم‌پوشانی تخفیفات تناژ با تخفیف فصلی را بررسی و راهکار گاردریل کلمپ ارائه کن.',
+        },
+      ];
+    }
+  }, [currentCarrierOrg, carrierName, insuranceCeilingBillion]);
 
   const modes = [
     { id: 'authoring' as const, labelFa: 'طراحی تعرفه', descFa: 'فرمول‌نویسی و رول‌بلاک' },
@@ -207,15 +291,18 @@ export const AICoPilotDrawer: React.FC<AICoPilotDrawerProps> = ({ isOpen, onClos
                 <div>
                   <div className="flex items-center gap-2">
                     <h3 className="font-extrabold text-[#2C2C2A] text-sm font-display tracking-tight">
-                      دستیار هوشمند و تحلیل‌گر تعرفه (Gemini AI)
+                      دستیار هوشمند و تحلیل‌گر تعرفه متصدی (Gemini AI)
                     </h3>
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#E1F5EE] text-[#04342C] border border-[#9FE1CB]">
-                      زنده و پویا
+                      پنل مدیریت باربری
                     </span>
                   </div>
-                  <p className="text-xs text-[#5F5E5A] font-medium mt-0.5">
-                    اتصال مستقیم به مدل Gemini 3.7 Flash برای تحلیل نرخ، بارنامه و سیاست‌های حمل جاده‌ای
-                  </p>
+                  <div className="flex items-center gap-1.5 text-xs text-[#5F5E5A] font-medium mt-0.5">
+                    <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                    <span>سازمان حمل‌ونقل: <strong className="text-slate-800">{carrierName}</strong></span>
+                    <span className="text-slate-300">•</span>
+                    <span className="text-[#085041] font-semibold">{fleetCount} ناوگان فعال</span>
+                  </div>
                 </div>
               </div>
               <div className="flex items-center gap-1">
@@ -233,6 +320,22 @@ export const AICoPilotDrawer: React.FC<AICoPilotDrawerProps> = ({ isOpen, onClos
                 >
                   <X className="w-5 h-5" />
                 </button>
+              </div>
+            </div>
+
+            {/* Carrier Quick Status Banner */}
+            <div className="px-4 py-2 bg-slate-50 border-b border-slate-200/80 flex items-center justify-between text-xs text-slate-600 gap-2 overflow-x-auto">
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className="w-2 h-2 rounded-full bg-teal-600"></span>
+                <span>پروانه راهداری: <strong className="font-mono text-slate-800">{licenseNo}</strong></span>
+              </div>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className="text-slate-400">سقف بیمه‌نامه:</span>
+                <strong className="text-[#085041] font-mono">{insuranceCeilingBillion} میلیارد ت</strong>
+              </div>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className="text-slate-400">کف حاشیه سود:</span>
+                <strong className="text-emerald-700 font-mono">۱۵.۰٪ کلمپ</strong>
               </div>
             </div>
 

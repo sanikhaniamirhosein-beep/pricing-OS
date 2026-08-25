@@ -54,8 +54,10 @@ import { ShipperRetailNotificationsView } from './ShipperRetailNotificationsView
 import { ShipperSupportIncidentsView } from './ShipperSupportIncidentsView';
 import { ShipperBatchOrdersView } from './ShipperBatchOrdersView';
 import { ShipperOrgProfileModal } from './ShipperOrgProfileModal';
-import { AICoPilotDrawer } from '../common/AICoPilotDrawer';
+import { ShipperAICoPilotDrawer } from './ShipperAICoPilotDrawer';
+import { ShipperNotificationBell } from './ShipperNotificationBell';
 import { RoleAccessGuard } from '../common/RoleAccessGuard';
+import { RolePasswordAuthModal, RoleAuthTarget } from '../common/RolePasswordAuthModal';
 import { ShipperActiveLoad } from '../../data/mockShipperData';
 import { checkShipperProfileCompleteness } from '../../types/shipperLegal';
 
@@ -121,6 +123,8 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
   const [isAiCoPilotOpen, setIsAiCoPilotOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [isSidebarCompact, setIsSidebarCompact] = useState(false);
+  const [targetRoleForAuth, setTargetRoleForAuth] = useState<RoleAuthTarget | null>(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const userDropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown on outside click
@@ -133,6 +137,25 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const handleRequestRoleSwitch = (r: typeof SHIPPER_ROLE_DETAILS[0]) => {
+    if (r.role === shipperUserRole) {
+      setIsUserDropdownOpen(false);
+      return;
+    }
+    setTargetRoleForAuth({
+      roleKey: r.role,
+      titleFa: r.titleFa,
+      titleEn: r.titleEn,
+      levelBadge: r.levelBadge,
+      departmentFa: r.departmentFa,
+      defaultUserName: r.defaultUserName,
+      defaultUserEmail: r.defaultUserEmail,
+      defaultPassword: r.defaultPassword || 'admin@shipper123',
+    });
+    setIsUserDropdownOpen(false);
+    setIsAuthModalOpen(true);
+  };
 
   const handleRoleSwitch = (newRole: ShipperUserRole) => {
     const detail = getShipperRoleDetail(newRole);
@@ -153,6 +176,28 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
     // Auto navigate to a valid tab if current tab is not allowed for this role
     if (!detail.allowedTabs.includes(activeTab)) {
       setActiveTab(detail.allowedTabs[0] as any);
+    }
+  };
+
+  const handleNavigateFromNotification = (
+    tab: 'shipments' | 'contracts' | 'billing' | 'support' | 'quote' | 'batch_orders',
+    recordId?: string,
+    recordType?: 'load' | 'invoice' | 'contract' | 'ticket'
+  ) => {
+    setActiveTab(tab as any);
+    if (tab === 'shipments' && recordId) {
+      const foundLoad = activeLoads.find(
+        (l) => l.id === recordId || l.billOfLadingNo === recordId || l.trackingCode === recordId
+      );
+      if (foundLoad) {
+        setSelectedShipmentForTracking(foundLoad);
+      }
+    } else if (tab === 'support' && recordId) {
+      if (recordType === 'load') {
+        setSelectedLoadForSupport(recordId);
+      } else {
+        setSelectedTicketForSupport(recordId);
+      }
     }
   };
 
@@ -326,6 +371,9 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
               </button>
             </div>
 
+            {/* Shipper Smart Notification Bell (مرکز هشدارهای هوشمند صاحب بار) */}
+            <ShipperNotificationBell onNavigateToRecord={handleNavigateFromNotification} />
+
             <div className="h-5 w-px bg-slate-200" />
 
             {/* User Profile & Role Switcher Dropdown */}
@@ -422,7 +470,7 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
                             <button
                               key={r.id}
                               type="button"
-                              onClick={() => handleRoleSwitch(r.role)}
+                              onClick={() => handleRequestRoleSwitch(r)}
                               className={`w-full p-2 rounded-xl border text-right transition-all flex items-center justify-between cursor-pointer ${
                                 isCurrent
                                   ? 'bg-sky-50 border-sky-400 font-bold text-sky-950 shadow-2xs'
@@ -727,7 +775,11 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
 
               {activeTab === 'master_data' && <ShipperMasterDataView />}
 
-              {activeTab === 'analytics' && <ShipperAnalyticsView />}
+              {activeTab === 'analytics' && (
+                <ShipperAnalyticsView
+                  onNavigateTab={(tab) => setActiveTab(tab as any)}
+                />
+              )}
 
               {activeTab === 'settings' && <ShipperSettingsView />}
 
@@ -755,13 +807,29 @@ export const ShipperPortalLayout: React.FC<ShipperPortalLayoutProps> = ({
         </div>
       </footer>
 
-      {/* AI Assistant Drawer Component */}
-      <AICoPilotDrawer isOpen={isAiCoPilotOpen} onClose={() => setIsAiCoPilotOpen(false)} />
+      {/* Shipper AI Assistant Drawer Component */}
+      <ShipperAICoPilotDrawer isOpen={isAiCoPilotOpen} onClose={() => setIsAiCoPilotOpen(false)} />
 
       {/* Shipper Organization Profile & Legal Dossier Modal */}
       <ShipperOrgProfileModal
         isOpen={isShipperOrgModalOpen}
         onClose={() => setIsShipperOrgModalOpen(false)}
+      />
+
+      {/* Role Switch Security Verification Modal */}
+      <RolePasswordAuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => {
+          setIsAuthModalOpen(false);
+          setTargetRoleForAuth(null);
+        }}
+        targetRole={targetRoleForAuth}
+        onConfirm={() => {
+          if (targetRoleForAuth) {
+            handleRoleSwitch(targetRoleForAuth.roleKey as ShipperUserRole);
+          }
+        }}
+        portalType="shipper"
       />
     </div>
   );

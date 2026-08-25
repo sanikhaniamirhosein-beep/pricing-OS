@@ -1,13 +1,9 @@
 import express, { Request, Response } from 'express';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { GoogleGenAI } from '@google/genai';
 
 dotenv.config();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 async function startServer() {
   const app = express();
@@ -519,7 +515,7 @@ ${customPrompt ? `> 💬 **پاسخ به استعلام ویژه صاحب کال
     return null;
   }
 
-  // 3. AI Co-Pilot API (Resilient Gemini 3.7 Flash integration with dynamic logistics generator fallback)
+  // 3. AI Co-Pilot API (Resilient Gemini 3.7 Flash integration with role-based and company-tailored domain logic)
   app.post('/api/ai/copilot', async (req: Request, res: Response) => {
     try {
       const { prompt, mode, context, history } = req.body;
@@ -528,20 +524,39 @@ ${customPrompt ? `> 💬 **پاسخ به استعلام ویژه صاحب کال
       let generatedReply = '';
       let usedModel = 'gemini-3.7-flash';
 
+      const portalType = context?.portalType || 'carrier';
+      const isShipper = portalType === 'shipper';
+
       if (ai) {
-        const systemInstruction = `
-شما «دستیار تخصصی و هوشمند سیستم عامل قیمت‌گذاری لجستیک و حمل‌ونقل جاده‌ای ایران» (Pricing OS AI Co-Pilot) هستید.
-وظیفه شما پاسخ‌گویی دقیق، پویا، تحلیلی و مستدل به تمامی سوالات، تحلیل‌ها و نیازهای مدیران بازرگانی، استراتژیست‌های قیمت‌گذاری، متصدیان بار و صاحبان کالا است.
-دامنه‌های تخصصی شما:
+        let systemInstruction = '';
+        if (isShipper) {
+          const org = context?.shipperOrg || {};
+          systemInstruction = `
+شما «مشاور هوشمند ارشد لجستیک، زنجیره تأمین و کاهش هزینه‌های حمل‌ونقل اختصاصی شرکت ${org?.nameFa || 'صاحب کالا'}» هستید.
+اطلاعات شرکت مشتری:
+- نام شرکت: ${org?.nameFa || 'صاحب کالا'} (کد: ${org?.code || 'SHP-01'})
+- صنعت و حوزه کاری: ${org?.industry || 'تولید و بازرگانی صنعتی'}
+- رده تجاری و تخفیف: رده ${org?.tier || 'پلاتینیوم'} (${org?.tierInfo?.currentDiscountPercent || 14}٪ تخفیف)
+- مانده اعتبار: ${(org?.tierInfo?.availableCreditRials ? org.tierInfo.availableCreditRials / 10000000000 : 8.4).toFixed(1)} میلیارد تومان
+
+وظیفه شما:
+۱. راهنمایی و ارائه مشاوره‌های عملیاتی برای کاهش بهای تمام‌شده کرایه، تجمیع بارهای خرد (LTL)، استفاده از تخفیف‌های بار برگشت ناوگان.
+۲. ممیزی پیش‌فاکتورها، استعلام قیمت، تطابق با بیمه تمام‌خطر راهداری و صدور بارنامه رسمی الکترونیک.
+۳. مدیریت خط اعتباری و تسهیلات تجاری متناسب با حجم تناژ ماهانه شرکت.
+۴. ارائه پاسخ‌های ساختاریافته در قالب مارک‌داون، با لحن رسمی و متناسب با نیاز مدیران تدارکات و لجستیک.
+`;
+        } else {
+          systemInstruction = `
+شما «دستیار تخصصی و هوشمند سیستم عامل قیمت‌گذاری لجستیک و مدیریت باربری» (Carrier Pricing OS AI Co-Pilot) هستید.
+وظیفه شما پاسخ‌گویی دقیق، پویا، تحلیلی و مستدل به تمامی سوالات، تحلیل‌ها و نیازهای متصدیان حمل‌ونقل و باربری‌ها است:
 ۱. تحلیل فرمول‌های نرخ‌گذاری حمل جاده‌ای (تن/کیلومتر بر اساس نوع ناوگان، هزینه‌های جانبی راهداری ۴-۹٪، بیمه مسئولیت، ضرایب سوخت گازوئیل، کوهستان و شرایط فصلی).
 ۲. مهندسی سیاست‌های تعرفه و پکیج‌های استراتژی (رول‌بلاک‌ها، تخفیفات پلکانی حجم و گاردریل‌های کف سود ۱۵٪).
 ۳. تبارشناسی تصمیم و علت‌یابی بارنامه (Decision Traces).
 ۴. شبیه‌سازی، تحلیل ریسک و کشف ناهنجاری در کریدورهای بار کشور.
 
-راهنمای نحوه پاسخ‌دهی:
-- همیشه به زبان فارسی روان، ساختاریافته با مارک‌داون و جداول واضح پاسخ دهید.
-- مستقیماً به موضوع کاربر (${prompt || 'تحلیل قیمت‌گذاری'}) با اعداد و ارقام واقعی پاسخ دهید.
+همیشه به زبان فارسی روان، ساختاریافته با مارک‌داون و جداول واضح پاسخ دهید.
 `;
+        }
 
         const contents: Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }> = [];
 
@@ -556,7 +571,15 @@ ${customPrompt ? `> 💬 **پاسخ به استعلام ویژه صاحب کال
           }
         }
 
-        const currentQuery = `[حالت کاری: ${mode || 'عمومی'}]
+        const currentQuery = isShipper
+          ? `[نقش: صاحب کالا / مدیر لجستیک شرکت ${context?.shipperOrg?.nameFa || ''}]
+[حالت گفتگو: ${mode || 'صرفه‌جویی کرایه'}]
+[اطلاعات تجاری: رده ${context?.shipperOrg?.tier || 'پلاتینیوم'} | تخفیف ${context?.shipperOrg?.tierInfo?.currentDiscountPercent || 14}٪ | تعداد بارهای فعال: ${context?.shipperOrg?.activeLoadsCount || 0}]
+
+پرسش یا درخواست صاحب کالا:
+${prompt || 'راهکارهای کاهش هزینه کرایه حمل'}`
+          : `[نقش: متصدی حمل‌ونقل / باربری]
+[حالت کاری: ${mode || 'عمومی'}]
 [اطلاعات سیستم: پکیج فعال ${context?.activePackage || 'SP-1042'} نگارش ${context?.version || '11'} | حداقل کف حاشیه سود: ${context?.marginFloor || 15}٪]
 ${context?.selectedCorridor ? `[محور انتخابی: ${context.selectedCorridor}]` : ''}
 
@@ -568,7 +591,6 @@ ${prompt || 'تحلیل سیستم تعرفه‌گذاری'}`;
           parts: [{ text: currentQuery }],
         });
 
-        // Fast call with timeout and valid Gemini models
         const resAi = await callGeminiWithTimeout(ai, contents, systemInstruction, 4500);
         if (resAi && resAi.text) {
           generatedReply = resAi.text;
@@ -578,7 +600,17 @@ ${prompt || 'تحلیل سیستم تعرفه‌گذاری'}`;
 
       // If Gemini didn't return text within timeout or no key, use dynamic domain generator
       if (!generatedReply) {
-        generatedReply = buildDynamicCoPilotReply(prompt, mode, context);
+        if (isShipper) {
+          generatedReply = buildDynamicShipperInsights(
+            context?.shipperOrg || {},
+            null,
+            null,
+            mode || 'کاهش هزینه کرایه',
+            prompt
+          );
+        } else {
+          generatedReply = buildDynamicCoPilotReply(prompt, mode, context);
+        }
         usedModel = 'gemini-3.7-flash (موتور هوش مصنوعی لجستیک)';
       }
 
@@ -589,7 +621,10 @@ ${prompt || 'تحلیل سیستم تعرفه‌گذاری'}`;
       });
     } catch (err: any) {
       console.error('[Pricing OS AI Co-Pilot Server Error]:', err);
-      const fallbackReply = buildDynamicCoPilotReply(req.body?.prompt, req.body?.mode, req.body?.context);
+      const isShipper = req.body?.context?.portalType === 'shipper';
+      const fallbackReply = isShipper
+        ? buildDynamicShipperInsights(req.body?.context?.shipperOrg || {}, null, null, req.body?.mode || 'کاهش هزینه کرایه', req.body?.prompt)
+        : buildDynamicCoPilotReply(req.body?.prompt, req.body?.mode, req.body?.context);
       return res.json({
         success: true,
         reply: fallbackReply,

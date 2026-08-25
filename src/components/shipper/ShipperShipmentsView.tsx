@@ -357,19 +357,29 @@ export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {filteredLoads.map((load) => (
-                    <tr
-                      key={load.id}
-                      className="hover:bg-amber-50/40 transition-colors group cursor-pointer"
-                      onClick={() => {
-                        setSelectedLoad(load);
-                        setActiveTab('live_map');
-                      }}
-                    >
-                      <td className="p-3.5">
-                        <div className="font-mono font-bold text-slate-900">{load.billOfLadingNo}</div>
-                        <div className="font-mono text-[11px] text-slate-400">{load.trackingCode}</div>
-                      </td>
+                  {filteredLoads.map((load) => {
+                    const isSelectedRow = selectedLoad?.id === load.id;
+                    return (
+                      <tr
+                        key={load.id}
+                        id={`shipment-row-${load.id}`}
+                        className={`transition-colors group cursor-pointer ${
+                          isSelectedRow
+                            ? 'bg-amber-50/90 ring-1 ring-amber-400 font-medium'
+                            : 'hover:bg-amber-50/40'
+                        }`}
+                        onClick={() => {
+                          setSelectedLoad(load);
+                          setActiveTab('live_map');
+                        }}
+                      >
+                        <td className="p-3.5">
+                          <div className="font-mono font-bold text-slate-900 flex items-center gap-1.5">
+                            {isSelectedRow && <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping shrink-0" />}
+                            <span>{load.billOfLadingNo}</span>
+                          </div>
+                          <div className="font-mono text-[11px] text-slate-400">{load.trackingCode}</div>
+                        </td>
                       <td className="p-3.5">
                         <div className="font-bold text-slate-800">{load.originCity} ➔ {load.destCity}</div>
                         <div className="text-[11px] text-slate-400 truncate max-w-[180px]">{load.destHub}</div>

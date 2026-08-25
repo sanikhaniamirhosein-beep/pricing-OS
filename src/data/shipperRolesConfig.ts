@@ -22,6 +22,7 @@ export interface ShipperRoleDetail {
   departmentFa: string;
   defaultUserName: string;
   defaultUserEmail: string;
+  defaultPassword?: string;
   descriptionFa: string;
   // Governance & Scope Flags
   hasApprovalLimit: boolean;
@@ -76,6 +77,7 @@ export const SHIPPER_ROLE_DETAILS: ShipperRoleDetail[] = [
     departmentFa: 'مدیریت زنجیره تامین و لجستیک سازمانی',
     defaultUserName: 'مهندس جواد اکبری',
     defaultUserEmail: 'j.akbari@steel-msc.ir',
+    defaultPassword: 'admin@shipper123',
     descriptionFa: 'مدیر ارشد زنجیره تامین با اختیار تام در مدیریت سفارشات، اعتبارات، پرسنل و قراردادهای عمده.',
     hasApprovalLimit: false,
     defaultApprovalLimitToman: 0, // No limit
@@ -114,6 +116,7 @@ export const SHIPPER_ROLE_DETAILS: ShipperRoleDetail[] = [
     departmentFa: 'واحد سفارشات و ترابری بار',
     defaultUserName: 'مریم سهرابی',
     defaultUserEmail: 'm.sohrabi@steel-msc.ir',
+    defaultPassword: 'logistics@shipper123',
     descriptionFa: 'مسئول ثبت سفارشات روزانه، استعلام نرخ کرایه و رهگیری لحظه‌ای ناوگان تا مقصد.',
     hasApprovalLimit: true,
     defaultApprovalLimitToman: 100000000, // 100 million toman approval limit
@@ -149,6 +152,7 @@ export const SHIPPER_ROLE_DETAILS: ShipperRoleDetail[] = [
     departmentFa: 'واحد انبارداری و تحویل کالا',
     defaultUserName: 'رضا حسینی',
     defaultUserEmail: 'r.hosseini@steel-msc.ir',
+    defaultPassword: 'warehouse@shipper123',
     descriptionFa: 'مسئول انبار مرکزی با دسترسی مقید به موقعیت جغرافیایی و بارانداز اختصاصی جهت تایید بارگیری و آپلود مدارک تحویل.',
     hasApprovalLimit: false,
     defaultApprovalLimitToman: 0,
@@ -186,6 +190,7 @@ export const SHIPPER_ROLE_DETAILS: ShipperRoleDetail[] = [
     departmentFa: 'معاونت مالی و حسابداری صنعتی',
     defaultUserName: 'سعید محمدی',
     defaultUserEmail: 's.mohammadi@steel-msc.ir',
+    defaultPassword: 'finance@shipper123',
     descriptionFa: 'مدیر مالی سازمان با اختیار تایید صورتحساب‌ها، افزایش اعتبار و صدور تاییدیه‌های سفارشات با ارزش بالا.',
     hasApprovalLimit: false,
     defaultApprovalLimitToman: 0,
@@ -230,6 +235,7 @@ export const SHIPPER_ROLE_DETAILS: ShipperRoleDetail[] = [
     departmentFa: 'پنل خدمات شخصی و بار خرد',
     defaultUserName: 'علی مرادی',
     defaultUserEmail: 'ali.moradi@gmail.com',
+    defaultPassword: 'user@shipper123',
     descriptionFa: 'کاربر شخصی با دسترسی کامل به تمامی بخش‌های استعلام، ثبت سفارش، تخفیف‌ها، صورتحساب‌ها و گزارش‌های شخصی.',
     hasApprovalLimit: false,
     defaultApprovalLimitToman: 0,

@@ -1,0 +1,242 @@
+import { ShipperNotificationItem } from '../types/shipperNotifications';
+
+export const INITIAL_SHIPPER_NOTIFICATIONS: ShipperNotificationItem[] = [
+  // 1. Shipment - Urgent Issue / Damage
+  {
+    id: 'notif-ship-001',
+    category: 'shipment',
+    priority: 'urgent',
+    titleFa: 'هشدار آسیب و نقص پلمپ محموله',
+    messageFa: 'گزارش مغایرت در پلمپ بارگیر و مشاهده صدمه به بسته‌بندی پالت‌های ورق در ایست بازرسی نائین ثبت گردید.',
+    timestamp: '۱۴۰۳/۰۶/۰۱ - ۱۱:۴۵',
+    timestampRelative: '۱۵ دقیقه پیش',
+    isRead: false,
+    targetTab: 'shipments',
+    targetRecordId: 'load-101',
+    targetRecordType: 'load',
+    meta: {
+      billOfLadingNo: 'BL-1403-90812',
+      trackingCode: 'TRK-98210',
+      truckPlate: '۶۳ ع ۹۲۱ - ایران ۱۳',
+      driverName: 'محمدرضا کریمی',
+      carrierName: 'باربری خلیج فارس',
+      originDest: 'اصفهان به تهران',
+      actionLabelFa: 'مشاهده بارنامه و ثبت تیکت فوریت',
+    },
+  },
+
+  // 2. Shipment - Delay Alert
+  {
+    id: 'notif-ship-002',
+    category: 'shipment',
+    priority: 'urgent',
+    titleFa: 'تأخیر در تحویل محموله نسبت به برنامه',
+    messageFa: 'به علت انسداد مقطعی جاده و شرایط جوی گردنه، تحویل محموله شمش فولادی با ۱۲۰ دقیقه تأخیر انجام خواهد شد.',
+    timestamp: '۱۴۰۳/۰۶/۰۱ - ۱۰:۳۰',
+    timestampRelative: '۱ ساعت پیش',
+    isRead: false,
+    targetTab: 'shipments',
+    targetRecordId: 'load-102',
+    targetRecordType: 'load',
+    meta: {
+      billOfLadingNo: 'BL-1403-88341',
+      trackingCode: 'TRK-77412',
+      truckPlate: '۴۸ ج ۷۶۳ - ایران ۵۳',
+      driverName: 'حسین احمدی',
+      carrierName: 'شرکت ترابری ایران تیر',
+      originDest: 'بندرعباس به اصفهان',
+      delayMinutes: 120,
+      actionLabelFa: 'رهگیری موقعیت لحظه‌ای روی نقشه',
+    },
+  },
+
+  // 3. Carrier/Driver - Driver/Truck Replacement
+  {
+    id: 'notif-carrier-001',
+    category: 'carrier_driver',
+    priority: 'urgent',
+    titleFa: 'تغییر راننده و وسیله نقلیه بارگیر',
+    messageFa: 'شرکت حمل‌ونقل به دلیل بروز نقص در کشنده اولیه، راننده جدید (جواد صادقی با کشنده ولوو FH) را به بارنامه متصل کرد.',
+    timestamp: '۱۴۰۳/۰۶/۰۱ - ۰۹:۱۵',
+    timestampRelative: '۲ ساعت پیش',
+    isRead: false,
+    targetTab: 'shipments',
+    targetRecordId: 'load-103',
+    targetRecordType: 'load',
+    meta: {
+      billOfLadingNo: 'BL-1403-76290',
+      trackingCode: 'TRK-66519',
+      truckPlate: '۲۲ د ۵۱۴ - ایران ۷۲',
+      driverName: 'جواد صادقی (جدید)',
+      carrierName: 'شرکت سیرود دریا',
+      originDest: 'اهواز به مشهد',
+      actionLabelFa: 'بررسی مشخصات راننده جدید و کارت هوشمند',
+    },
+  },
+
+  // 4. Financial - Unusual Cost Increase / Demurrage
+  {
+    id: 'notif-fin-001',
+    category: 'financial',
+    priority: 'urgent',
+    titleFa: 'تغییر یا افزایش هزینه غیرمعمول (حق توقف)',
+    messageFa: 'هزینه مازاد توقف تخلیه بیش از ۸ ساعت به مبلغ ۳,۲۰۰,۰۰۰ تومان به صورتحساب محموله BL-1403-90812 اضافه شد.',
+    timestamp: '۱۴۰۳/۰۶/۰۱ - ۰۸:۲۰',
+    timestampRelative: '۳ ساعت پیش',
+    isRead: false,
+    targetTab: 'billing',
+    targetRecordId: 'inv-1403-882',
+    targetRecordType: 'invoice',
+    meta: {
+      invoiceNo: 'INV-1403-882',
+      amountToman: 3200000,
+      billOfLadingNo: 'BL-1403-90812',
+      actionLabelFa: 'بررسی ریز صورتحساب و تایید مالی',
+    },
+  },
+
+  // 5. Contract - Expiration Approaching
+  {
+    id: 'notif-contract-001',
+    category: 'contract',
+    priority: 'urgent',
+    titleFa: 'نزدیک شدن به تاریخ انقضای قرارداد سالانه',
+    messageFa: 'قرارداد تخفیف سازمانی الماس و سقف اعتباری حمل بار شما تا ۱۰ روز دیگر (۱۴۰۳/۰۶/۱۱) منقضی می‌شود. جهت تمدید اقدام کنید.',
+    timestamp: '۱۴۰۳/۰۵/۳۱ - ۱۶:۴۰',
+    timestampRelative: 'دیروز',
+    isRead: false,
+    targetTab: 'contracts',
+    targetRecordId: 'contract-diamond-1403',
+    targetRecordType: 'contract',
+    meta: {
+      contractTitle: 'قرارداد حمل تجاری سطح الماس (SLA طلایی)',
+      daysLeft: 10,
+      actionLabelFa: 'مشاهده شرایط تمدید و پله‌های تخفیف',
+    },
+  },
+
+  // 6. Carrier/Driver - Breakdown Reported
+  {
+    id: 'notif-carrier-002',
+    category: 'carrier_driver',
+    priority: 'urgent',
+    titleFa: 'مشکل فنی ناوگان گزارش‌شده توسط حمل‌کننده',
+    messageFa: 'ناوگان محموله میلگرد در آزادراه نطنز به دلیل پنچری دوقلو و تعویض لاستیک به مدت ۴۵ دقیقه متوقف شده است.',
+    timestamp: '۱۴۰۳/۰۵/۳۱ - ۱۴:۱۰',
+    timestampRelative: 'دیروز',
+    isRead: true,
+    targetTab: 'shipments',
+    targetRecordId: 'load-102',
+    targetRecordType: 'load',
+    meta: {
+      billOfLadingNo: 'BL-1403-88341',
+      truckPlate: '۴۸ ج ۷۶۳ - ایران ۵۳',
+      driverName: 'حسین احمدی',
+      carrierName: 'شرکت ترابری ایران تیر',
+      actionLabelFa: 'بررسی تیکت امداد جاده‌ای',
+    },
+  },
+
+  // 7. Financial - Payment Due Soon
+  {
+    id: 'notif-fin-002',
+    category: 'financial',
+    priority: 'normal',
+    titleFa: 'سررسید پرداخت صورتحساب رسمی نزدیک است',
+    messageFa: 'مهلت پرداخت فاکتور الکترونیکی تیرماه به شماره INV-1403-771 به مبلغ ۴۵,۰۰۰,۰۰۰ تومان تا ۴۸ ساعت آینده فرا می‌رسد.',
+    timestamp: '۱۴۰۳/۰۵/۳۱ - ۰۹:۰۰',
+    timestampRelative: 'دیروز',
+    isRead: true,
+    targetTab: 'billing',
+    targetRecordId: 'inv-1403-771',
+    targetRecordType: 'invoice',
+    meta: {
+      invoiceNo: 'INV-1403-771',
+      amountToman: 45000000,
+      daysLeft: 2,
+      actionLabelFa: 'پرداخت آنلاین و ثبت حواله بانکی',
+    },
+  },
+
+  // 8. Shipment - Status: Loading Complete
+  {
+    id: 'notif-ship-003',
+    category: 'shipment',
+    priority: 'normal',
+    titleFa: 'بارگیری محموله با موفقیت انجام شد',
+    messageFa: 'محموله ۲۴ تن شمش فولادی در انبار مرکزی مبارکه بارگیری، توزین و با باسکول ثبت گردید و آماده خروج است.',
+    timestamp: '۱۴۰۳/۰۵/۳۰ - ۱۸:۳۰',
+    timestampRelative: '۲ روز پیش',
+    isRead: true,
+    targetTab: 'shipments',
+    targetRecordId: 'load-101',
+    targetRecordType: 'load',
+    meta: {
+      billOfLadingNo: 'BL-1403-90812',
+      trackingCode: 'TRK-98210',
+      truckPlate: '۶۳ ع ۹۲۱ - ایران ۱۳',
+      originDest: 'مبارکه اصفهان به تهران',
+      actionLabelFa: 'مشاهده حواله بارگیری و وزن باسکول',
+    },
+  },
+
+  // 9. Shipment - Status: Delivered
+  {
+    id: 'notif-ship-004',
+    category: 'shipment',
+    priority: 'normal',
+    titleFa: 'محموله در مقصد تحویل و رسید الکترونیکی صادر شد',
+    messageFa: 'محموله قطعات صنعتی در انبار تهران تحویل شد و امضای دیجیتال رسید تحویل (POD) به همراه بارنامه الصاق گردید.',
+    timestamp: '۱۴۰۳/۰۵/۳۰ - ۱۱:۱۵',
+    timestampRelative: '۲ روز پیش',
+    isRead: true,
+    targetTab: 'shipments',
+    targetRecordId: 'load-103',
+    targetRecordType: 'load',
+    meta: {
+      billOfLadingNo: 'BL-1403-76290',
+      trackingCode: 'TRK-66519',
+      driverName: 'جواد صادقی',
+      actionLabelFa: 'دانلود فایل PDF رسید تحویل (POD)',
+    },
+  },
+
+  // 10. Financial - New Invoice Issued
+  {
+    id: 'notif-fin-003',
+    category: 'financial',
+    priority: 'normal',
+    titleFa: 'صدور فاکتور الکترونیکی جدید دوره مرداد',
+    messageFa: 'فاکتور تجمیعی رسمی به شماره INV-1403-889 برای ۱۲ فقره بارنامه به مبلغ ۱۲۸,۵۰۰,۰۰۰ تومان صادر گردید.',
+    timestamp: '۱۴۰۳/۰۵/۲۹ - ۱۴:۰۰',
+    timestampRelative: '۳ روز پیش',
+    isRead: true,
+    targetTab: 'billing',
+    targetRecordId: 'inv-1403-889',
+    targetRecordType: 'invoice',
+    meta: {
+      invoiceNo: 'INV-1403-889',
+      amountToman: 128500000,
+      actionLabelFa: 'مشاهده و دانلود فاکتور رسمی سامانه مودیان',
+    },
+  },
+
+  // 11. Contract - Renewal Confirmed
+  {
+    id: 'notif-contract-002',
+    category: 'contract',
+    priority: 'normal',
+    titleFa: 'تمدید موفق قرارداد حمل و ارتقای سقف تخفیف',
+    messageFa: 'الحاقیه شماره ۲ قرارداد سالانه با موفقیت تایید شد و تخفیف حجمی سازمان شما از ۸٪ به ۱۰٪ افزایش یافت.',
+    timestamp: '۱۴۰۳/۰۵/۲۸ - ۱۰:۳۰',
+    timestampRelative: '۴ روز پیش',
+    isRead: true,
+    targetTab: 'contracts',
+    targetRecordId: 'contract-diamond-1403',
+    targetRecordType: 'contract',
+    meta: {
+      contractTitle: 'قرارداد جامع ترابری سنگین',
+      actionLabelFa: 'مشاهده جزئیات الحاقیه',
+    },
+  },
+];
