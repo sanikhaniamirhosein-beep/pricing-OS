@@ -33,10 +33,13 @@ import { UserRole } from '../../types/pricing';
 import { CARRIER_ROLE_DETAILS, getRoleDetail, CarrierRoleDetail } from '../../data/carrierRolesConfig';
 import { RolePasswordAuthModal, RoleAuthTarget } from '../common/RolePasswordAuthModal';
 
+import { CarrierNotificationBell } from './CarrierNotificationBell';
+
 interface HeaderProps {
   onToggleAiCoPilot: () => void;
   activeWorkspaceId: string;
   onSelectWorkspace: (id: string) => void;
+  onNavigateToSubTab?: (workspaceId: string, subTabId: string) => void;
   onLogout?: () => void;
 }
 
@@ -44,6 +47,7 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleAiCoPilot,
   activeWorkspaceId,
   onSelectWorkspace,
+  onNavigateToSubTab,
   onLogout,
 }) => {
   const {
@@ -278,96 +282,16 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             </div>
 
-            {/* Notification & Approvals Menu Popover */}
-            <div className="relative" ref={notifRef}>
-              <button
-                type="button"
-                id="btn-header-notifications"
-                onClick={() => {
-                  setIsNotificationsOpen(!isNotificationsOpen);
-                  setIsRoleDropdownOpen(false);
-                }}
-                className={`relative p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer ${
-                  isNotificationsOpen ? 'bg-slate-100 text-slate-900' : ''
-                }`}
-                title="اعلانات و کارتابل تاییدیه"
-              >
-                <Bell className="w-4.5 h-4.5" />
-                {pendingApprovalsCount > 0 && (
-                  <span className="absolute top-1 right-1 w-4 h-4 bg-amber-600 text-white rounded-full text-[10px] font-bold flex items-center justify-center shadow-xs animate-pulse">
-                    {pendingApprovalsCount}
-                  </span>
-                )}
-              </button>
-
-              {/* Smooth Animated Notification Menu */}
-              <AnimatePresence>
-                {isNotificationsOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 8, scale: 0.96 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 6, scale: 0.97 }}
-                    transition={{ duration: 0.18, ease: 'easeOut' }}
-                    className="absolute left-0 mt-2.5 w-80 sm:w-88 bg-white border border-slate-200 rounded-2xl shadow-xl p-3 z-50 space-y-3"
-                  >
-                    <div className="flex items-center justify-between px-1 pb-2 border-b border-slate-100">
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900 font-title">
-                        <Bell className="w-4 h-4 text-slate-800" />
-                        <span>کارتابل تاییدیه و اعلانات</span>
-                      </div>
-                      <span className="text-[10px] font-mono font-bold bg-amber-50 text-amber-900 border border-amber-300 px-2 py-0.5 rounded-full">
-                        {pendingApprovalsCount} بسته در انتظار
-                      </span>
-                    </div>
-
-                    <div className="space-y-2 max-h-64 overflow-y-auto">
-                      {(strategyPackages || [])
-                        .filter((p) => p && p.status === 'In Review')
-                        .map((pkg) => (
-                          <div
-                            key={pkg.packageId || pkg.displayId}
-                            className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-colors space-y-1.5"
-                          >
-                            <div className="flex items-center justify-between">
-                              <span className="text-[11px] font-bold text-slate-900 font-mono">
-                                {pkg.displayId} ({pkg.titleFa || pkg.titleEn})
-                              </span>
-                              <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 font-bold border border-amber-200">
-                                نیاز به تایید Checker
-                              </span>
-                            </div>
-                            <p className="text-[10px] text-slate-600 line-clamp-2">
-                              {pkg.changeSummaryFa || pkg.titleEn || 'بدون توضیحات تکمیلی'}
-                            </p>
-                            <div className="pt-1 flex items-center justify-between text-[10px]">
-                              <span className="text-slate-400 font-mono">طراح: {pkg.authorName || 'سیستم'}</span>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setIsNotificationsOpen(false);
-                                  onSelectWorkspace('governance');
-                                }}
-                                className="text-slate-900 font-bold hover:underline cursor-pointer flex items-center gap-1"
-                              >
-                                <span>مشاهده در کارتابل</span>
-                                <ChevronLeft className="w-3 h-3" />
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-
-                      {pendingApprovalsCount === 0 && (
-                        <div className="py-6 text-center text-xs text-slate-400 space-y-1">
-                          <CheckCircle2 className="w-6 h-6 text-emerald-700 mx-auto" />
-                          <p className="font-bold text-slate-800">همه تاییدیه‌ها انجام شده است</p>
-                          <p className="text-[11px]">مورد معلقی در کارتابل حاکمیتی وجود ندارد.</p>
-                        </div>
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+            {/* Unified Carrier Management & Fleet Notification Bell */}
+            <CarrierNotificationBell
+              onNavigateToWorkspace={(wsId, subTabId) => {
+                if (subTabId && onNavigateToSubTab) {
+                  onNavigateToSubTab(wsId, subTabId);
+                } else {
+                  onSelectWorkspace(wsId);
+                }
+              }}
+            />
 
             <div className="h-5 w-px bg-slate-200" />
 

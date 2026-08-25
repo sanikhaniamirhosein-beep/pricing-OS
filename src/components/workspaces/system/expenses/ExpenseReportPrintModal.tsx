@@ -64,38 +64,38 @@ export const ExpenseReportPrintModal: React.FC<ExpenseReportPrintModalProps> = (
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-white rounded-3xl border border-[#D3D1C7] shadow-2xl w-full max-w-4xl overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+      <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl w-full max-w-4xl overflow-hidden my-8 animate-in fade-in zoom-in-95 duration-200">
         {/* Top Control Bar (Hidden on Print) */}
-        <div className="bg-[#FAFAF8] border-b border-[#D3D1C7] px-6 py-4 flex items-center justify-between print:hidden">
+        <div className="bg-slate-50/80 border-b border-slate-100 px-6 sm:px-7 py-5 flex items-center justify-between print:hidden">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#E1F5EE] border border-[#9FE1CB] flex items-center justify-center text-[#085041]">
+            <div className="w-10 h-10 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700">
               <FileCheck className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-[#2C2C2A] text-base font-display">
+              <h3 className="font-bold text-slate-900 text-base font-display">
                 پیش‌نمایش گزارش مدیریتی و حسابرسی هزینه‌ها (Executive Audit Report)
               </h3>
-              <p className="text-[#5F5E5A] text-xs mt-0.5">
+              <p className="text-slate-500 text-xs mt-0.5">
                 گزارش رسمی تراز هزینه‌ها، سرفصل‌های عملیاتی و انحراف بودجه جهت ارائه به هیئت مدیره و حسابرس
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <button
               type="button"
               onClick={handlePrint}
-              className="flex items-center gap-2 px-4 py-2 bg-[#085041] hover:bg-[#04342C] text-white rounded-xl text-xs font-bold shadow-xs transition-colors cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl text-xs font-bold shadow-xs hover:shadow-sm transition-all cursor-pointer"
             >
-              <Printer className="w-4 h-4 text-[#9FE1CB]" />
+              <Printer className="w-4 h-4 text-slate-950" />
               <span>چاپ / ذخیره PDF</span>
             </button>
 
             <button
               type="button"
               onClick={onClose}
-              className="p-2 text-[#5F5E5A] hover:text-[#2C2C2A] hover:bg-[#ECEAE3] rounded-xl transition-colors cursor-pointer"
+              className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -103,50 +103,50 @@ export const ExpenseReportPrintModal: React.FC<ExpenseReportPrintModalProps> = (
         </div>
 
         {/* Printable Official Document */}
-        <div className="p-8 space-y-6 text-xs text-[#2C2C2A] bg-white print:p-0">
+        <div className="p-8 sm:p-10 space-y-7 text-xs text-slate-900 bg-white print:p-0">
           {/* Official Letterhead */}
-          <div className="border-b-2 border-[#2C2C2A] pb-4 flex items-center justify-between">
+          <div className="border-b-2 border-slate-900 pb-5 flex items-center justify-between">
             <div className="space-y-1">
-              <span className="text-[10px] text-[#5F5E5A] font-semibold block">جمهوری اسلامی ایران</span>
-              <h1 className="text-base font-bold text-[#2C2C2A] font-display">
+              <span className="text-[10px] text-slate-500 font-semibold block">جمهوری اسلامی ایران</span>
+              <h1 className="text-base sm:text-lg font-bold text-slate-900 font-display">
                 هلدینگ حمل‌ونقل و لجستیک خلیج فارس (سهامی عام)
               </h1>
-              <p className="text-[11px] text-[#5F5E5A]">
+              <p className="text-xs text-slate-600">
                 معاونت مالی، اداری و کنترل حاکمیت شرکتی — اداره حسابرسی و کنترل بودجه
               </p>
             </div>
 
-            <div className="text-left space-y-1 font-mono text-[11px] text-[#5F5E5A]">
+            <div className="text-left space-y-1 font-mono text-xs text-slate-600">
               <div>
-                شماره گزارش: <strong className="text-[#2C2C2A]">RPT-EXP-1405/991</strong>
+                شماره گزارش: <strong className="text-slate-900">RPT-EXP-1405/991</strong>
               </div>
               <div>
-                تاریخ صدور: <strong className="text-[#2C2C2A]">۱۴۰۵/۰۷/۱۵</strong>
+                تاریخ صدور: <strong className="text-slate-900">۱۴۰۵/۰۷/۱۵</strong>
               </div>
               <div>
-                پیوست: <strong className="text-[#2C2C2A]">دارد (ریز اسناد)</strong>
+                پیوست: <strong className="text-slate-900">دارد (ریز اسناد)</strong>
               </div>
               <div>
-                طبقه‌بندی: <strong className="text-[#085041]">محرمانه مالی</strong>
+                طبقه‌بندی: <strong className="text-amber-800">محرمانه مالی</strong>
               </div>
             </div>
           </div>
 
           {/* Report Meta Summary */}
-          <div className="bg-[#FAFAF8] p-4 rounded-2xl border border-[#D3D1C7] grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="bg-slate-50/70 p-4.5 rounded-2xl border border-slate-200/80 grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <span className="text-[#888780] block text-[11px]">بازه زمانی گزارش:</span>
-              <span className="font-bold text-[#2C2C2A] text-xs mt-0.5 block">{periodLabel}</span>
+              <span className="text-slate-400 block text-xs">بازه زمانی گزارش:</span>
+              <span className="font-bold text-slate-900 text-xs mt-1 block">{periodLabel}</span>
             </div>
             <div>
-              <span className="text-[#888780] block text-[11px]">شرکت‌های مشمول:</span>
-              <span className="font-bold text-[#2C2C2A] text-xs mt-0.5 block">
+              <span className="text-slate-400 block text-xs">شرکت‌های مشمول:</span>
+              <span className="font-bold text-slate-900 text-xs mt-1 block">
                 {selectedCompanyName || 'کلیه طرف‌های قرارداد و سربار ناوگان'}
               </span>
             </div>
             <div>
-              <span className="text-[#888780] block text-[11px]">تعداد اسناد و فاکتورها:</span>
-              <span className="font-mono font-bold text-[#085041] text-xs mt-0.5 block">
+              <span className="text-slate-400 block text-xs">تعداد اسناد و فاکتورها:</span>
+              <span className="font-mono font-bold text-amber-800 text-xs mt-1 block">
                 {expenses.length} سند مالی
               </span>
             </div>
@@ -154,68 +154,68 @@ export const ExpenseReportPrintModal: React.FC<ExpenseReportPrintModalProps> = (
 
           {/* Key Financial KPIs */}
           <div className="grid grid-cols-3 gap-4">
-            <div className="p-3.5 bg-[#FAFAF8] rounded-xl border border-[#D3D1C7] text-center space-y-1">
-              <span className="text-[#888780] text-[11px]">مجموع کل هزینه‌ها</span>
-              <div className="text-base font-mono font-bold text-[#2C2C2A]">
-                {totalAmountToman.toLocaleString('fa-IR')} <span className="text-[11px] font-sans font-normal text-[#5F5E5A]">تومان</span>
+            <div className="p-4 bg-slate-50/70 rounded-2xl border border-slate-200/80 text-center space-y-1 shadow-2xs">
+              <span className="text-slate-500 text-xs">مجموع کل هزینه‌ها</span>
+              <div className="text-base font-mono font-bold text-slate-900">
+                {totalAmountToman.toLocaleString('fa-IR')} <span className="text-xs font-sans font-normal text-slate-500">تومان</span>
               </div>
-              <span className="text-[10px] font-mono text-[#085041] block">
+              <span className="text-xs font-mono text-amber-700 font-semibold block">
                 {(totalAmountToman / 1000000000).toFixed(2)} میلیارد تومان
               </span>
             </div>
 
-            <div className="p-3.5 bg-[#FAFAF8] rounded-xl border border-[#D3D1C7] text-center space-y-1">
-              <span className="text-[#888780] text-[11px]">مبالغ پرداخت‌شده قطعی</span>
-              <div className="text-base font-mono font-bold text-emerald-800">
-                {paidAmountToman.toLocaleString('fa-IR')} <span className="text-[11px] font-sans font-normal text-[#5F5E5A]">تومان</span>
+            <div className="p-4 bg-slate-50/70 rounded-2xl border border-slate-200/80 text-center space-y-1 shadow-2xs">
+              <span className="text-slate-500 text-xs">مبالغ پرداخت‌شده قطعی</span>
+              <div className="text-base font-mono font-bold text-emerald-700">
+                {paidAmountToman.toLocaleString('fa-IR')} <span className="text-xs font-sans font-normal text-slate-500">تومان</span>
               </div>
-              <span className="text-[10px] font-mono text-emerald-700 block">
+              <span className="text-xs font-mono text-emerald-700 block">
                 {totalAmountToman > 0 ? ((paidAmountToman / totalAmountToman) * 100).toFixed(1) : 0}٪ کل
               </span>
             </div>
 
-            <div className="p-3.5 bg-[#FAFAF8] rounded-xl border border-[#D3D1C7] text-center space-y-1">
-              <span className="text-[#888780] text-[11px]">مانده معوق و سررسید گذشته</span>
-              <div className="text-base font-mono font-bold text-rose-800">
-                {overdueAmountToman.toLocaleString('fa-IR')} <span className="text-[11px] font-sans font-normal text-[#5F5E5A]">تومان</span>
+            <div className="p-4 bg-slate-50/70 rounded-2xl border border-slate-200/80 text-center space-y-1 shadow-2xs">
+              <span className="text-slate-500 text-xs">مانده معوق و سررسید گذشته</span>
+              <div className="text-base font-mono font-bold text-rose-700">
+                {overdueAmountToman.toLocaleString('fa-IR')} <span className="text-xs font-sans font-normal text-slate-500">تومان</span>
               </div>
-              <span className="text-[10px] font-mono text-rose-700 block">نیاز به پیگیری خزانه</span>
+              <span className="text-xs font-mono text-rose-700 block">نیاز به پیگیری خزانه</span>
             </div>
           </div>
 
           {/* Table: Category Breakdown */}
-          <div className="space-y-2">
-            <h3 className="font-bold text-[#2C2C2A] text-xs">
+          <div className="space-y-2.5">
+            <h3 className="font-bold text-slate-900 text-xs">
               ۱. تفکیک مصارف و هزینه‌ها بر اساس سرفصل‌های عملیاتی:
             </h3>
 
-            <table className="w-full text-right text-xs border border-[#D3D1C7] rounded-xl overflow-hidden">
-              <thead className="bg-[#FAFAF8] text-[#5F5E5A] font-semibold border-b border-[#D3D1C7]">
+            <table className="w-full text-right text-xs border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
+              <thead className="bg-slate-50/80 text-slate-600 font-semibold border-b border-slate-200">
                 <tr>
-                  <th className="p-2.5">ردیف</th>
-                  <th className="p-2.5">سرفصل هزینه</th>
-                  <th className="p-2.5">مبلغ کل (تومان)</th>
-                  <th className="p-2.5">معادل (میلیون تومان)</th>
-                  <th className="p-2.5">درصد از کل هزینه</th>
+                  <th className="p-3">ردیف</th>
+                  <th className="p-3">سرفصل هزینه</th>
+                  <th className="p-3">مبلغ کل (تومان)</th>
+                  <th className="p-3">معادل (میلیون تومان)</th>
+                  <th className="p-3">درصد از کل هزینه</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#ECEAE3]">
+              <tbody className="divide-y divide-slate-100">
                 {(Object.keys(categoryTotals) as ExpenseCategory[]).map((cat, idx) => {
                   const meta = EXPENSE_CATEGORIES_META[cat];
                   const amount = categoryTotals[cat];
                   const percent = totalAmountToman > 0 ? ((amount / totalAmountToman) * 100).toFixed(1) : '0';
 
                   return (
-                    <tr key={cat} className="hover:bg-[#FAFAF8]">
-                      <td className="p-2.5 font-mono text-center text-[#888780]">{idx + 1}</td>
-                      <td className="p-2.5 font-bold text-[#2C2C2A]">{meta.nameFa}</td>
-                      <td className="p-2.5 font-mono text-[#085041] font-bold">
+                    <tr key={cat} className="hover:bg-slate-50/50">
+                      <td className="p-3 font-mono text-center text-slate-400">{idx + 1}</td>
+                      <td className="p-3 font-bold text-slate-900">{meta.nameFa}</td>
+                      <td className="p-3 font-mono text-slate-900 font-bold">
                         {amount.toLocaleString('fa-IR')}
                       </td>
-                      <td className="p-2.5 font-mono">
+                      <td className="p-3 font-mono text-slate-600">
                         {Math.round(amount / 1000000).toLocaleString('fa-IR')}
                       </td>
-                      <td className="p-2.5 font-mono font-semibold">{percent}٪</td>
+                      <td className="p-3 font-mono font-semibold text-slate-800">{percent}٪</td>
                     </tr>
                   );
                 })}
@@ -224,33 +224,33 @@ export const ExpenseReportPrintModal: React.FC<ExpenseReportPrintModalProps> = (
           </div>
 
           {/* Table: Top Significant Expense Records */}
-          <div className="space-y-2">
-            <h3 className="font-bold text-[#2C2C2A] text-xs">
+          <div className="space-y-2.5">
+            <h3 className="font-bold text-slate-900 text-xs">
               ۲. نمونه اسناد و فاکتورهای عمده ثبت‌شده:
             </h3>
 
-            <table className="w-full text-right text-xs border border-[#D3D1C7] rounded-xl overflow-hidden">
-              <thead className="bg-[#FAFAF8] text-[#5F5E5A] font-semibold border-b border-[#D3D1C7]">
+            <table className="w-full text-right text-xs border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
+              <thead className="bg-slate-50/80 text-slate-600 font-semibold border-b border-slate-200">
                 <tr>
-                  <th className="p-2">کد سند</th>
-                  <th className="p-2">تاریخ</th>
-                  <th className="p-2">شرکت / قرارداد</th>
-                  <th className="p-2">شرح هزینه</th>
-                  <th className="p-2">مبلغ (تومان)</th>
-                  <th className="p-2">وضعیت</th>
+                  <th className="p-2.5">کد سند</th>
+                  <th className="p-2.5">تاریخ</th>
+                  <th className="p-2.5">شرکت / قرارداد</th>
+                  <th className="p-2.5">شرح هزینه</th>
+                  <th className="p-2.5">مبلغ (تومان)</th>
+                  <th className="p-2.5">وضعیت</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#ECEAE3]">
+              <tbody className="divide-y divide-slate-100">
                 {expenses.slice(0, 6).map((e) => (
                   <tr key={e.id}>
-                    <td className="p-2 font-mono text-[#888780]">{e.expenseCode}</td>
-                    <td className="p-2 font-mono">{e.dateFa}</td>
-                    <td className="p-2 font-semibold text-[#2C2C2A]">{e.companyNameFa}</td>
-                    <td className="p-2 text-[#5F5E5A]">{e.titleFa}</td>
-                    <td className="p-2 font-mono font-bold text-[#085041]">
+                    <td className="p-2.5 font-mono text-slate-400">{e.expenseCode}</td>
+                    <td className="p-2.5 font-mono">{e.dateFa}</td>
+                    <td className="p-2.5 font-semibold text-slate-900">{e.companyNameFa}</td>
+                    <td className="p-2.5 text-slate-600">{e.titleFa}</td>
+                    <td className="p-2.5 font-mono font-bold text-slate-900">
                       {e.amountToman.toLocaleString('fa-IR')}
                     </td>
-                    <td className="p-2">
+                    <td className="p-2.5">
                       {e.status === 'paid' ? 'پرداخت‌شده' : e.status === 'overdue' ? 'معوق' : 'بررسی'}
                     </td>
                   </tr>
@@ -260,20 +260,20 @@ export const ExpenseReportPrintModal: React.FC<ExpenseReportPrintModalProps> = (
           </div>
 
           {/* Audit & Sign-off Box */}
-          <div className="pt-8 border-t-2 border-[#2C2C2A] grid grid-cols-3 gap-8 text-center text-xs">
+          <div className="pt-8 border-t-2 border-slate-900 grid grid-cols-3 gap-8 text-center text-xs">
             <div className="space-y-8">
-              <span className="font-bold text-[#2C2C2A] block">کارشناس حسابداری و صدور اسناد</span>
-              <div className="text-[11px] text-[#888780] font-mono">امضا و تاریخ</div>
+              <span className="font-bold text-slate-900 block">کارشناس حسابداری و صدور اسناد</span>
+              <div className="text-xs text-slate-400 font-mono">امضا و تاریخ</div>
             </div>
 
             <div className="space-y-8">
-              <span className="font-bold text-[#2C2C2A] block">مدیر امور مالی و بودجه</span>
-              <div className="text-[11px] text-[#888780] font-mono">مهر و امضا</div>
+              <span className="font-bold text-slate-900 block">مدیر امور مالی و بودجه</span>
+              <div className="text-xs text-slate-400 font-mono">مهر و امضا</div>
             </div>
 
             <div className="space-y-8">
-              <span className="font-bold text-[#2C2C2A] block">معاونت مالی و مدیرعامل</span>
-              <div className="text-[11px] text-[#888780] font-mono">تایید نهایی هیئت مدیره</div>
+              <span className="font-bold text-slate-900 block">معاونت مالی و مدیرعامل</span>
+              <div className="text-xs text-slate-400 font-mono">تایید نهایی هیئت مدیره</div>
             </div>
           </div>
         </div>

@@ -174,26 +174,26 @@ export const ExpenseChartsSection: React.FC<ExpenseChartsSectionProps> = ({
     if (active && payload && payload.length) {
       const totalInMillion = payload.reduce((sum: number, entry: any) => sum + (entry.value || 0), 0);
       return (
-        <div className="bg-white/95 backdrop-blur-xs border border-[#D3D1C7] p-3 rounded-2xl shadow-lg text-xs space-y-2 min-w-[200px]">
-          <div className="font-bold text-[#2C2C2A] border-b border-[#ECEAE3] pb-1.5 flex items-center justify-between">
+        <div className="bg-white/95 backdrop-blur-xs border border-slate-200 p-3.5 rounded-2xl shadow-xl text-xs space-y-2.5 min-w-[220px]">
+          <div className="font-bold text-slate-900 border-b border-slate-100 pb-2 flex items-center justify-between">
             <span>{label} ۱۴۰۵</span>
-            <span className="text-[#085041] font-mono font-bold">
+            <span className="text-amber-700 font-mono font-bold">
               {totalInMillion.toLocaleString('fa-IR')} م تومان
             </span>
           </div>
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             {payload.map((entry: any, index: number) => {
               if (!entry.value) return null;
               return (
                 <div key={`item-${index}`} className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-2">
                     <span
                       className="w-2.5 h-2.5 rounded-full shrink-0"
                       style={{ backgroundColor: entry.color }}
                     />
-                    <span className="text-[#5F5E5A]">{entry.name}:</span>
+                    <span className="text-slate-600">{entry.name}:</span>
                   </div>
-                  <span className="font-mono font-bold text-[#2C2C2A]">
+                  <span className="font-mono font-bold text-slate-900">
                     {entry.value.toLocaleString('fa-IR')} م تومان
                   </span>
                 </div>
@@ -207,88 +207,90 @@ export const ExpenseChartsSection: React.FC<ExpenseChartsSectionProps> = ({
   };
 
   return (
-    <div className="bg-white border border-[#D3D1C7] rounded-3xl p-6 shadow-xs space-y-5">
+    <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-6">
       {/* Top Header & Chart View Switcher */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#D3D1C7] pb-4">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-5">
         <div>
-          <div className="flex items-center gap-2">
-            <BarChart3 className="w-5 h-5 text-[#085041]" />
-            <h2 className="font-bold text-[#2C2C2A] text-sm sm:text-base font-display">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-amber-50 border border-amber-200/70 flex items-center justify-center text-amber-700 shrink-0">
+              <BarChart3 className="w-4 h-4" />
+            </div>
+            <h2 className="font-bold text-slate-900 text-sm sm:text-base font-display">
               تحلیل و روند هزینه‌ها به تفکیک ماه‌های سال (Expense Trend & Breakdown)
             </h2>
           </div>
-          <p className="text-[#5F5E5A] text-xs mt-0.5">
+          <p className="text-slate-500 text-xs mt-1">
             پایش ماهانه، سهم سرفصل‌های هزینه، انحراف از بودجه و مقایسه دوره‌ای امسال در برابر سال گذشته
           </p>
         </div>
 
         {/* Chart View Modes */}
-        <div className="flex flex-wrap items-center gap-1.5 bg-[#FAFAF8] p-1.5 rounded-2xl border border-[#D3D1C7] self-start lg:self-auto">
+        <div className="flex flex-wrap items-center gap-1.5 bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200/70 self-start lg:self-auto">
           <button
             type="button"
             onClick={() => setChartMode('stacked_bar')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
               chartMode === 'stacked_bar'
-                ? 'bg-[#085041] text-white shadow-xs'
-                : 'text-[#5F5E5A] hover:bg-[#F1EFE8] hover:text-[#2C2C2A]'
+                ? 'bg-white text-slate-900 shadow-2xs font-bold'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
             }`}
           >
-            <BarChart3 className="w-3.5 h-3.5" />
-            <span>تفکیک سرفصل‌ها (میله‌ای)</span>
+            <BarChart3 className="w-3.5 h-3.5 text-amber-600" />
+            <span>تفکیک سرفصل‌ها</span>
           </button>
 
           <button
             type="button"
             onClick={() => setChartMode('trend_line')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
               chartMode === 'trend_line'
-                ? 'bg-[#085041] text-white shadow-xs'
-                : 'text-[#5F5E5A] hover:bg-[#F1EFE8] hover:text-[#2C2C2A]'
+                ? 'bg-white text-slate-900 shadow-2xs font-bold'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
             }`}
           >
-            <TrendingUp className="w-3.5 h-3.5" />
-            <span>روند کل و بودجه (خطی)</span>
+            <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
+            <span>روند کل و بودجه</span>
           </button>
 
           <button
             type="button"
             onClick={() => setChartMode('yoy_compare')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
               chartMode === 'yoy_compare'
-                ? 'bg-[#085041] text-white shadow-xs'
-                : 'text-[#5F5E5A] hover:bg-[#F1EFE8] hover:text-[#2C2C2A]'
+                ? 'bg-white text-slate-900 shadow-2xs font-bold'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
             }`}
           >
-            <GitCompare className="w-3.5 h-3.5" />
-            <span>مقایسه سالانه (۱۴۰۵ vs ۱۴۰۴)</span>
+            <GitCompare className="w-3.5 h-3.5 text-purple-600" />
+            <span>مقایسه سالانه</span>
           </button>
 
           <button
             type="button"
             onClick={() => setChartMode('pie_distribution')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
               chartMode === 'pie_distribution'
-                ? 'bg-[#085041] text-white shadow-xs'
-                : 'text-[#5F5E5A] hover:bg-[#F1EFE8] hover:text-[#2C2C2A]'
+                ? 'bg-white text-slate-900 shadow-2xs font-bold'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
             }`}
           >
-            <PieIcon className="w-3.5 h-3.5" />
-            <span>سهم و ترکیب هزینه‌ها</span>
+            <PieIcon className="w-3.5 h-3.5 text-indigo-600" />
+            <span>ترکیب هزینه‌ها</span>
           </button>
         </div>
       </div>
 
       {/* Quick In-Chart Filters (Company & Category) */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-[#FAFAF8] p-3 rounded-2xl border border-[#D3D1C7] text-xs">
-        <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-50/70 p-3.5 rounded-2xl border border-slate-200/70 text-xs">
+        <div className="flex flex-wrap items-center gap-4">
           {/* Filter by Company */}
-          <div className="flex items-center gap-1.5">
-            <Building2 className="w-3.5 h-3.5 text-[#5F5E5A]" />
-            <span className="text-[#5F5E5A] font-medium">شرکت طرف قرارداد:</span>
+          <div className="flex items-center gap-2">
+            <Building2 className="w-3.5 h-3.5 text-slate-400" />
+            <span className="text-slate-600 font-medium">شرکت طرف قرارداد:</span>
             <select
               value={selectedCompany}
               onChange={(e) => onCompanyChange(e.target.value)}
-              className="bg-white border border-[#D3D1C7] rounded-xl px-2.5 py-1 text-xs font-semibold text-[#2C2C2A] focus:outline-none focus:border-[#085041] cursor-pointer"
+              className="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none focus:border-amber-500 cursor-pointer shadow-2xs"
             >
               <option value="all">همه شرکت‌ها و قراردادها ({companiesList.length})</option>
               {companiesList.map((comp) => (
@@ -300,13 +302,13 @@ export const ExpenseChartsSection: React.FC<ExpenseChartsSectionProps> = ({
           </div>
 
           {/* Filter by Category */}
-          <div className="flex items-center gap-1.5">
-            <Filter className="w-3.5 h-3.5 text-[#5F5E5A]" />
-            <span className="text-[#5F5E5A] font-medium">دسته‌بندی:</span>
+          <div className="flex items-center gap-2">
+            <Filter className="w-3.5 h-3.5 text-slate-400" />
+            <span className="text-slate-600 font-medium">سرفصل هزینه:</span>
             <select
               value={selectedCategory}
               onChange={(e) => onCategoryChange(e.target.value)}
-              className="bg-white border border-[#D3D1C7] rounded-xl px-2.5 py-1 text-xs font-semibold text-[#2C2C2A] focus:outline-none focus:border-[#085041] cursor-pointer"
+              className="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none focus:border-amber-500 cursor-pointer shadow-2xs"
             >
               <option value="all">همه سرفصل‌ها</option>
               {(Object.keys(EXPENSE_CATEGORIES_META) as ExpenseCategory[]).map((cat) => (
@@ -319,28 +321,30 @@ export const ExpenseChartsSection: React.FC<ExpenseChartsSectionProps> = ({
         </div>
 
         {/* Legend Hint */}
-        <div className="text-[11px] text-[#5F5E5A] font-mono flex items-center gap-2">
+        <div className="text-xs text-slate-500 font-mono flex items-center gap-2">
           <span>واحد ارقام نمودار:</span>
-          <span className="bg-[#E1F5EE] text-[#04342C] px-2 py-0.5 rounded border border-[#9FE1CB] font-bold">
+          <span className="bg-amber-50 text-amber-900 px-2.5 py-0.5 rounded-lg border border-amber-200 font-bold">
             میلیون تومان
           </span>
         </div>
       </div>
 
       {/* Chart Canvas Area */}
-      <div className="w-full h-[340px] pt-2">
+      <div className="w-full h-[350px] pt-2">
         {chartMode === 'stacked_bar' && (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={monthlyData} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#ECEAE3" />
-              <XAxis dataKey="monthName" tick={{ fill: '#5F5E5A', fontSize: 11 }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+              <XAxis dataKey="monthName" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis
-                tick={{ fill: '#5F5E5A', fontSize: 11 }}
+                tick={{ fill: '#64748b', fontSize: 11 }}
                 tickFormatter={(val) => val.toLocaleString('fa-IR')}
+                axisLine={false}
+                tickLine={false}
               />
               <Tooltip content={<CustomBarTooltip />} />
               <Legend
-                wrapperStyle={{ paddingTop: '15px', fontSize: '11px', fontFamily: 'inherit' }}
+                wrapperStyle={{ paddingTop: '16px', fontSize: '11px', fontFamily: 'inherit' }}
               />
               <Bar dataKey="fuelMillion" name="سوخت" stackId="a" fill={EXPENSE_CATEGORIES_META.fuel.colorHex} />
               <Bar dataKey="maintenanceMillion" name="نگهداری ناوگان" stackId="a" fill={EXPENSE_CATEGORIES_META.fleet_maintenance.colorHex} />
@@ -358,19 +362,21 @@ export const ExpenseChartsSection: React.FC<ExpenseChartsSectionProps> = ({
             <AreaChart data={monthlyData} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
               <defs>
                 <linearGradient id="expenseColor" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#085041" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#085041" stopOpacity={0.0} />
+                  <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.35} />
+                  <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.0} />
                 </linearGradient>
                 <linearGradient id="budgetColor" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#2563EB" stopOpacity={0.15} />
-                  <stop offset="95%" stopColor="#2563EB" stopOpacity={0.0} />
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.15} />
+                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#ECEAE3" />
-              <XAxis dataKey="monthName" tick={{ fill: '#5F5E5A', fontSize: 11 }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+              <XAxis dataKey="monthName" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis
-                tick={{ fill: '#5F5E5A', fontSize: 11 }}
+                tick={{ fill: '#64748b', fontSize: 11 }}
                 tickFormatter={(val) => val.toLocaleString('fa-IR')}
+                axisLine={false}
+                tickLine={false}
               />
               <Tooltip
                 formatter={(val: any, name: any) => [
@@ -379,18 +385,19 @@ export const ExpenseChartsSection: React.FC<ExpenseChartsSectionProps> = ({
                 ]}
                 labelFormatter={(label) => `ماه ${label} ۱۴۰۵`}
                 contentStyle={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.98)',
                   borderRadius: '16px',
-                  border: '1px solid #D3D1C7',
+                  border: '1px solid #e2e8f0',
+                  boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
                   fontSize: '12px',
                 }}
               />
-              <Legend wrapperStyle={{ paddingTop: '15px', fontSize: '11px' }} />
+              <Legend wrapperStyle={{ paddingTop: '16px', fontSize: '11px' }} />
               <Area
                 type="monotone"
                 dataKey="totalMillion"
                 name="هزینه واقعی ۱۴۰۵"
-                stroke="#085041"
+                stroke="#d97706"
                 strokeWidth={3}
                 fillOpacity={1}
                 fill="url(#expenseColor)"
@@ -399,7 +406,7 @@ export const ExpenseChartsSection: React.FC<ExpenseChartsSectionProps> = ({
                 type="monotone"
                 dataKey="budgetMillion"
                 name="سقف بودجه پیش‌بینی‌شده"
-                stroke="#2563EB"
+                stroke="#3b82f6"
                 strokeWidth={2}
                 strokeDasharray="5 5"
                 dot={{ r: 4 }}
@@ -411,11 +418,13 @@ export const ExpenseChartsSection: React.FC<ExpenseChartsSectionProps> = ({
         {chartMode === 'yoy_compare' && (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={monthlyData} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#ECEAE3" />
-              <XAxis dataKey="monthName" tick={{ fill: '#5F5E5A', fontSize: 11 }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+              <XAxis dataKey="monthName" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis
-                tick={{ fill: '#5F5E5A', fontSize: 11 }}
+                tick={{ fill: '#64748b', fontSize: 11 }}
                 tickFormatter={(val) => val.toLocaleString('fa-IR')}
+                axisLine={false}
+                tickLine={false}
               />
               <Tooltip
                 formatter={(val: any, name: any) => [
@@ -424,29 +433,30 @@ export const ExpenseChartsSection: React.FC<ExpenseChartsSectionProps> = ({
                 ]}
                 labelFormatter={(label) => `ماه ${label}`}
                 contentStyle={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.98)',
                   borderRadius: '16px',
-                  border: '1px solid #D3D1C7',
+                  border: '1px solid #e2e8f0',
+                  boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
                   fontSize: '12px',
                 }}
               />
-              <Legend wrapperStyle={{ paddingTop: '15px', fontSize: '11px' }} />
-              <Bar dataKey="totalMillion" name="عملکرد سال جاری ۱۴۰۵" fill="#085041" radius={[6, 6, 0, 0]} />
-              <Bar dataKey="priorYearMillion" name="عملکرد سال گذشته ۱۴۰۴" fill="#94A3B8" radius={[6, 6, 0, 0]} />
+              <Legend wrapperStyle={{ paddingTop: '16px', fontSize: '11px' }} />
+              <Bar dataKey="totalMillion" name="عملکرد سال جاری ۱۴۰۵" fill="#d97706" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="priorYearMillion" name="عملکرد سال گذشته ۱۴۰۴" fill="#cbd5e1" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         )}
 
         {chartMode === 'pie_distribution' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 items-center h-full gap-4">
-            <ResponsiveContainer width="100%" height={260}>
+          <div className="grid grid-cols-1 md:grid-cols-2 items-center h-full gap-6">
+            <ResponsiveContainer width="100%" height={270}>
               <PieChart>
                 <Pie
                   data={pieData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={55}
-                  outerRadius={95}
+                  innerRadius={60}
+                  outerRadius={100}
                   paddingAngle={3}
                   dataKey="value"
                 >
@@ -460,9 +470,10 @@ export const ExpenseChartsSection: React.FC<ExpenseChartsSectionProps> = ({
                     name,
                   ]}
                   contentStyle={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.98)',
                     borderRadius: '16px',
-                    border: '1px solid #D3D1C7',
+                    border: '1px solid #e2e8f0',
+                    boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
                     fontSize: '12px',
                   }}
                 />
@@ -470,25 +481,25 @@ export const ExpenseChartsSection: React.FC<ExpenseChartsSectionProps> = ({
             </ResponsiveContainer>
 
             {/* Detailed Pie Legend & Percentage list */}
-            <div className="space-y-2 max-h-[260px] overflow-y-auto pr-2">
+            <div className="space-y-2.5 max-h-[270px] overflow-y-auto pr-1">
               {pieData.map((item) => (
                 <div
                   key={item.category}
-                  className="flex items-center justify-between text-xs bg-[#FAFAF8] p-2.5 rounded-xl border border-[#D3D1C7]"
+                  className="flex items-center justify-between text-xs bg-slate-50/70 p-3 rounded-2xl border border-slate-200/80 hover:bg-slate-50 transition-all"
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2.5">
                     <span
-                      className="w-3 h-3 rounded-full shrink-0"
+                      className="w-3 h-3 rounded-full shrink-0 shadow-2xs"
                       style={{ backgroundColor: item.color }}
                     />
-                    <span className="font-bold text-[#2C2C2A]">{item.name}</span>
+                    <span className="font-bold text-slate-800">{item.name}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="font-mono text-[#5F5E5A]">
+                    <span className="font-mono text-slate-500 font-medium">
                       {item.value.toLocaleString('fa-IR')} م تومان
                     </span>
                     <span
-                      className="font-mono font-bold px-2 py-0.5 rounded text-[11px]"
+                      className="font-mono font-bold px-2 py-0.5 rounded-lg text-[11px]"
                       style={{
                         backgroundColor: `${item.color}18`,
                         color: item.color,

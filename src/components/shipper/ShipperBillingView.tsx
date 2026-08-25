@@ -50,13 +50,16 @@ export const ShipperBillingView: React.FC = () => {
   const [creditRequestReason, setCreditRequestReason] = useState('افزایش خطوط تولید نورد و افزایش حجم محموله‌های ماهانه به ۳۰۰۰ تن');
   const [creditRequestSubmitted, setCreditRequestSubmitted] = useState(false);
 
+  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+
   const handleDisputeSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setDisputeSubmitted(true);
     setTimeout(() => {
       setDisputeSubmitted(false);
-      alert(`تیکت اعتراض مالی برای فاکتور ${disputeInvoiceNo} با شماره پیگیری DSP-1403-${Math.floor(1000 + Math.random() * 9000)} ثبت شد.`);
-    }, 1500);
+      setFeedbackMessage(`تیکت اعتراض مالی برای فاکتور ${disputeInvoiceNo} با شماره پیگیری DSP-1403-${Math.floor(1000 + Math.random() * 9000)} ثبت شد و در حال بررسی است.`);
+      setTimeout(() => setFeedbackMessage(null), 5000);
+    }, 1000);
   };
 
   const handleCreditRequestSubmit = (e: React.FormEvent) => {
@@ -64,12 +67,40 @@ export const ShipperBillingView: React.FC = () => {
     setCreditRequestSubmitted(true);
     setTimeout(() => {
       setCreditRequestSubmitted(false);
-      alert(`درخواست افزایش سقف اعتبار به مبلغ ${creditRequestAmountMillion} میلیون تومان برای بررسی مدیریت مالی ارسال شد.`);
-    }, 1500);
+      setFeedbackMessage(`درخواست افزایش سقف اعتبار به مبلغ ${creditRequestAmountMillion} میلیون تومان برای بررسی مدیریت مالی ارسال شد.`);
+      setTimeout(() => setFeedbackMessage(null), 5000);
+    }, 1000);
+  };
+
+  const handleDownloadExcel = () => {
+    setFeedbackMessage('گزارش کامل دوره‌ای صورتحساب‌ها و گردش حساب در قالب اکسل آماده و دانلود شد.');
+    setTimeout(() => setFeedbackMessage(null), 4000);
+  };
+
+  const handleDownloadInvoicePdf = (invoiceNo: string) => {
+    setFeedbackMessage(`نسخه رسمی الکترونیکی PDF فاکتور ${invoiceNo} آماده و دانلود شد.`);
+    setTimeout(() => setFeedbackMessage(null), 4000);
   };
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
+      {/* Feedback Banner */}
+      {feedbackMessage && (
+        <div className="p-3.5 bg-emerald-50 border border-emerald-300 rounded-2xl text-emerald-950 text-xs font-bold flex items-center justify-between animate-in fade-in duration-200">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>{feedbackMessage}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setFeedbackMessage(null)}
+            className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+          >
+            <Check className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
       {/* 1. Wallet & Credit Overview Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Card 1: Available Credit */}
@@ -160,7 +191,7 @@ export const ShipperBillingView: React.FC = () => {
 
         <button
           type="button"
-          onClick={() => alert('گزارش کامل دوره‌ای صورتحساب‌ها به فرمت اکسل دانلود شد.')}
+          onClick={handleDownloadExcel}
           className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
         >
           <Download className="w-3.5 h-3.5" />
@@ -220,7 +251,7 @@ export const ShipperBillingView: React.FC = () => {
                       <div className="flex items-center justify-center gap-2">
                         <button
                           type="button"
-                          onClick={() => alert(`دانلود PDF فاکتور رسمی ${inv.invoiceNo}`)}
+                          onClick={() => handleDownloadInvoicePdf(inv.invoiceNo)}
                           className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer"
                         >
                           <Download className="w-3.5 h-3.5" />

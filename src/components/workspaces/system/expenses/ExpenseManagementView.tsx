@@ -273,48 +273,48 @@ export const ExpenseManagementView: React.FC<ExpenseManagementViewProps> = ({
     <div className="space-y-8 animate-in fade-in duration-300">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 left-6 z-50 bg-[#1E293B] text-white px-5 py-3 rounded-2xl shadow-xl border border-slate-700 flex items-center gap-3 text-xs font-semibold animate-in slide-in-from-bottom-5">
-          <CheckCircle2 className="w-4 h-4 text-[#5DCAA5]" />
+        <div className="fixed bottom-6 left-6 z-50 bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-xl border border-slate-700/80 flex items-center gap-3 text-xs font-semibold animate-in fade-in slide-in-from-bottom-4">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
           <span>{toastMessage}</span>
         </div>
       )}
 
-      {/* Main Top Banner (Redesigned with High Contrast & Clean Aesthetics) */}
-      <div className="bg-white border border-[#D3D1C7] rounded-3xl p-6 sm:p-7 shadow-xs relative overflow-hidden flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-        <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-[#E1F5EE] border border-[#9FE1CB] flex items-center justify-center text-[#085041] shrink-0 mt-1 shadow-2xs">
+      {/* Main Top Banner (Minimal, Spacious & High-Contrast) */}
+      <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xs relative overflow-hidden flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div className="flex items-start gap-4 sm:gap-5">
+          <div className="w-13 h-13 rounded-2xl bg-amber-50 border border-amber-200/80 flex items-center justify-center text-amber-700 shrink-0 mt-0.5 shadow-2xs">
             <DollarSign className="w-6 h-6" />
           </div>
 
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 bg-[#E1F5EE] text-[#085041] border border-[#9FE1CB] px-3 py-0.5 rounded-full text-xs font-mono font-bold">
-                <Receipt className="w-3.5 h-3.5 text-[#0F6E56]" />
+              <span className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-900 border border-amber-200 px-3 py-0.5 rounded-full text-xs font-bold font-mono">
+                <Receipt className="w-3.5 h-3.5 text-amber-700" />
                 <span>کنسول مدیریت هزینه‌ها و بودجه (Cost Control Console)</span>
               </span>
-              <span className="bg-[#F4F3EF] text-[#5F5E5A] border border-[#D3D1C7] px-2.5 py-0.5 rounded-full text-xs font-medium">
+              <span className="bg-slate-100 text-slate-600 border border-slate-200 px-2.5 py-0.5 rounded-full text-xs font-medium">
                 سال مالی ۱۴۰۵ (واحد: تومان)
               </span>
             </div>
 
-            <h1 className="text-xl sm:text-2xl font-bold text-[#1E293B] font-display">
-              مدیریت هوشمند هزینه‌ها، سرفصل‌ها و سقف بودجه قراردادها
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 font-display tracking-tight">
+              مدیریت هزینه‌ها، سرفصل‌های عملیاتی و سقف بودجه
             </h1>
 
-            <p className="text-[#475569] text-xs sm:text-sm max-w-3xl leading-relaxed">
+            <p className="text-slate-500 text-xs sm:text-sm max-w-3xl leading-relaxed">
               پایش لحظه‌ای مصرف سوخت، نگهداری ناوگان، حقوق رانندگان، بیمه و جریمه‌ها به تفکیک قراردادهای تجاری طرف حساب و تطبیق مستمر با سقف بودجه مصوب سازمانی.
             </p>
           </div>
         </div>
 
         {/* Top Actions */}
-        <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 shrink-0 pt-2 lg:pt-0 border-t lg:border-t-0 border-[#E2E8F0]">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 shrink-0 pt-3 lg:pt-0 border-t lg:border-t-0 border-slate-100">
           <button
             type="button"
             onClick={() => setIsBudgetModalOpen(true)}
-            className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 bg-white hover:bg-[#F8F9FA] text-[#2C2C2A] rounded-2xl text-xs font-bold border border-[#D3D1C7] shadow-2xs hover:border-[#B4B2A9] transition-all cursor-pointer"
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-800 rounded-xl text-xs font-bold border border-slate-200 shadow-2xs hover:border-slate-300 transition-all cursor-pointer"
           >
-            <Sliders className="w-4 h-4 text-[#0F6E56]" />
+            <Sliders className="w-4 h-4 text-amber-700" />
             <span>تنظیم بودجه مصوب</span>
           </button>
 
@@ -324,9 +324,9 @@ export const ExpenseManagementView: React.FC<ExpenseManagementViewProps> = ({
               setEditingExpense(null);
               setIsAddEditModalOpen(true);
             }}
-            className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-5 py-2.5 bg-[#085041] hover:bg-[#04342C] text-white rounded-2xl text-xs font-bold shadow-xs hover:shadow-md transition-all cursor-pointer"
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl text-xs font-bold shadow-xs hover:shadow-sm transition-all cursor-pointer"
           >
-            <Plus className="w-4 h-4 text-[#9FE1CB]" />
+            <Plus className="w-4 h-4 text-slate-950" />
             <span>ثبت هزینه جدید</span>
           </button>
         </div>

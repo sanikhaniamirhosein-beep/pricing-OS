@@ -501,26 +501,26 @@ export const AddEditEnterpriseContractModal: React.FC<Props> = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs overflow-y-auto">
       <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden my-auto animate-in fade-in zoom-in-95">
         {/* Modal Header */}
-        <div className="p-5 bg-gradient-to-l from-slate-900 via-slate-800 to-indigo-950 text-white flex items-center justify-between shrink-0">
+        <div className="p-5 bg-gradient-to-r from-amber-50/80 via-white to-slate-50 border-b border-slate-200 text-slate-900 flex items-center justify-between shrink-0">
           <div>
             <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-lg bg-indigo-500/20 text-indigo-300 font-mono text-xs font-bold border border-indigo-400/30">
+              <span className="px-2.5 py-0.5 rounded-lg bg-amber-100 text-amber-900 font-mono text-xs font-bold border border-amber-300">
                 فرم استاندارد ۱۱ گانه قرارداد سازمانی
               </span>
-              <span className="text-xs text-slate-300">
+              <span className="text-xs text-slate-500 font-medium">
                 {existingContract ? 'ویرایش پرونده قرارداد' : 'ثبت قرارداد جدید شرکت'}
               </span>
             </div>
-            <h3 className="text-base font-bold text-white mt-1">
+            <h3 className="text-base font-bold text-slate-900 mt-1">
               {title || 'ثبت قرارداد سازمانی و حمل‌ونقل اختصاصی'}
             </h3>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white transition-colors cursor-pointer"
+            className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -538,7 +538,7 @@ export const AddEditEnterpriseContractModal: React.FC<Props> = ({
                 onClick={() => setActiveStep(s.id)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                   isActive
-                    ? 'bg-indigo-600 text-white shadow-xs'
+                    ? 'bg-amber-500 text-slate-950 font-bold shadow-xs border border-amber-400'
                     : 'text-slate-600 hover:bg-slate-200/70'
                 }`}
               >
@@ -555,7 +555,7 @@ export const AddEditEnterpriseContractModal: React.FC<Props> = ({
           {activeStep === 1 && (
             <div className="space-y-4 animate-in fade-in">
               <div className="flex items-center gap-2 text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">
-                <FileText className="w-4 h-4 text-indigo-600" />
+                <FileText className="w-4 h-4 text-amber-700" />
                 بخش ۱: اطلاعات پایه و مشخصات سیستمی قرارداد (General Info)
               </div>
 
@@ -567,7 +567,7 @@ export const AddEditEnterpriseContractModal: React.FC<Props> = ({
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="مثال: قرارداد جامع ترانزیت جاده‌ای و حمل فرآورده‌های پلیمری"
-                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-medium focus:bg-white focus:outline-none focus:border-indigo-500"
+                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 font-medium focus:bg-white focus:outline-none focus:border-amber-500"
                     required
                   />
                 </div>
@@ -758,7 +758,7 @@ export const AddEditEnterpriseContractModal: React.FC<Props> = ({
           {activeStep === 3 && (
             <div className="space-y-4 animate-in fade-in">
               <div className="flex items-center gap-2 text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">
-                <Calendar className="w-4 h-4 text-indigo-600" />
+                <Calendar className="w-4 h-4 text-amber-700" />
                 بخش ۳: بازه زمانی و ضوابط تمدید (Duration)
               </div>
 
@@ -927,7 +927,7 @@ export const AddEditEnterpriseContractModal: React.FC<Props> = ({
           {activeStep === 5 && (
             <div className="space-y-4 animate-in fade-in">
               <div className="flex items-center gap-2 text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">
-                <Truck className="w-4 h-4 text-indigo-600" />
+                <Truck className="w-4 h-4 text-amber-700" />
                 بخش ۵: محدوده خدمات، مسیرها و SLA (Scope & SLA)
               </div>
 
@@ -1126,7 +1126,7 @@ export const AddEditEnterpriseContractModal: React.FC<Props> = ({
           {activeStep === 8 && (
             <div className="space-y-4 animate-in fade-in">
               <div className="flex items-center gap-2 text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">
-                <Lock className="w-4 h-4 text-indigo-600" />
+                <Lock className="w-4 h-4 text-amber-700" />
                 بخش ۱۱: سطح محرمانگی و دسترسی‌های امنیتی (Audit & RBAC)
               </div>
 
@@ -1192,7 +1192,7 @@ export const AddEditEnterpriseContractModal: React.FC<Props> = ({
                 <button
                   type="button"
                   onClick={() => setActiveStep((prev) => prev + 1)}
-                  className="px-4 py-2 rounded-xl bg-indigo-50 text-indigo-700 font-semibold hover:bg-indigo-100 cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-amber-100 text-amber-950 font-bold hover:bg-amber-200 cursor-pointer transition-colors"
                 >
                   مرحله بعدی
                 </button>
@@ -1203,13 +1203,13 @@ export const AddEditEnterpriseContractModal: React.FC<Props> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200 cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-semibold hover:bg-slate-200 cursor-pointer transition-colors"
               >
                 انصراف
               </button>
               <button
                 type="submit"
-                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-colors shadow-md cursor-pointer"
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold transition-colors shadow-xs cursor-pointer"
               >
                 <Save className="w-4 h-4" />
                 {existingContract ? 'ذخیره تغییرات قرارداد' : 'ثبت نهایی و ایجاد پرونده'}

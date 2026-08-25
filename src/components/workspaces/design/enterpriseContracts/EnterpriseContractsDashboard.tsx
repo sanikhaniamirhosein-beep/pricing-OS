@@ -18,14 +18,26 @@ import {
   Scale,
   Lock,
   Activity,
+  FileSpreadsheet,
+  Download,
+  Filter,
+  Sparkles,
+  ExternalLink,
   ChevronLeft,
   ChevronRight,
-  Filter,
-  Eye,
-  Hash,
-  Download,
-  Share2,
-  FileSpreadsheet,
+  UserCheck,
+  Phone,
+  Mail,
+  MapPin,
+  FileBadge,
+  Briefcase,
+  AlertOctagon,
+  XCircle,
+  Paperclip,
+  CheckSquare,
+  BarChart3,
+  Receipt,
+  MessageSquare,
 } from 'lucide-react';
 import { EnterpriseCorporateContract } from '../../../../types/enterpriseContract';
 import { INITIAL_ENTERPRISE_CONTRACTS } from '../../../../data/mockEnterpriseContracts';
@@ -56,7 +68,6 @@ export const EnterpriseContractsDashboard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>('all');
   const [selectedTypeFilter, setSelectedTypeFilter] = useState<string>('all');
-  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('all');
 
   // Modals
   const [isAddEditModalOpen, setIsAddEditModalOpen] = useState(false);
@@ -74,11 +85,13 @@ export const EnterpriseContractsDashboard: React.FC = () => {
 
   // Filtered List
   const filteredContracts = contractsList.filter((c) => {
+    const query = searchQuery.toLowerCase().trim();
     const matchesSearch =
-      c.generalInfo.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.parties.counterparty.companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.contractId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.generalInfo.contractNumber.toLowerCase().includes(searchQuery.toLowerCase());
+      !query ||
+      c.generalInfo.title.toLowerCase().includes(query) ||
+      c.parties.counterparty.companyName.toLowerCase().includes(query) ||
+      c.contractId.toLowerCase().includes(query) ||
+      c.generalInfo.contractNumber.toLowerCase().includes(query);
 
     const matchesStatus =
       selectedStatusFilter === 'all' || c.generalInfo.status === selectedStatusFilter;
@@ -86,10 +99,7 @@ export const EnterpriseContractsDashboard: React.FC = () => {
     const matchesType =
       selectedTypeFilter === 'all' || c.generalInfo.contractType === selectedTypeFilter;
 
-    const matchesCategory =
-      selectedCategoryFilter === 'all' || c.generalInfo.category === selectedCategoryFilter;
-
-    return matchesSearch && matchesStatus && matchesType && matchesCategory;
+    return matchesSearch && matchesStatus && matchesType;
   });
 
   const handleSaveContract = (contract: EnterpriseCorporateContract) => {
@@ -128,123 +138,153 @@ export const EnterpriseContractsDashboard: React.FC = () => {
     0
   );
 
+  const activeCount = contractsList.filter((c) => c.generalInfo.status === 'active').length;
+
   const sectionTabs = [
-    { id: 1, label: '۱. اطلاعات پایه', icon: FileText, desc: 'شناسه، وضعیت و نوع' },
-    { id: 2, label: '۲. طرفین و نمایندگان', icon: Building2, desc: 'مشخصات و امضاها' },
-    { id: 3, label: '۳. بازه زمانی و تمدید', icon: Calendar, desc: 'مواعد و یادآورها' },
-    { id: 4, label: '۴. شرایط مالی و اقساط', icon: DollarSign, desc: 'مبالغ، تعرفه و تعدیل' },
-    { id: 5, label: '۵. محدوده خدمات و SLA', icon: Truck, desc: 'مسیرها، ناوگان و سطح خدمت' },
-    { id: 6, label: '۶. تعهدات و بیمه', icon: ShieldCheck, desc: 'مسئولیت‌ها و پوشش تمام‌خطر' },
-    { id: 7, label: '۷. شرایط فسخ', icon: AlertTriangle, desc: 'مواعد، جرائم و علل فوری' },
-    { id: 8, label: '۸. اسناد و الحاقیه‌ها', icon: Layers, desc: 'فایل PDF، پیوست‌ها و نسخ' },
-    { id: 9, label: '۹. حقوقی و انطباق', icon: Scale, desc: 'قانون حاکم و مراجع داوری' },
-    { id: 10, label: '۱۰. ارتباطات سیستمی', icon: Activity, desc: 'ناوگان، فاکتورها، KPI' },
-    { id: 11, label: '۱۱. متادیتای مدیریتی', icon: Lock, desc: 'حسابرسی و محرمانگی' },
+    { id: 1, label: 'اطلاعات پایه', num: '۱', icon: FileText, desc: 'مشخصات و نوع' },
+    { id: 2, label: 'طرفین و نمایندگان', num: '۲', icon: Building2, desc: 'مشخصات و امضاها' },
+    { id: 3, label: 'بازه زمانی و تمدید', num: '۳', icon: Calendar, desc: 'مواعد و سررسید' },
+    { id: 4, label: 'شرایط مالی و اقساط', num: '۴', icon: DollarSign, desc: 'مبالغ، تعرفه و تعدیل' },
+    { id: 5, label: 'محدوده خدمات و SLA', num: '۵', icon: Truck, desc: 'مسیرها و سطح خدمت' },
+    { id: 6, label: 'تعهدات و بیمه', num: '۶', icon: ShieldCheck, desc: 'مسئولیت‌ها و All-Risk' },
+    { id: 7, label: 'شرایط فسخ', num: '۷', icon: AlertTriangle, desc: 'مواعد و علل فسخ' },
+    { id: 8, label: 'اسناد و الحاقیه‌ها', num: '۸', icon: Layers, desc: 'پیوست‌ها و نسخ' },
+    { id: 9, label: 'حقوقی و انطباق', num: '۹', icon: Scale, desc: 'داوری و قوانین' },
+    { id: 10, label: 'ارتباطات سیستمی', num: '۱۰', icon: Activity, desc: 'ناوگان، فاکتورها، لاگ' },
+    { id: 11, label: 'متادیتای نظارتی', num: '۱۱', icon: Lock, desc: 'حسابرسی و محرمانگی' },
   ];
 
   return (
     <div className="space-y-6">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-5 left-5 z-50 bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-xl border border-indigo-500/30 flex items-center gap-2 text-xs font-semibold animate-in fade-in slide-in-from-bottom-5">
-          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+        <div className="fixed bottom-6 left-6 z-50 bg-emerald-50 text-emerald-950 px-5 py-3.5 rounded-2xl shadow-xl border border-emerald-300 flex items-center gap-3 text-xs font-bold animate-in fade-in slide-in-from-bottom-4">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
           <span>{toastMessage}</span>
         </div>
       )}
 
-      {/* Top High-Craft Metrics Header */}
+      {/* Modern Minimal Metrics Bar */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1.5">
-          <div className="flex items-center justify-between text-slate-500 text-xs">
-            <span>تعداد کل قراردادهای شرکتی</span>
-            <Building2 className="w-4 h-4 text-indigo-600" />
+        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-slate-500">قراردادهای شرکتی</span>
+            <div className="w-8 h-8 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600">
+              <Building2 className="w-4 h-4" />
+            </div>
           </div>
-          <div className="text-xl font-bold font-mono text-slate-900">
-            {contractsList.length} شرکت طرف قرارداد
-          </div>
-          <div className="text-[11px] text-emerald-600 font-medium flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-            {contractsList.filter((c) => c.generalInfo.status === 'active').length} قرارداد فعال و جاری
+          <div>
+            <div className="text-2xl font-bold font-mono text-slate-900">
+              {contractsList.length.toLocaleString('fa-IR')} <span className="text-xs font-normal text-slate-500">شرکت</span>
+            </div>
+            <div className="text-xs text-emerald-700 font-medium flex items-center gap-1.5 mt-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              <span>{activeCount.toLocaleString('fa-IR')} قرارداد فعال و جاری</span>
+            </div>
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1.5">
-          <div className="flex items-center justify-between text-slate-500 text-xs">
-            <span>مجموع ارزش پرتفوی قراردادها</span>
-            <DollarSign className="w-4 h-4 text-emerald-600" />
+        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-slate-500">ارزش کل پرتفوی قراردادها</span>
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
+              <DollarSign className="w-4 h-4" />
+            </div>
           </div>
-          <div className="text-xl font-bold font-mono text-emerald-700">
-            {(totalPortfolioValueToman / 1000000000).toLocaleString('fa-IR')} مـ میلیارد تومان
+          <div>
+            <div className="text-2xl font-bold font-mono text-emerald-800">
+              {(totalPortfolioValueToman / 1000000000).toLocaleString('fa-IR')} <span className="text-xs font-normal text-slate-500">میلیارد تومان</span>
+            </div>
+            <div className="text-xs text-slate-500 mt-1.5">
+              مجموع ارزش تعهدات حمل سال ۱۴۰۵
+            </div>
           </div>
-          <p className="text-[11px] text-slate-500">ارزش کل تعهدات جابجایی کالا در سال ۱۴۰۵</p>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1.5">
-          <div className="flex items-center justify-between text-slate-500 text-xs">
-            <span>تعهد تناژ کل سالانه ناوگان</span>
-            <Truck className="w-4 h-4 text-amber-600" />
+        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-slate-500">تعهد تناژ ناوگان</span>
+            <div className="w-8 h-8 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600">
+              <Truck className="w-4 h-4" />
+            </div>
           </div>
-          <div className="text-xl font-bold font-mono text-slate-900">
-            {totalCommittedTonnage.toLocaleString('fa-IR')} تن بار
+          <div>
+            <div className="text-2xl font-bold font-mono text-slate-900">
+              {(totalCommittedTonnage / 1000).toLocaleString('fa-IR')} <span className="text-xs font-normal text-slate-500">هزار تن / سال</span>
+            </div>
+            <div className="text-xs text-slate-500 mt-1.5">
+              توزیع شده روی کریدورهای سراسری
+            </div>
           </div>
-          <p className="text-[11px] text-slate-500">توزیع شده روی خطوط ترانزیتی و صنعتی</p>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1.5">
-          <div className="flex items-center justify-between text-slate-500 text-xs">
-            <span>شاخص انطباق حقوقی و بیمه</span>
-            <ShieldCheck className="w-4 h-4 text-teal-600" />
+        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-slate-500">انطباق حقوقی و بیمه</span>
+            <div className="w-8 h-8 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center text-teal-600">
+              <ShieldCheck className="w-4 h-4" />
+            </div>
           </div>
-          <div className="text-xl font-bold font-mono text-teal-700">۱۰۰٪ تایید شده</div>
-          <p className="text-[11px] text-slate-500">پوشش کامل All-Risk و داوری اتاق بازرگانی</p>
+          <div>
+            <div className="text-2xl font-bold font-mono text-teal-800">
+              ۱۰۰٪ <span className="text-xs font-normal text-slate-500">پوشش کامل</span>
+            </div>
+            <div className="text-xs text-slate-500 mt-1.5">
+              بیمه‌نامه All-Risk و داوری رسمی
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Main Workspace Split: Left/Right Master-Detail */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Side (Desktop 4 cols): Contracts List & Filters */}
+      {/* Main Workspace Grid: Master-Detail Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Side: Contracts List & Clean Filter Controls (4 cols) */}
         <div className="lg:col-span-4 space-y-4">
-          {/* Action Bar */}
-          <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3">
+          <div className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-2xs space-y-3.5">
+            {/* Header & Add Button */}
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold text-slate-900 flex items-center gap-2">
-                <FileText className="w-4 h-4 text-indigo-600" />
-                فهرست قراردادهای هر شرکت
-              </h3>
+              <div className="flex items-center gap-2">
+                <FileText className="w-4 h-4 text-slate-700" />
+                <span className="text-xs font-bold text-slate-900">فهرست قراردادهای شرکتی</span>
+                <span className="text-[11px] font-mono text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+                  {filteredContracts.length.toLocaleString('fa-IR')}
+                </span>
+              </div>
+
               <button
                 type="button"
                 onClick={() => {
                   setEditingContract(null);
                   setIsAddEditModalOpen(true);
                 }}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white hover:bg-indigo-700 transition-colors shadow-2xs cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 transition-colors shadow-xs cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
-                افزودن قرارداد جدید
+                <span>قرارداد جدید</span>
               </button>
             </div>
 
             {/* Search Input */}
             <div className="relative">
-              <Search className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="جستجوی نام شرکت، شناسه یا شماره ثبت..."
-                className="w-full pl-3 pr-9 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-indigo-500 transition-all"
+                placeholder="جستجوی نام شرکت، شناسه یا شماره قرارداد..."
+                className="w-full pl-3 pr-9 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:border-slate-400 transition-all"
               />
             </div>
 
-            {/* Quick Filters */}
-            <div className="grid grid-cols-2 gap-2 text-[11px]">
+            {/* Filter Dropdowns */}
+            <div className="grid grid-cols-2 gap-2 text-xs">
               <select
                 value={selectedStatusFilter}
                 onChange={(e) => setSelectedStatusFilter(e.target.value)}
-                className="p-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 font-medium"
+                className="px-2.5 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-[11px] font-medium focus:outline-none focus:border-slate-400 cursor-pointer"
               >
                 <option value="all">همه وضعیت‌ها</option>
-                <option value="active">فعال</option>
+                <option value="active">فعال و جاری</option>
                 <option value="pending_sign">در انتظار امضا</option>
                 <option value="draft">پیش‌نویس</option>
                 <option value="renewing">در حال تمدید</option>
@@ -253,68 +293,90 @@ export const EnterpriseContractsDashboard: React.FC = () => {
               <select
                 value={selectedTypeFilter}
                 onChange={(e) => setSelectedTypeFilter(e.target.value)}
-                className="p-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 font-medium"
+                className="px-2.5 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-[11px] font-medium focus:outline-none focus:border-slate-400 cursor-pointer"
               >
                 <option value="all">همه انواع خدمات</option>
                 <option value="freight_transport">حمل‌ونقل باری</option>
                 <option value="fleet_contracting">پیمانکاری ناوگان</option>
                 <option value="logistics_services">خدمات لجستیک</option>
-                <option value="intercompany_cooperation">همکاری بین‌شرکتی</option>
+                <option value="intercompany_cooperation">همکاری شرکتی</option>
               </select>
             </div>
           </div>
 
-          {/* Contracts Scrollable Cards List */}
-          <div className="space-y-2.5 max-h-[calc(100vh-320px)] overflow-y-auto pr-0.5">
+          {/* Contracts Scrollable List */}
+          <div className="space-y-2.5 max-h-[calc(100vh-380px)] overflow-y-auto pr-0.5">
             {filteredContracts.length > 0 ? (
               filteredContracts.map((c) => {
                 const isSelected = c.id === selectedContractId;
+                const statusBadge =
+                  c.generalInfo.status === 'active'
+                    ? { bg: 'bg-emerald-50 text-emerald-800 border-emerald-200/80', label: 'فعال' }
+                    : c.generalInfo.status === 'pending_sign'
+                    ? { bg: 'bg-amber-50 text-amber-800 border-amber-200/80', label: 'در انتظار امضا' }
+                    : { bg: 'bg-slate-100 text-slate-700 border-slate-200', label: 'پیش‌نویس' };
+
                 return (
                   <div
                     key={c.id}
                     onClick={() => setSelectedContractId(c.id)}
-                    className={`p-3.5 rounded-2xl border transition-all cursor-pointer relative overflow-hidden text-xs ${
+                    className={`p-4 rounded-2xl border transition-all cursor-pointer relative space-y-3 ${
                       isSelected
-                        ? 'bg-indigo-50/70 border-indigo-400 shadow-sm ring-1 ring-indigo-400/50'
-                        : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/60 shadow-2xs'
+                        ? 'bg-gradient-to-br from-amber-50/90 via-amber-50/40 to-white text-slate-900 border-amber-400 shadow-sm ring-1 ring-amber-400/40'
+                        : 'bg-white border-slate-200/80 text-slate-800 hover:border-slate-300 hover:bg-slate-50/70 shadow-2xs'
                     }`}
                   >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="space-y-1 truncate">
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">
-                            {c.contractId}
-                          </span>
-                          <span
-                            className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
-                              c.generalInfo.status === 'active'
-                                ? 'bg-emerald-100 text-emerald-800'
-                                : 'bg-amber-100 text-amber-800'
-                            }`}
-                          >
-                            {c.generalInfo.status === 'active' ? 'فعال' : 'در جریان'}
-                          </span>
-                        </div>
-                        <div className="font-bold text-slate-900 truncate">
-                          {c.parties.counterparty.companyName}
-                        </div>
-                        <div className="text-[11px] text-slate-500 truncate">
-                          {c.generalInfo.title}
-                        </div>
+                    {/* Top Row: IDs & Status */}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5">
+                        <span
+                          className={`text-[11px] font-mono font-bold px-2 py-0.5 rounded-lg border ${
+                            isSelected
+                              ? 'bg-amber-100 text-amber-950 border-amber-300'
+                              : 'bg-slate-100 text-slate-700 border-slate-200'
+                          }`}
+                        >
+                          {c.contractId}
+                        </span>
+                        <span
+                          className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${statusBadge.bg}`}
+                        >
+                          {statusBadge.label}
+                        </span>
                       </div>
 
-                      <div className="text-left shrink-0">
-                        <div className="font-mono font-bold text-indigo-700 text-xs">
+                      <div className="text-left">
+                        <span
+                          className={`text-xs font-mono font-bold ${
+                            isSelected ? 'text-amber-950' : 'text-slate-900'
+                          }`}
+                        >
                           {(c.financialTerms.totalAmountToman / 1000000000).toLocaleString('fa-IR')} مـ ت
-                        </div>
-                        <div className="text-[10px] text-slate-400 font-mono mt-0.5">
-                          {c.duration.durationMonths} ماهه
-                        </div>
+                        </span>
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between pt-2.5 mt-2.5 border-t border-slate-100/80 text-[11px] text-slate-500">
-                      <span>تاریخ پایان: {c.duration.endDate}</span>
+                    {/* Middle: Company Name & Title */}
+                    <div className="space-y-1">
+                      <div className="text-xs font-bold leading-snug text-slate-900">
+                        {c.parties.counterparty.companyName}
+                      </div>
+                      <div className="text-[11px] leading-relaxed line-clamp-1 text-slate-500">
+                        {c.generalInfo.title}
+                      </div>
+                    </div>
+
+                    {/* Bottom Row: Duration and Quick Actions */}
+                    <div
+                      className={`flex items-center justify-between pt-2.5 border-t text-[11px] ${
+                        isSelected ? 'border-amber-200/70 text-slate-600' : 'border-slate-100 text-slate-500'
+                      }`}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-slate-400" />
+                        <span>اعتبار تا: {c.duration.endDate}</span>
+                      </div>
+
                       <div className="flex items-center gap-1">
                         <button
                           type="button"
@@ -323,7 +385,11 @@ export const EnterpriseContractsDashboard: React.FC = () => {
                             setEditingContract(c);
                             setIsAddEditModalOpen(true);
                           }}
-                          className="p-1 rounded-md text-slate-400 hover:text-indigo-600 hover:bg-white"
+                          className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                            isSelected
+                              ? 'text-slate-600 hover:text-amber-950 hover:bg-amber-100/70'
+                              : 'text-slate-400 hover:text-slate-900 hover:bg-slate-100'
+                          }`}
                           title="ویرایش قرارداد"
                         >
                           <Edit className="w-3.5 h-3.5" />
@@ -331,7 +397,11 @@ export const EnterpriseContractsDashboard: React.FC = () => {
                         <button
                           type="button"
                           onClick={(e) => handleDeleteContract(c.id, e)}
-                          className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-white"
+                          className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                            isSelected
+                              ? 'text-rose-500 hover:text-rose-700 hover:bg-rose-100/70'
+                              : 'text-slate-400 hover:text-rose-600 hover:bg-rose-50'
+                          }`}
                           title="حذف قرارداد"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -342,60 +412,67 @@ export const EnterpriseContractsDashboard: React.FC = () => {
                 );
               })
             ) : (
-              <div className="p-8 text-center bg-white rounded-2xl border border-slate-200 text-xs text-slate-400">
+              <div className="p-8 text-center bg-white rounded-2xl border border-slate-200 text-xs text-slate-500">
                 قراردادی با مشخصات جستجو یافت نشد.
               </div>
             )}
           </div>
         </div>
 
-        {/* Right Side (Desktop 8 cols): Detailed 11-Section Master Dossier View */}
-        <div className="lg:col-span-8 space-y-4">
+        {/* Right Side: Detailed 11-Section Master Dossier (8 cols) */}
+        <div className="lg:col-span-8 space-y-5">
           {selectedContract ? (
-            <div className="space-y-4">
-              {/* Dossier Action Bar */}
-              <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-indigo-50 text-indigo-700 font-bold font-mono text-sm border border-indigo-100">
+            <div className="space-y-5">
+              {/* Dossier Header Bar */}
+              <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-start sm:items-center gap-3.5">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200/80 flex items-center justify-center text-amber-900 font-mono font-bold text-sm shrink-0">
                     {selectedContract.displayId}
                   </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-slate-900">
-                      پرونده جامع قرارداد {selectedContract.parties.counterparty.companyName}
-                    </h3>
-                    <div className="text-xs text-slate-500 font-mono">
-                      شماره ثبت: {selectedContract.generalInfo.contractNumber} | شناسه: {selectedContract.contractId}
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="text-sm font-bold text-slate-900">
+                        {selectedContract.parties.counterparty.companyName}
+                      </h3>
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                        {selectedContract.generalInfo.category === 'domestic' ? 'قرارداد داخلی' : 'قرارداد بین‌المللی'}
+                      </span>
+                    </div>
+                    <div className="text-xs text-slate-500 flex items-center gap-3 flex-wrap">
+                      <span>شماره ثبت: <strong className="font-mono text-slate-700">{selectedContract.generalInfo.contractNumber}</strong></span>
+                      <span>شناسه سامانه: <strong className="font-mono text-slate-700">{selectedContract.contractId}</strong></span>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 w-full sm:w-auto">
+                {/* Header Actions */}
+                <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
                   <button
                     type="button"
                     onClick={() => {
                       setEditingContract(selectedContract);
                       setIsAddEditModalOpen(true);
                     }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors cursor-pointer"
+                    className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors cursor-pointer"
                   >
                     <Edit className="w-3.5 h-3.5 text-slate-600" />
-                    ویرایش اطلاعات
+                    <span>ویرایش اطلاعات</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setIsPrintModalOpen(true)}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+                    className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold shadow-xs transition-colors cursor-pointer"
                   >
                     <Printer className="w-3.5 h-3.5" />
-                    پیش‌نمایش چاپ رسمی و PDF
+                    <span>پیش‌نمایش چاپ و PDF</span>
                   </button>
                 </div>
               </div>
 
-              {/* 11 Section Tabs Navigation */}
-              <div className="bg-white rounded-2xl border border-slate-200 p-2 shadow-xs">
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-1.5">
+              {/* Minimalist 11-Section Tab Navigation */}
+              <div className="bg-white rounded-2xl border border-slate-200/80 p-2 shadow-2xs">
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
                   {sectionTabs.map((tab) => {
                     const Icon = tab.icon;
                     const isActive = activeSectionTab === tab.id;
@@ -404,14 +481,21 @@ export const EnterpriseContractsDashboard: React.FC = () => {
                         key={tab.id}
                         type="button"
                         onClick={() => setActiveSectionTab(tab.id)}
-                        className={`flex flex-col items-center justify-center p-2 rounded-xl text-center transition-all cursor-pointer ${
+                        className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all cursor-pointer ${
                           isActive
-                            ? 'bg-indigo-600 text-white font-bold shadow-xs'
-                            : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                            ? 'bg-amber-500 text-slate-950 font-bold shadow-xs border border-amber-400'
+                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
                         }`}
                       >
-                        <Icon className={`w-4 h-4 mb-1 ${isActive ? 'text-white' : 'text-indigo-600'}`} />
-                        <span className="text-[11px] truncate w-full">{tab.label}</span>
+                        <span
+                          className={`w-4.5 h-4.5 rounded-md text-[10px] font-mono font-bold flex items-center justify-center ${
+                            isActive ? 'bg-slate-950/15 text-slate-950' : 'bg-slate-100 text-slate-600'
+                          }`}
+                        >
+                          {tab.num}
+                        </span>
+                        <Icon className="w-3.5 h-3.5 shrink-0" />
+                        <span>{tab.label}</span>
                       </button>
                     );
                   })}
@@ -419,7 +503,7 @@ export const EnterpriseContractsDashboard: React.FC = () => {
               </div>
 
               {/* Render Selected 11 Section Tab Component */}
-              <div className="animate-in fade-in duration-150">
+              <div className="transition-opacity duration-150">
                 {activeSectionTab === 1 && (
                   <ContractGeneralInfoTab contract={selectedContract} />
                 )}

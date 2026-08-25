@@ -97,13 +97,15 @@ export const ShipperNotificationBell: React.FC<ShipperNotificationBellProps> = (
   // Outside click handler
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {
+      // Don't close if settings modal is active or click is within bell container
+      if (isSettingsModalOpen) return;
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setIsOpen(false);
       }
     };
     document.addEventListener('mousedown', handleOutsideClick);
     return () => document.removeEventListener('mousedown', handleOutsideClick);
-  }, []);
+  }, [isSettingsModalOpen]);
 
   // Filter notifications according to shipper preferences
   const visibleNotifications = useMemo(() => {
@@ -314,7 +316,7 @@ export const ShipperNotificationBell: React.FC<ShipperNotificationBellProps> = (
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 6, scale: 0.96 }}
             transition={{ duration: 0.18, ease: 'easeOut' }}
-            className="absolute left-0 sm:-left-12 mt-2.5 w-[92vw] sm:w-[460px] max-w-[480px] bg-white rounded-3xl shadow-2xl border border-slate-200/90 z-50 overflow-hidden flex flex-col max-h-[82vh]"
+            className="absolute left-0 mt-2.5 w-[92vw] sm:w-[460px] max-w-[480px] bg-white rounded-3xl shadow-2xl border border-slate-200/90 z-50 overflow-hidden flex flex-col max-h-[82vh]"
           >
             {/* Popover Header */}
             <div className="p-4 bg-gradient-to-l from-sky-50 via-teal-50/40 to-white border-b border-slate-200/80 shrink-0">

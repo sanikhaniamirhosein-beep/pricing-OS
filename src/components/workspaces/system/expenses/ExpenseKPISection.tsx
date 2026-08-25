@@ -149,28 +149,28 @@ export const ExpenseKPISection: React.FC<ExpenseKPISectionProps> = ({
   return (
     <div className="space-y-4">
       {/* Top Main 4 Analytical KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
         {/* Card 1: Total & Average Monthly Expense */}
         <div
           id="kpi-card-total-expense"
-          className="bg-white border border-[#D3D1C7] rounded-2xl p-4 shadow-xs relative overflow-hidden flex flex-col justify-between"
+          className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs relative overflow-hidden flex flex-col justify-between hover:border-slate-300 transition-all"
         >
           <div className="flex items-start justify-between">
             <div>
-              <span className="text-[11px] font-semibold text-[#5F5E5A] block">مجموع هزینه‌های دوره</span>
-              <div className="flex items-baseline gap-1.5 mt-1">
-                <span className="text-2xl font-bold font-mono text-[#2C2C2A]">{totalFmt.val}</span>
-                <span className="text-[11px] text-[#5F5E5A] font-medium">{totalFmt.unit}</span>
+              <span className="text-xs font-semibold text-slate-500 block">مجموع هزینه‌های دوره</span>
+              <div className="flex items-baseline gap-1.5 mt-1.5">
+                <span className="text-2xl sm:text-3xl font-bold font-mono text-slate-900">{totalFmt.val}</span>
+                <span className="text-xs text-slate-500 font-medium">{totalFmt.unit}</span>
               </div>
             </div>
-            <div className="w-9 h-9 rounded-xl bg-[#E1F5EE] border border-[#9FE1CB] flex items-center justify-center text-[#085041] shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200/80 flex items-center justify-center text-amber-700 shrink-0">
               <DollarSign className="w-5 h-5" />
             </div>
           </div>
 
-          <div className="mt-3 pt-2.5 border-t border-[#ECEAE3] flex items-center justify-between text-xs text-[#5F5E5A]">
+          <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
             <span>میانگین ماهانه:</span>
-            <span className="font-bold text-[#085041] font-mono">
+            <span className="font-bold text-slate-900 font-mono">
               {avgFmt.val} {avgFmt.unit}
             </span>
           </div>
@@ -179,24 +179,24 @@ export const ExpenseKPISection: React.FC<ExpenseKPISectionProps> = ({
         {/* Card 2: Growth Rate MoM */}
         <div
           id="kpi-card-growth-rate"
-          className="bg-white border border-[#D3D1C7] rounded-2xl p-4 shadow-xs relative overflow-hidden flex flex-col justify-between"
+          className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs relative overflow-hidden flex flex-col justify-between hover:border-slate-300 transition-all"
         >
           <div className="flex items-start justify-between">
             <div>
-              <span className="text-[11px] font-semibold text-[#5F5E5A] block">نرخ رشد ماه جاری (MoM)</span>
-              <div className="flex items-baseline gap-1.5 mt-1">
+              <span className="text-xs font-semibold text-slate-500 block">نرخ رشد ماه جاری (MoM)</span>
+              <div className="flex items-baseline gap-1.5 mt-1.5">
                 <span
-                  className={`text-2xl font-bold font-mono ${
+                  className={`text-2xl sm:text-3xl font-bold font-mono ${
                     growthRatePercent > 0 ? 'text-amber-700' : 'text-emerald-700'
                   }`}
                 >
                   {growthRatePercent > 0 ? `+${growthRatePercent}` : growthRatePercent}٪
                 </span>
-                <span className="text-[11px] text-[#5F5E5A] font-medium">نسبت به {monthNamesFa[priorMonthIndex]}</span>
+                <span className="text-xs text-slate-400 font-medium">نسبت به {monthNamesFa[priorMonthIndex]}</span>
               </div>
             </div>
             <div
-              className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border ${
+              className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${
                 growthRatePercent > 0
                   ? 'bg-amber-50 border-amber-200 text-amber-700'
                   : 'bg-emerald-50 border-emerald-200 text-emerald-700'
@@ -206,9 +206,9 @@ export const ExpenseKPISection: React.FC<ExpenseKPISectionProps> = ({
             </div>
           </div>
 
-          <div className="mt-3 pt-2.5 border-t border-[#ECEAE3] flex items-center justify-between text-xs text-[#5F5E5A]">
+          <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
             <span>تغییر هزینه ماهانه:</span>
-            <span className="font-mono font-semibold text-[#2C2C2A]">
+            <span className="font-mono font-bold text-slate-800">
               {Math.abs(Math.round((currentMonthExp - priorMonthExp) / 1000000)).toLocaleString('fa-IR')} م تومان
             </span>
           </div>
@@ -217,24 +217,24 @@ export const ExpenseKPISection: React.FC<ExpenseKPISectionProps> = ({
         {/* Card 3: Peak & Trough Months */}
         <div
           id="kpi-card-peak-trough"
-          className="bg-white border border-[#D3D1C7] rounded-2xl p-4 shadow-xs relative overflow-hidden flex flex-col justify-between"
+          className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs relative overflow-hidden flex flex-col justify-between hover:border-slate-300 transition-all"
         >
           <div className="flex items-start justify-between">
             <div>
-              <span className="text-[11px] font-semibold text-[#5F5E5A] block">بیشترین هزینه ماهانه (Peak)</span>
-              <div className="flex items-baseline gap-1.5 mt-1">
-                <span className="text-2xl font-bold font-mono text-[#2C2C2A]">{peakFmt.val}</span>
-                <span className="text-[11px] text-[#5F5E5A] font-medium">({monthNamesFa[peakMonthIndex]})</span>
+              <span className="text-xs font-semibold text-slate-500 block">بیشترین هزینه ماهانه (Peak)</span>
+              <div className="flex items-baseline gap-1.5 mt-1.5">
+                <span className="text-2xl sm:text-3xl font-bold font-mono text-slate-900">{peakFmt.val}</span>
+                <span className="text-xs text-slate-500 font-medium">({monthNamesFa[peakMonthIndex]})</span>
               </div>
             </div>
-            <div className="w-9 h-9 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-700 shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-700 shrink-0">
               <Sparkles className="w-5 h-5" />
             </div>
           </div>
 
-          <div className="mt-3 pt-2.5 border-t border-[#ECEAE3] flex items-center justify-between text-xs text-[#5F5E5A]">
+          <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
             <span>کمترین هزینه:</span>
-            <span className="font-mono text-[#5F5E5A] font-semibold">
+            <span className="font-mono text-slate-600 font-medium">
               {monthNamesFa[troughMonthIndex]} ({troughFmt.val} {troughFmt.unit})
             </span>
           </div>
@@ -243,34 +243,34 @@ export const ExpenseKPISection: React.FC<ExpenseKPISectionProps> = ({
         {/* Card 4: Budget Variance */}
         <div
           id="kpi-card-budget-variance"
-          className="bg-white border border-[#D3D1C7] rounded-2xl p-4 shadow-xs relative overflow-hidden flex flex-col justify-between"
+          className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs relative overflow-hidden flex flex-col justify-between hover:border-slate-300 transition-all"
         >
           <div className="flex items-start justify-between">
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="text-[11px] font-semibold text-[#5F5E5A] block">انحراف از بودجه مصوب</span>
+                <span className="text-xs font-semibold text-slate-500 block">انحراف از بودجه مصوب</span>
                 <button
                   type="button"
                   onClick={onOpenBudgetModal}
-                  className="text-[10px] text-[#085041] hover:underline font-semibold cursor-pointer"
+                  className="text-[11px] text-amber-700 hover:text-amber-800 font-bold hover:underline cursor-pointer"
                 >
-                  (تنظیم بودجه)
+                  (تنظیم)
                 </button>
               </div>
-              <div className="flex items-baseline gap-1.5 mt-1">
+              <div className="flex items-baseline gap-1.5 mt-1.5">
                 <span
-                  className={`text-2xl font-bold font-mono ${
+                  className={`text-2xl sm:text-3xl font-bold font-mono ${
                     isBudgetExceeded ? 'text-rose-700' : 'text-emerald-700'
                   }`}
                 >
                   {isBudgetExceeded ? '+' : '-'}
                   {varianceFmt.val}
                 </span>
-                <span className="text-[11px] text-[#5F5E5A] font-medium">{varianceFmt.unit}</span>
+                <span className="text-xs text-slate-500 font-medium">{varianceFmt.unit}</span>
               </div>
             </div>
             <div
-              className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border ${
+              className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border ${
                 isBudgetExceeded
                   ? 'bg-rose-50 border-rose-200 text-rose-700'
                   : 'bg-emerald-50 border-emerald-200 text-emerald-700'
@@ -280,10 +280,10 @@ export const ExpenseKPISection: React.FC<ExpenseKPISectionProps> = ({
             </div>
           </div>
 
-          <div className="mt-3 pt-2.5 border-t border-[#ECEAE3] flex items-center justify-between text-xs text-[#5F5E5A]">
+          <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
             <span>تحقق بودجه:</span>
-            <div className="flex items-center gap-1.5">
-              <div className="w-16 h-1.5 bg-[#EAE8E1] rounded-full overflow-hidden">
+            <div className="flex items-center gap-2">
+              <div className="w-18 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full ${
                     budgetUtilizationPercent > 100
@@ -295,46 +295,46 @@ export const ExpenseKPISection: React.FC<ExpenseKPISectionProps> = ({
                   style={{ width: `${Math.min(budgetUtilizationPercent, 100)}%` }}
                 />
               </div>
-              <span className="font-mono font-bold text-[#2C2C2A]">{budgetUtilizationPercent}٪</span>
+              <span className="font-mono font-bold text-slate-900">{budgetUtilizationPercent}٪</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Payment Status Quick Bar */}
-      <div className="bg-[#FAFAF8] border border-[#D3D1C7] rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-3 text-xs">
-        <div className="flex items-center gap-2 text-[#5F5E5A]">
-          <Layers className="w-4 h-4 text-[#085041]" />
-          <span className="font-bold text-[#2C2C2A]">وضعیت تسویه هزینه‌ها:</span>
+      <div className="bg-white border border-slate-200/80 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 text-xs shadow-2xs">
+        <div className="flex items-center gap-2 text-slate-600">
+          <Layers className="w-4 h-4 text-amber-700" />
+          <span className="font-bold text-slate-900">وضعیت تسویه هزینه‌ها:</span>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
           {/* Paid */}
-          <div className="flex items-center gap-1.5 bg-white border border-emerald-200 px-3 py-1.5 rounded-xl shadow-xs">
+          <div className="flex items-center gap-2 bg-emerald-50/70 border border-emerald-200 px-3.5 py-1.5 rounded-xl">
             <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-            <span className="text-[#5F5E5A]">پرداخت‌شده:</span>
-            <span className="font-mono font-bold text-emerald-800">
-              {(paidAmountToman / 1000000000).toFixed(2)} م.م تومان
+            <span className="text-emerald-900 font-medium">پرداخت‌شده:</span>
+            <span className="font-mono font-bold text-emerald-950">
+              {(paidAmountToman / 1000000000).toFixed(2)} میلیارد تومان
             </span>
-            <span className="text-[10px] text-slate-400 font-mono">
+            <span className="text-[11px] text-emerald-700/80 font-mono">
               ({totalAmountToman > 0 ? ((paidAmountToman / totalAmountToman) * 100).toFixed(0) : 0}٪)
             </span>
           </div>
 
           {/* Under Review */}
-          <div className="flex items-center gap-1.5 bg-white border border-sky-200 px-3 py-1.5 rounded-xl shadow-xs">
+          <div className="flex items-center gap-2 bg-sky-50/70 border border-sky-200 px-3.5 py-1.5 rounded-xl">
             <span className="w-2 h-2 rounded-full bg-sky-500 shrink-0" />
-            <span className="text-[#5F5E5A]">در حال بررسی/انتظار:</span>
-            <span className="font-mono font-bold text-sky-800">
+            <span className="text-sky-900 font-medium">در حال بررسی / انتظار:</span>
+            <span className="font-mono font-bold text-sky-950">
               {(underReviewAmountToman / 1000000).toLocaleString('fa-IR')} م تومان
             </span>
           </div>
 
           {/* Overdue */}
-          <div className="flex items-center gap-1.5 bg-white border border-rose-200 px-3 py-1.5 rounded-xl shadow-xs">
+          <div className="flex items-center gap-2 bg-rose-50/70 border border-rose-200 px-3.5 py-1.5 rounded-xl">
             <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0 animate-pulse" />
-            <span className="text-[#5F5E5A]">معوق / سررسید گذشته:</span>
-            <span className="font-mono font-bold text-rose-800">
+            <span className="text-rose-900 font-medium">معوق / سررسید گذشته:</span>
+            <span className="font-mono font-bold text-rose-950">
               {(overdueAmountToman / 1000000).toLocaleString('fa-IR')} م تومان
             </span>
           </div>

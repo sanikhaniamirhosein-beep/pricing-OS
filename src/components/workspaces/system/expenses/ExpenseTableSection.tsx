@@ -99,29 +99,29 @@ export const ExpenseTableSection: React.FC<ExpenseTableSectionProps> = ({
     switch (status) {
       case 'paid':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
             <span>پرداخت‌شده</span>
           </span>
         );
       case 'overdue':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-800 border border-rose-200">
-            <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200">
+            <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
             <span>معوق / گذشته</span>
           </span>
         );
       case 'under_review':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-sky-50 text-sky-800 border border-sky-200">
-            <Clock className="w-3.5 h-3.5 text-sky-600" />
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-sky-50 text-sky-800 border border-sky-200">
+            <Clock className="w-3.5 h-3.5 text-sky-600 shrink-0" />
             <span>در حال بررسی</span>
           </span>
         );
       case 'pending':
         return (
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
-            <Clock className="w-3.5 h-3.5 text-amber-600" />
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+            <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
             <span>در انتظار پرداخت</span>
           </span>
         );
@@ -129,67 +129,69 @@ export const ExpenseTableSection: React.FC<ExpenseTableSectionProps> = ({
   };
 
   return (
-    <div className="bg-white border border-[#D3D1C7] rounded-3xl p-6 shadow-xs space-y-5">
+    <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-6">
       {/* Top Header with Action Buttons */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#D3D1C7] pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
         <div>
-          <div className="flex items-center gap-2">
-            <Receipt className="w-5 h-5 text-[#085041]" />
-            <h2 className="font-bold text-[#2C2C2A] text-sm sm:text-base font-display">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-amber-50 border border-amber-200/70 flex items-center justify-center text-amber-700 shrink-0">
+              <Receipt className="w-4 h-4" />
+            </div>
+            <h2 className="font-bold text-slate-900 text-sm sm:text-base font-display">
               فهرست جامع اسناد و تراکنش‌های هزینه (Expense Records & Invoices)
             </h2>
           </div>
-          <p className="text-[#5F5E5A] text-xs mt-0.5">
+          <p className="text-slate-500 text-xs mt-1">
             ثبت، ویرایش، تایید مالی و بایگانی کلیه صورت‌حساب‌های سوخت، نگهداری، دستمزد و عوارض ناوگان
           </p>
         </div>
 
         {/* Action Buttons: Add, Excel Export, PDF Print */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2.5">
           <button
             type="button"
             id="btn-export-excel"
             onClick={onExportExcel}
-            className="flex items-center gap-1.5 px-3 py-2 bg-[#FAFAF8] hover:bg-[#F1EFE8] text-[#2C2C2A] border border-[#D3D1C7] rounded-xl text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+            className="flex items-center gap-2 px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-semibold shadow-2xs hover:border-slate-300 transition-all cursor-pointer"
           >
-            <Download className="w-3.5 h-3.5 text-[#085041]" />
-            <span>خروجی اکسل (Excel)</span>
+            <Download className="w-4 h-4 text-slate-500" />
+            <span>خروجی اکسل</span>
           </button>
 
           <button
             type="button"
             id="btn-export-pdf"
             onClick={onExportPDF}
-            className="flex items-center gap-1.5 px-3 py-2 bg-[#FAFAF8] hover:bg-[#F1EFE8] text-[#2C2C2A] border border-[#D3D1C7] rounded-xl text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+            className="flex items-center gap-2 px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl text-xs font-semibold shadow-2xs hover:border-slate-300 transition-all cursor-pointer"
           >
-            <FileCheck className="w-3.5 h-3.5 text-[#085041]" />
-            <span>گزارش PDF / پرینت</span>
+            <FileCheck className="w-4 h-4 text-slate-500" />
+            <span>گزارش چاپی / PDF</span>
           </button>
 
           <button
             type="button"
             id="btn-add-expense"
             onClick={onAddExpense}
-            className="flex items-center gap-2 px-4 py-2 bg-[#085041] hover:bg-[#04342C] text-white rounded-xl text-xs font-bold shadow-xs transition-colors cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl text-xs font-bold shadow-xs hover:shadow-sm transition-all cursor-pointer"
           >
-            <Plus className="w-4 h-4 text-[#9FE1CB]" />
+            <Plus className="w-4 h-4 text-slate-950" />
             <span>ثبت هزینه جدید</span>
           </button>
         </div>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 bg-[#FAFAF8] p-3.5 rounded-2xl border border-[#D3D1C7]">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 bg-slate-50/70 p-4 rounded-2xl border border-slate-200/80">
         {/* Search */}
         <div className="relative">
-          <Search className="w-4 h-4 text-[#888780] absolute right-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             id="input-expense-search"
-            placeholder="جستجو بر اساس عنوان، کد، راننده، پلاک..."
+            placeholder="جستجو در عنوان، کد، راننده، پلاک..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full bg-white border border-[#D3D1C7] rounded-xl pr-9 pl-3 py-2 text-xs text-[#2C2C2A] placeholder-[#888780] focus:outline-none focus:border-[#085041]"
+            className="w-full bg-white border border-slate-200 rounded-xl pr-10 pl-3 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-amber-500 shadow-2xs"
           />
         </div>
 
@@ -199,7 +201,7 @@ export const ExpenseTableSection: React.FC<ExpenseTableSectionProps> = ({
             id="select-expense-category"
             value={selectedCategory}
             onChange={(e) => onCategoryChange(e.target.value)}
-            className="w-full bg-white border border-[#D3D1C7] rounded-xl px-3 py-2 text-xs font-medium text-[#2C2C2A] focus:outline-none focus:border-[#085041] cursor-pointer"
+            className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:border-amber-500 cursor-pointer shadow-2xs"
           >
             <option value="all">همه دسته‌بندی‌های هزینه</option>
             {(Object.keys(EXPENSE_CATEGORIES_META) as ExpenseCategory[]).map((cat) => (
@@ -216,7 +218,7 @@ export const ExpenseTableSection: React.FC<ExpenseTableSectionProps> = ({
             id="select-expense-status"
             value={selectedStatus}
             onChange={(e) => onStatusChange(e.target.value)}
-            className="w-full bg-white border border-[#D3D1C7] rounded-xl px-3 py-2 text-xs font-medium text-[#2C2C2A] focus:outline-none focus:border-[#085041] cursor-pointer"
+            className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:border-amber-500 cursor-pointer shadow-2xs"
           >
             <option value="all">همه وضعیت‌های پرداخت</option>
             <option value="paid">پرداخت‌شده (Paid)</option>
@@ -232,7 +234,7 @@ export const ExpenseTableSection: React.FC<ExpenseTableSectionProps> = ({
             id="select-expense-period"
             value={periodPreset}
             onChange={(e) => onPeriodPresetChange(e.target.value)}
-            className="w-full bg-white border border-[#D3D1C7] rounded-xl px-3 py-2 text-xs font-medium text-[#2C2C2A] focus:outline-none focus:border-[#085041] cursor-pointer"
+            className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:outline-none focus:border-amber-500 cursor-pointer shadow-2xs"
           >
             <option value="all">همه دوره‌ها (سال ۱۴۰۵ کامل)</option>
             <option value="q1_spring">سه‌ماهه اول (بهار ۱۴۰۵)</option>
@@ -245,52 +247,52 @@ export const ExpenseTableSection: React.FC<ExpenseTableSectionProps> = ({
       </div>
 
       {/* Table Records */}
-      <div className="border border-[#D3D1C7] rounded-2xl overflow-hidden shadow-xs">
+      <div className="border border-slate-200 rounded-2xl overflow-hidden shadow-2xs">
         <div className="overflow-x-auto">
           <table className="w-full text-right text-xs">
-            <thead className="bg-[#FAFAF8] text-[#5F5E5A] border-b border-[#D3D1C7] font-semibold">
+            <thead className="bg-slate-50/80 text-slate-600 border-b border-slate-200 font-semibold">
               <tr>
-                <th className="p-3.5 text-center w-12">#</th>
+                <th className="p-4 text-center w-12">#</th>
                 <th
-                  className="p-3.5 cursor-pointer hover:text-[#2C2C2A]"
+                  className="p-4 cursor-pointer hover:text-slate-900 transition-colors"
                   onClick={() => handleSort('date')}
                 >
                   <div className="flex items-center gap-1.5">
                     <span>تاریخ و شناسه سند</span>
-                    <ArrowUpDown className="w-3.5 h-3.5 text-[#888780]" />
+                    <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                   </div>
                 </th>
-                <th className="p-3.5">شرکت و قرارداد طرف حساب</th>
-                <th className="p-3.5">سرفصل و شرح هزینه</th>
+                <th className="p-4">شرکت و قرارداد طرف حساب</th>
+                <th className="p-4">سرفصل و شرح هزینه</th>
                 <th
-                  className="p-3.5 cursor-pointer hover:text-[#2C2C2A]"
+                  className="p-4 cursor-pointer hover:text-slate-900 transition-colors"
                   onClick={() => handleSort('amount')}
                 >
                   <div className="flex items-center gap-1.5">
                     <span>مبلغ (تومان)</span>
-                    <ArrowUpDown className="w-3.5 h-3.5 text-[#888780]" />
+                    <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                   </div>
                 </th>
                 <th
-                  className="p-3.5 cursor-pointer hover:text-[#2C2C2A]"
+                  className="p-4 cursor-pointer hover:text-slate-900 transition-colors"
                   onClick={() => handleSort('status')}
                 >
                   <div className="flex items-center gap-1.5">
                     <span>وضعیت پرداخت</span>
-                    <ArrowUpDown className="w-3.5 h-3.5 text-[#888780]" />
+                    <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
                   </div>
                 </th>
-                <th className="p-3.5 text-center">عملیات</th>
+                <th className="p-4 text-center">عملیات</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#ECEAE3] bg-white">
+            <tbody className="divide-y divide-slate-100 bg-white">
               {paginatedExpenses.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="p-8 text-center text-[#5F5E5A]">
-                    <div className="max-w-sm mx-auto space-y-2">
-                      <Receipt className="w-8 h-8 text-[#888780] mx-auto opacity-50" />
-                      <p className="font-semibold text-sm text-[#2C2C2A]">هیچ سندی با این فیلترها یافت نشد</p>
-                      <p className="text-xs text-[#5F5E5A]">عبارت جستجو یا فیلترهای بالا را تغییر دهید.</p>
+                  <td colSpan={7} className="p-10 text-center text-slate-500">
+                    <div className="max-w-sm mx-auto space-y-2.5">
+                      <Receipt className="w-8 h-8 text-slate-300 mx-auto" />
+                      <p className="font-semibold text-sm text-slate-800">هیچ سندی با این فیلترها یافت نشد</p>
+                      <p className="text-xs text-slate-500">عبارت جستجو یا فیلترهای بالا را تغییر دهید.</p>
                     </div>
                   </td>
                 </tr>
@@ -302,21 +304,21 @@ export const ExpenseTableSection: React.FC<ExpenseTableSectionProps> = ({
                   return (
                     <tr
                       key={exp.id}
-                      className="hover:bg-[#FAFAF8] transition-colors"
+                      className="hover:bg-slate-50/60 transition-colors"
                     >
                       {/* Index */}
-                      <td className="p-3.5 text-center font-mono text-[#888780]">
+                      <td className="p-4 text-center font-mono text-slate-400">
                         {rowIndex}
                       </td>
 
                       {/* Date & Expense Code */}
-                      <td className="p-3.5">
+                      <td className="p-4">
                         <div className="space-y-1">
-                          <span className="font-mono font-bold text-[#2C2C2A] block">
+                          <span className="font-mono font-bold text-slate-900 block">
                             {exp.dateFa}
                           </span>
-                          <div className="flex items-center gap-1.5 text-[11px] text-[#5F5E5A]">
-                            <span className="font-mono bg-[#FAFAF8] px-1.5 py-0.5 rounded border border-[#D3D1C7]">
+                          <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                            <span className="font-mono bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md border border-slate-200">
                               {exp.expenseCode}
                             </span>
                             <span>({exp.monthFa})</span>
@@ -325,74 +327,74 @@ export const ExpenseTableSection: React.FC<ExpenseTableSectionProps> = ({
                       </td>
 
                       {/* Company & Contract Link */}
-                      <td className="p-3.5">
+                      <td className="p-4">
                         <div className="space-y-1 max-w-[220px]">
-                          <span className="font-bold text-[#2C2C2A] block truncate">
+                          <span className="font-bold text-slate-900 block truncate">
                             {exp.companyNameFa}
                           </span>
                           {exp.contractId ? (
                             <button
                               type="button"
                               onClick={() => onNavigateToContracts(exp.contractId)}
-                              className="inline-flex items-center gap-1 text-[11px] text-[#085041] hover:underline font-mono cursor-pointer"
+                              className="inline-flex items-center gap-1.5 text-xs text-amber-700 hover:text-amber-800 hover:underline font-mono cursor-pointer"
                               title="مشاهده قرارداد در استودیو طراحی"
                             >
                               <span>{exp.contractDisplayId || exp.contractNumber || 'قرارداد'}</span>
-                              <ExternalLink className="w-3 h-3" />
+                              <ExternalLink className="w-3 h-3 text-slate-400" />
                             </button>
                           ) : (
-                            <span className="text-[11px] text-[#888780]">سربار عمومی</span>
+                            <span className="text-xs text-slate-400">سربار عمومی ناوگان</span>
                           )}
                         </div>
                       </td>
 
                       {/* Category & Title */}
-                      <td className="p-3.5">
+                      <td className="p-4">
                         <div className="space-y-1 max-w-[280px]">
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-2">
                             <span
                               className="w-2 h-2 rounded-full shrink-0"
                               style={{ backgroundColor: meta.colorHex }}
                             />
-                            <span className="font-bold text-[#2C2C2A] text-xs">
+                            <span className="font-bold text-slate-900 text-xs">
                               {meta.nameFa}
                             </span>
                             {exp.subCategoryFa && (
-                              <span className="text-[10px] text-[#5F5E5A] bg-[#FAFAF8] px-1.5 py-0.5 rounded border border-[#D3D1C7] truncate">
+                              <span className="text-[11px] text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200 truncate">
                                 {exp.subCategoryFa}
                               </span>
                             )}
                           </div>
-                          <p className="text-[11px] text-[#5F5E5A] line-clamp-1">
+                          <p className="text-xs text-slate-500 line-clamp-1">
                             {exp.titleFa}
                           </p>
                         </div>
                       </td>
 
                       {/* Amount */}
-                      <td className="p-3.5">
+                      <td className="p-4">
                         <div className="space-y-0.5">
-                          <span className="font-mono font-bold text-sm text-[#085041] block">
+                          <span className="font-mono font-bold text-sm text-slate-900 block">
                             {exp.amountToman.toLocaleString('fa-IR')}
                           </span>
-                          <span className="text-[10px] text-[#5F5E5A] font-sans">
+                          <span className="text-xs text-slate-500 font-sans">
                             {(exp.amountToman / 1000000).toLocaleString('fa-IR')} میلیون تومان
                           </span>
                         </div>
                       </td>
 
                       {/* Status */}
-                      <td className="p-3.5">
+                      <td className="p-4">
                         {renderStatusBadge(exp.status)}
                       </td>
 
                       {/* Actions */}
-                      <td className="p-3.5 text-center">
-                        <div className="flex items-center justify-center gap-1">
+                      <td className="p-4 text-center">
+                        <div className="flex items-center justify-center gap-1.5">
                           <button
                             type="button"
                             onClick={() => onViewReceipt(exp)}
-                            className="p-1.5 text-[#5F5E5A] hover:text-[#085041] hover:bg-white rounded-lg border border-transparent hover:border-[#D3D1C7] transition-colors cursor-pointer"
+                            className="p-2 text-slate-500 hover:text-amber-700 hover:bg-amber-50 rounded-xl border border-transparent hover:border-amber-200 transition-all cursor-pointer"
                             title="مشاهده سند و رسید پرداخت"
                           >
                             <Eye className="w-4 h-4" />
@@ -401,7 +403,7 @@ export const ExpenseTableSection: React.FC<ExpenseTableSectionProps> = ({
                           <button
                             type="button"
                             onClick={() => onEditExpense(exp)}
-                            className="p-1.5 text-[#5F5E5A] hover:text-[#2563EB] hover:bg-white rounded-lg border border-transparent hover:border-[#D3D1C7] transition-colors cursor-pointer"
+                            className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl border border-transparent hover:border-blue-200 transition-all cursor-pointer"
                             title="ویرایش رکورد"
                           >
                             <Edit2 className="w-4 h-4" />
@@ -410,7 +412,7 @@ export const ExpenseTableSection: React.FC<ExpenseTableSectionProps> = ({
                           <button
                             type="button"
                             onClick={() => onDeleteExpense(exp.id)}
-                            className="p-1.5 text-[#5F5E5A] hover:text-rose-600 hover:bg-white rounded-lg border border-transparent hover:border-[#D3D1C7] transition-colors cursor-pointer"
+                            className="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl border border-transparent hover:border-rose-200 transition-all cursor-pointer"
                             title="حذف سند"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -426,17 +428,17 @@ export const ExpenseTableSection: React.FC<ExpenseTableSectionProps> = ({
         </div>
 
         {/* Pagination Bar */}
-        <div className="bg-[#FAFAF8] border-t border-[#D3D1C7] px-4 py-3 flex items-center justify-between text-xs text-[#5F5E5A]">
+        <div className="bg-slate-50/80 border-t border-slate-200 px-5 py-3.5 flex items-center justify-between text-xs text-slate-600">
           <div>
             نمایش رکوردهای{' '}
-            <strong className="font-mono text-[#2C2C2A]">
+            <strong className="font-mono text-slate-900">
               {expenses.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0}
             </strong>{' '}
             تا{' '}
-            <strong className="font-mono text-[#2C2C2A]">
+            <strong className="font-mono text-slate-900">
               {Math.min(currentPage * itemsPerPage, expenses.length)}
             </strong>{' '}
-            از مجموع <strong className="font-mono text-[#2C2C2A]">{expenses.length}</strong> سند
+            از مجموع <strong className="font-mono text-slate-900">{expenses.length}</strong> سند
           </div>
 
           <div className="flex items-center gap-2">
@@ -444,12 +446,12 @@ export const ExpenseTableSection: React.FC<ExpenseTableSectionProps> = ({
               type="button"
               disabled={currentPage <= 1}
               onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-              className="p-1.5 bg-white border border-[#D3D1C7] rounded-xl hover:bg-[#F1EFE8] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              className="p-1.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-2xs"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
 
-            <span className="font-mono font-bold text-[#2C2C2A] px-2">
+            <span className="font-mono font-bold text-slate-900 px-2.5">
               صفحه {currentPage} از {totalPages}
             </span>
 
@@ -457,7 +459,7 @@ export const ExpenseTableSection: React.FC<ExpenseTableSectionProps> = ({
               type="button"
               disabled={currentPage >= totalPages}
               onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-              className="p-1.5 bg-white border border-[#D3D1C7] rounded-xl hover:bg-[#F1EFE8] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              className="p-1.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-2xs"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>

@@ -32,6 +32,8 @@ import {
   HelpCircle,
   FileUp,
   Lock,
+  AlertCircle,
+  X,
 } from 'lucide-react';
 import {
   SAMPLE_BATCH_SHIPMENTS,
@@ -545,9 +547,12 @@ export const ShipperBatchOrdersView: React.FC<ShipperBatchOrdersViewProps> = ({
     } catch (err: any) {
       console.error('Error parsing batch file:', err);
       setFileStatus('ready_to_parse');
-      alert(`خطا در بازخوانی فایل اکسل: ${err.message || 'فرمت فایل نامعتبر است'}. لطفاً از قالب استاندارد اکسل استفاده فرمایید.`);
+      setBatchErrorMessage(`خطا در بازخوانی فایل اکسل: ${err.message || 'فرمت فایل نامعتبر است'}. لطفاً از قالب استاندارد اکسل استفاده فرمایید.`);
     }
   };
+
+  const [batchErrorMessage, setBatchErrorMessage] = useState<string | null>(null);
+  const [copiedKey, setCopiedKey] = useState(false);
 
   // Download genuine standard Excel/CSV template using xlsx
   const handleDownloadTemplate = (format: 'xlsx' | 'csv') => {
@@ -562,15 +567,17 @@ export const ShipperBatchOrdersView: React.FC<ShipperBatchOrdersViewProps> = ({
   // Submit batch orders
   const handleSubmitBatch = () => {
     if (!completeness.isComplete) {
-      alert(`ثبت دسته بار امکان‌پذیر نیست!\nاطلاعات و مدارک رسمی شرکت کامل نیست (${completeness.completionPercentage}٪ تکمیل شده).\nجهت صدور بارنامه رسمی، اطلاعات حقوقی شرکت باید توسط مدیر ارشد تکمیل گردد.`);
+      setBatchErrorMessage(`ثبت دسته بار امکان‌پذیر نیست! اطلاعات و مدارک رسمی شرکت کامل نیست (${completeness.completionPercentage}٪ تکمیل شده). جهت صدور بارنامه رسمی، اطلاعات حقوقی شرکت باید تکمیل گردد.`);
       openShipperOrgModal('basic');
       return;
     }
 
     if (errorRowsCount > 0) {
-      alert('لطفاً ردیف‌های دارای خطا را قبل از ثبت نهایی اصلاح یا حذف فرمایید.');
+      setBatchErrorMessage('لطفاً ردیف‌های دارای خطا را قبل از ثبت نهایی اصلاح یا حذف فرمایید.');
       return;
     }
+
+    setBatchErrorMessage(null);
 
     const batchCode = `BAT-1403-${Math.floor(1000 + Math.random() * 9000)}`;
     const newHistory: BatchUploadHistory = {
@@ -599,6 +606,23 @@ export const ShipperBatchOrdersView: React.FC<ShipperBatchOrdersViewProps> = ({
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
+      {/* Batch Error Message Banner */}
+      {batchErrorMessage && (
+        <div className="p-4 bg-rose-50 border border-rose-300 rounded-2xl text-rose-900 text-xs font-bold flex items-center justify-between animate-in fade-in duration-200">
+          <div className="flex items-center gap-2.5">
+            <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
+            <span>{batchErrorMessage}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setBatchErrorMessage(null)}
+            className="text-rose-400 hover:text-rose-700 p-1 rounded-lg"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* 1. Header Overview & Actions Banner (Clean Light & Refined) */}
       <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-xs">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -1371,10 +1395,14 @@ export const ShipperBatchOrdersView: React.FC<ShipperBatchOrdersViewProps> = ({
                 />
                 <button
                   type="button"
-                  onClick={() => alert('کلید وب‌سرویس در حافظه کپی شد.')}
+                  onClick={() => {
+                    navigator.clipboard.writeText('shp_live_9941a0b3c882194f7e2d');
+                    setCopiedKey(true);
+                    setTimeout(() => setCopiedKey(false), 2500);
+                  }}
                   className="px-3 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer shrink-0"
                 >
-                  کپی
+                  {copiedKey ? 'کپی شد!' : 'کپی'}
                 </button>
               </div>
             </div>

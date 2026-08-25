@@ -799,9 +799,9 @@ ${customPrompt ? `درخواست یا سوال اختصاصی کاربر: ${cust
     }
   });
 
-  // 6. Runtime API endpoints for Developer Portal
-  app.post('/v1/price', (req: Request, res: Response) => {
-    const { originCity, destinationCity, vehicleType, cargoWeightTons, isColdChain } = req.body;
+  // 6. Runtime API endpoints for Developer Portal & System Console Test Harness
+  const handlePriceQuote = (req: Request, res: Response) => {
+    const { originCity, destinationCity, vehicleType, cargoWeightTons, isColdChain } = req.body || {};
     const baseRate = 38500000;
     const fuelSurge = baseRate * 0.04;
     const coldFee = isColdChain ? baseRate * 0.18 : 0;
@@ -831,7 +831,11 @@ ${customPrompt ? `درخواست یا سوال اختصاصی کاربر: ${cust
       guardrails: [{ type: 'margin_floor', mode: 'clamp', status: 'ok', min_floor_percent: 15.0 }],
       latency_ms: 6.4,
     });
-  });
+  };
+
+  app.post('/v1/price', handlePriceQuote);
+  app.post('/api/quote', handlePriceQuote);
+  app.post('/api/v1/price', handlePriceQuote);
 
   // Vite middleware for development vs static production serving
   if (process.env.NODE_ENV !== 'production') {

@@ -22,6 +22,16 @@ import {
   Lock,
   Layers,
   FileSpreadsheet,
+  Truck,
+  FileCheck2,
+  Receipt,
+  Volume2,
+  Flame,
+  ShieldAlert,
+  Sliders,
+  RotateCcw,
+  BellRing,
+  X,
 } from 'lucide-react';
 import { ShipperTeamMember } from '../../data/mockShipperData';
 import { usePricing } from '../../store/PricingContext';
@@ -33,6 +43,10 @@ import {
 } from '../../data/shipperRolesConfig';
 import { ModernSelect } from '../common/menus/ModernSelect';
 import { ShipperRetailNotificationsView } from './ShipperRetailNotificationsView';
+import {
+  ShipperNotificationPreferences,
+  DEFAULT_SHIPPER_NOTIFICATION_PREFERENCES,
+} from '../../types/shipperNotifications';
 
 export const ShipperSettingsView: React.FC = () => {
   const {
@@ -50,18 +64,21 @@ export const ShipperSettingsView: React.FC = () => {
     setShipperApprovalLimitToman,
   } = usePricing();
 
-  const isRetail =
-    currentShipperOrg?.entityType === 'individual' ||
-    userOrgName?.includes('شخصی') ||
-    userOrgName?.includes('خرد') ||
-    shipperUserRole === 'Individual Shipper / Personal';
-
-  if (isRetail) {
-    return <ShipperRetailNotificationsView />;
-  }
-
   const [activeTab, setActiveTab] = useState<'team' | 'roles_matrix' | 'notifications' | 'api_hub'>('team');
   const [teamMembers, setTeamMembers] = useState<ShipperTeamMember[]>(currentShipperOrg?.teamMembers || []);
+
+  // Notification Preferences (synchronized with localStorage)
+  const [notifPrefs, setNotifPrefs] = useState<ShipperNotificationPreferences>(() => {
+    try {
+      const saved = localStorage.getItem('shipper_notification_preferences');
+      if (saved) return JSON.parse(saved);
+    } catch {
+      // fallback
+    }
+    return DEFAULT_SHIPPER_NOTIFICATION_PREFERENCES;
+  });
+
+  const [isSavedNotif, setIsSavedNotif] = useState(false);
 
   useEffect(() => {
     if (currentShipperOrg) {
@@ -78,18 +95,63 @@ export const ShipperSettingsView: React.FC = () => {
   const [newMemberLocation, setNewMemberLocation] = useState<string>('انبار مرکزی - اصفهان');
   const [newMemberApprovalLimitMillion, setNewMemberApprovalLimitMillion] = useState<number>(100);
 
-  // Notification Preferences
-  const [notifySmsOnDispatch, setNotifySmsOnDispatch] = useState(true);
-  const [notifySmsOnArrival, setNotifySmsOnArrival] = useState(true);
-  const [notifyEmailOnInvoice, setNotifyEmailOnInvoice] = useState(true);
-  const [notifyEmailOnPod, setNotifyEmailOnPod] = useState(true);
-  const [notifyPushLiveEta, setNotifyPushLiveEta] = useState(false);
-
   // API Token State
   const [apiKey, setApiKey] = useState('shp_live_9941a0b3c882194f7e2d');
   const [isCopied, setIsCopied] = useState(false);
 
   const currentRoleDetail = getShipperRoleDetail(shipperUserRole);
+
+  const handleTogglePref = (key: keyof ShipperNotificationPreferences) => {
+    setNotifPrefs((prev) => {
+      const updated = { ...prev, [key]: !prev[key] };
+      try {
+        localStorage.setItem('shipper_notification_preferences', JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
+    setIsSavedNotif(true);
+    setTimeout(() => setIsSavedNotif(false), 2000);
+  };
+
+  const handleResetNotifPrefs = () => {
+    setNotifPrefs(DEFAULT_SHIPPER_NOTIFICATION_PREFERENCES);
+    try {
+      localStorage.setItem('shipper_notification_preferences', JSON.stringify(DEFAULT_SHIPPER_NOTIFICATION_PREFERENCES));
+    } catch {
+      // ignore
+    }
+    setIsSavedNotif(true);
+    setTimeout(() => setIsSavedNotif(false), 2000);
+  };
+
+  const handleEnableAllNotifs = () => {
+    const allEnabled: ShipperNotificationPreferences = {
+      shipmentStatusChange: true,
+      shipmentDelays: true,
+      shipmentDamage: true,
+      contractExpiring: true,
+      contractRenewed: true,
+      invoiceIssued: true,
+      paymentDue: true,
+      unusualCost: true,
+      driverTruckChange: true,
+      carrierBreakdown: true,
+      onlyUrgentInHeader: false,
+      soundAlerts: true,
+      smsAlerts: true,
+      emailAlerts: true,
+    };
+    setNotifPrefs(allEnabled);
+    try {
+      localStorage.setItem('shipper_notification_preferences', JSON.stringify(allEnabled));
+    } catch {
+      // ignore
+    }
+    setIsSavedNotif(true);
+    setTimeout(() => setIsSavedNotif(false), 2000);
+  };
 
   const handleAddMember = (e: React.FormEvent) => {
     e.preventDefault();
@@ -137,8 +199,11 @@ export const ShipperSettingsView: React.FC = () => {
       setShipperApprovalLimitToman(0);
     }
 
-    alert(`نقش جاری پرتال به «${detail.titleFa}» تغییر یافت. دسترسی‌ها و فیلترهای سامانه بلافاصله اعمال شدند.`);
+    setNotificationBanner(`نقش جاری پرتال به «${detail.titleFa}» تغییر یافت. دسترسی‌ها و فیلترهای سامانه بلافاصله اعمال شدند.`);
+    setTimeout(() => setNotificationBanner(null), 4000);
   };
+
+  const [notificationBanner, setNotificationBanner] = useState<string | null>(null);
 
   const handleCopyKey = () => {
     navigator.clipboard.writeText(apiKey);
@@ -147,18 +212,30 @@ export const ShipperSettingsView: React.FC = () => {
   };
 
   const handleRegenerateKey = () => {
-    if (
-      window.confirm(
-        'آیا از بازتولید توکن API اطمینان دارید؟ سیستم‌های متصل قبلی تا زمان به‌روزرسانی توکن جدید با خطای احراز هویت مواجه خواهند شد.'
-      )
-    ) {
-      setApiKey(`shp_live_${Math.random().toString(36).substring(2, 12)}_${Math.random().toString(36).substring(2, 10)}`);
-      alert('کلید API جدید با موفقیت صادر شد.');
-    }
+    setApiKey(`shp_live_${Math.random().toString(36).substring(2, 12)}_${Math.random().toString(36).substring(2, 10)}`);
+    setNotificationBanner('کلید API جدید با موفقیت صادر و جایگزین گردید.');
+    setTimeout(() => setNotificationBanner(null), 4000);
   };
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
+      {/* Notification Banner */}
+      {notificationBanner && (
+        <div className="p-3.5 bg-sky-50 border border-sky-300 rounded-2xl text-sky-900 text-xs font-bold flex items-center justify-between animate-in fade-in duration-200">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-sky-600 shrink-0" />
+            <span>{notificationBanner}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setNotificationBanner(null)}
+            className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
       {/* Settings Navigation */}
       <div className="bg-white p-4 rounded-3xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
@@ -564,59 +641,405 @@ export const ShipperSettingsView: React.FC = () => {
 
       {/* 3. NOTIFICATIONS */}
       {activeTab === 'notifications' && (
-        <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs space-y-4">
-          <h3 className="font-bold text-slate-800 text-xs">تنظیمات ارسال هشدارهای پیامکی و ایمیل لجستیک</h3>
-          <div className="space-y-3 divide-y divide-slate-100">
-            <div className="flex items-center justify-between pt-2">
-              <div>
-                <span className="text-xs font-bold text-slate-800 block">پیامک تخصیص راننده و حرکت ناوگان</span>
-                <span className="text-[11px] text-slate-400">ارسال نام راننده، شماره تماس و پلاک کامیون پس از بارگیری</span>
+        <div className="space-y-5">
+          {/* Header alert & actions */}
+          <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-sky-600 to-teal-600 text-white flex items-center justify-center shadow-md shadow-sky-600/20">
+                <BellRing className="w-5 h-5" />
               </div>
-              <input
-                type="checkbox"
-                checked={notifySmsOnDispatch}
-                onChange={(e) => setNotifySmsOnDispatch(e.target.checked)}
-                className="w-4 h-4 text-sky-600 rounded"
-              />
+              <div>
+                <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                  <span>مرکز تنظیمات هشدارهای هوشمند و کانال‌های اطلاع‌رسانی</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 font-bold">
+                    {Object.values(notifPrefs).filter(Boolean).length} رویداد فعال
+                  </span>
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  شخصی‌سازی اعلان‌های زنگوله سربرگ، پیامک‌ها (SMS)، هشدارهای صوتی و ایمیل‌های دوره‌ای
+                </p>
+              </div>
             </div>
 
-            <div className="flex items-center justify-between pt-3">
-              <div>
-                <span className="text-xs font-bold text-slate-800 block">پیامک تحویل نهایی و تخلیه در مقصد</span>
-                <span className="text-[11px] text-slate-400">اطلاع‌رسانی فوری هنگام تحویل بار و ثبت امضای گیرنده</span>
-              </div>
-              <input
-                type="checkbox"
-                checked={notifySmsOnArrival}
-                onChange={(e) => setNotifySmsOnArrival(e.target.checked)}
-                className="w-4 h-4 text-sky-600 rounded"
-              />
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                id="settings-reset-notifs"
+                onClick={handleResetNotifPrefs}
+                className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
+                title="بازگردانی به مقادیر پیش‌فرض"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>بازنشانی پیش‌فرض</span>
+              </button>
+
+              <button
+                type="button"
+                id="settings-enable-all-notifs"
+                onClick={handleEnableAllNotifs}
+                className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-sky-600 hover:bg-sky-700 rounded-xl transition-colors cursor-pointer shadow-xs"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>فعال‌سازی همه</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Success notice when toggle changes */}
+          {isSavedNotif && (
+            <div className="p-3 bg-emerald-50 border border-emerald-300 rounded-2xl text-emerald-900 text-xs font-bold flex items-center gap-2 animate-in fade-in duration-200">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>تنظیمات با موفقیت ذخیره و در زنگوله سربرگ اعمال گردید.</span>
+            </div>
+          )}
+
+          {/* Category 1: Shipment Events */}
+          <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <h4 className="text-xs font-bold text-slate-900 flex items-center gap-2">
+                <Truck className="w-4 h-4 text-amber-600" />
+                <span>رویدادهای مربوط به محموله و حمل‌ونقل</span>
+              </h4>
+              <span className="text-[11px] text-slate-400">رهگیری وضعیت و حوادث بار</span>
             </div>
 
-            <div className="flex items-center justify-between pt-3">
-              <div>
-                <span className="text-xs font-bold text-slate-800 block">ایمیل صدور صورتحساب دوره‌ای و فاکتور رسمی</span>
-                <span className="text-[11px] text-slate-400">ارسال خودکار فایل PDF فاکتور معتبر سامانه مودیان مالیاتی</span>
-              </div>
-              <input
-                type="checkbox"
-                checked={notifyEmailOnInvoice}
-                onChange={(e) => setNotifyEmailOnInvoice(e.target.checked)}
-                className="w-4 h-4 text-sky-600 rounded"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {/* Status Change */}
+              <button
+                type="button"
+                onClick={() => handleTogglePref('shipmentStatusChange')}
+                className={`p-4 rounded-2xl border text-right transition-all cursor-pointer flex flex-col justify-between ${
+                  notifPrefs.shipmentStatusChange
+                    ? 'bg-sky-50/80 border-sky-300 text-sky-950 shadow-2xs'
+                    : 'bg-slate-50 border-slate-200/80 text-slate-400 opacity-60'
+                }`}
+              >
+                <div className="flex items-center justify-between w-full mb-2">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-100 text-sky-800">عادی</span>
+                  <div
+                    className={`w-5 h-5 rounded-lg flex items-center justify-center transition-colors ${
+                      notifPrefs.shipmentStatusChange ? 'bg-sky-600 text-white' : 'border border-slate-300 bg-white'
+                    }`}
+                  >
+                    {notifPrefs.shipmentStatusChange && <Check className="w-3.5 h-3.5" />}
+                  </div>
+                </div>
+                <span className="text-xs font-bold block text-slate-800">تغییر وضعیت محموله</span>
+                <span className="text-[11px] text-slate-500 mt-1 block">بارگیری شد، در مسیر حمل، تحویل داده شد</span>
+              </button>
+
+              {/* Delays */}
+              <button
+                type="button"
+                onClick={() => handleTogglePref('shipmentDelays')}
+                className={`p-4 rounded-2xl border text-right transition-all cursor-pointer flex flex-col justify-between ${
+                  notifPrefs.shipmentDelays
+                    ? 'bg-amber-50/80 border-amber-300 text-amber-950 shadow-2xs'
+                    : 'bg-slate-50 border-slate-200/80 text-slate-400 opacity-60'
+                }`}
+              >
+                <div className="flex items-center justify-between w-full mb-2">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-100 text-rose-800 flex items-center gap-1">
+                    <Flame className="w-3 h-3 text-rose-600" />
+                    فوری
+                  </span>
+                  <div
+                    className={`w-5 h-5 rounded-lg flex items-center justify-center transition-colors ${
+                      notifPrefs.shipmentDelays ? 'bg-amber-600 text-white' : 'border border-slate-300 bg-white'
+                    }`}
+                  >
+                    {notifPrefs.shipmentDelays && <Check className="w-3.5 h-3.5" />}
+                  </div>
+                </div>
+                <span className="text-xs font-bold block text-slate-800">تأخیر در تحویل محموله</span>
+                <span className="text-[11px] text-slate-500 mt-1 block">تأخیر نسبت به زمان‌بندی برنامه‌ریزی‌شده</span>
+              </button>
+
+              {/* Damage & Issues */}
+              <button
+                type="button"
+                onClick={() => handleTogglePref('shipmentDamage')}
+                className={`p-4 rounded-2xl border text-right transition-all cursor-pointer flex flex-col justify-between ${
+                  notifPrefs.shipmentDamage
+                    ? 'bg-rose-50/80 border-rose-300 text-rose-950 shadow-2xs'
+                    : 'bg-slate-50 border-slate-200/80 text-slate-400 opacity-60'
+                }`}
+              >
+                <div className="flex items-center justify-between w-full mb-2">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-100 text-rose-800 flex items-center gap-1">
+                    <ShieldAlert className="w-3 h-3 text-rose-600" />
+                    بسیار فوری
+                  </span>
+                  <div
+                    className={`w-5 h-5 rounded-lg flex items-center justify-center transition-colors ${
+                      notifPrefs.shipmentDamage ? 'bg-rose-600 text-white' : 'border border-slate-300 bg-white'
+                    }`}
+                  >
+                    {notifPrefs.shipmentDamage && <Check className="w-3.5 h-3.5" />}
+                  </div>
+                </div>
+                <span className="text-xs font-bold block text-slate-800">مشکل یا آسیب به بار</span>
+                <span className="text-[11px] text-slate-500 mt-1 block">نقض پلمپ، خیس‌خوردگی یا صدمه بارگیر</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Category 2: Contract Events */}
+          <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <h4 className="text-xs font-bold text-slate-900 flex items-center gap-2">
+                <FileCheck2 className="w-4 h-4 text-purple-600" />
+                <span>رویدادهای مربوط به قراردادها و توافقات</span>
+              </h4>
+              <span className="text-[11px] text-slate-400">انقضا و تمدید قراردادهای حمل</span>
             </div>
 
-            <div className="flex items-center justify-between pt-3">
-              <div>
-                <span className="text-xs font-bold text-slate-800 block">ارسال تصویر قبض انبار و رسید دیجیتال (POD)</span>
-                <span className="text-[11px] text-slate-400">فایل رسید تحویل امضا شده بلافاصله پس از ثبت به کارتابل ارسال می‌شود</span>
-              </div>
-              <input
-                type="checkbox"
-                checked={notifyEmailOnPod}
-                onChange={(e) => setNotifyEmailOnPod(e.target.checked)}
-                className="w-4 h-4 text-sky-600 rounded"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {/* Contract Expiring */}
+              <button
+                type="button"
+                onClick={() => handleTogglePref('contractExpiring')}
+                className={`p-4 rounded-2xl border text-right transition-all cursor-pointer flex flex-col justify-between ${
+                  notifPrefs.contractExpiring
+                    ? 'bg-purple-50/80 border-purple-300 text-purple-950 shadow-2xs'
+                    : 'bg-slate-50 border-slate-200/80 text-slate-400 opacity-60'
+                }`}
+              >
+                <div className="flex items-center justify-between w-full mb-2">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-100 text-purple-800">اولویت بالا</span>
+                  <div
+                    className={`w-5 h-5 rounded-lg flex items-center justify-center transition-colors ${
+                      notifPrefs.contractExpiring ? 'bg-purple-600 text-white' : 'border border-slate-300 bg-white'
+                    }`}
+                  >
+                    {notifPrefs.contractExpiring && <Check className="w-3.5 h-3.5" />}
+                  </div>
+                </div>
+                <span className="text-xs font-bold block text-slate-800">نزدیک شدن به انقضای قرارداد</span>
+                <span className="text-[11px] text-slate-500 mt-1 block">هشدار ۱۰ و ۳ روز مانده به سررسید اعتبار سالانه</span>
+              </button>
+
+              {/* Contract Renewed */}
+              <button
+                type="button"
+                onClick={() => handleTogglePref('contractRenewed')}
+                className={`p-4 rounded-2xl border text-right transition-all cursor-pointer flex flex-col justify-between ${
+                  notifPrefs.contractRenewed
+                    ? 'bg-teal-50/80 border-teal-300 text-teal-950 shadow-2xs'
+                    : 'bg-slate-50 border-slate-200/80 text-slate-400 opacity-60'
+                }`}
+              >
+                <div className="flex items-center justify-between w-full mb-2">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-teal-100 text-teal-800">اطلاع‌رسانی</span>
+                  <div
+                    className={`w-5 h-5 rounded-lg flex items-center justify-center transition-colors ${
+                      notifPrefs.contractRenewed ? 'bg-teal-600 text-white' : 'border border-slate-300 bg-white'
+                    }`}
+                  >
+                    {notifPrefs.contractRenewed && <Check className="w-3.5 h-3.5" />}
+                  </div>
+                </div>
+                <span className="text-xs font-bold block text-slate-800">تمدید، تغییر یا الحاقیه قرارداد</span>
+                <span className="text-[11px] text-slate-500 mt-1 block">ثبت الحاقیه جدید، تغییر تعرفه یا فسخ قرارداد</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Category 3: Financial Events */}
+          <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <h4 className="text-xs font-bold text-slate-900 flex items-center gap-2">
+                <Receipt className="w-4 h-4 text-emerald-600" />
+                <span>رویدادهای مالی، فاکتورها و تسویه</span>
+              </h4>
+              <span className="text-[11px] text-slate-400">فاکتورهای رسمی و مغایرت‌ها</span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {/* Invoice Issued */}
+              <button
+                type="button"
+                onClick={() => handleTogglePref('invoiceIssued')}
+                className={`p-4 rounded-2xl border text-right transition-all cursor-pointer flex flex-col justify-between ${
+                  notifPrefs.invoiceIssued
+                    ? 'bg-emerald-50/80 border-emerald-300 text-emerald-950 shadow-2xs'
+                    : 'bg-slate-50 border-slate-200/80 text-slate-400 opacity-60'
+                }`}
+              >
+                <div className="flex items-center justify-between w-full mb-2">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">عادی</span>
+                  <div
+                    className={`w-5 h-5 rounded-lg flex items-center justify-center transition-colors ${
+                      notifPrefs.invoiceIssued ? 'bg-emerald-600 text-white' : 'border border-slate-300 bg-white'
+                    }`}
+                  >
+                    {notifPrefs.invoiceIssued && <Check className="w-3.5 h-3.5" />}
+                  </div>
+                </div>
+                <span className="text-xs font-bold block text-slate-800">صدور فاکتور جدید</span>
+                <span className="text-[11px] text-slate-500 mt-1 block">فاکتور رسمی الکترونیکی سامانه مودیان</span>
+              </button>
+
+              {/* Payment Due */}
+              <button
+                type="button"
+                onClick={() => handleTogglePref('paymentDue')}
+                className={`p-4 rounded-2xl border text-right transition-all cursor-pointer flex flex-col justify-between ${
+                  notifPrefs.paymentDue
+                    ? 'bg-amber-50/80 border-amber-300 text-amber-950 shadow-2xs'
+                    : 'bg-slate-50 border-slate-200/80 text-slate-400 opacity-60'
+                }`}
+              >
+                <div className="flex items-center justify-between w-full mb-2">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800">سررسید</span>
+                  <div
+                    className={`w-5 h-5 rounded-lg flex items-center justify-center transition-colors ${
+                      notifPrefs.paymentDue ? 'bg-amber-600 text-white' : 'border border-slate-300 bg-white'
+                    }`}
+                  >
+                    {notifPrefs.paymentDue && <Check className="w-3.5 h-3.5" />}
+                  </div>
+                </div>
+                <span className="text-xs font-bold block text-slate-800">سررسید پرداخت یا تسویه</span>
+                <span className="text-[11px] text-slate-500 mt-1 block">مهلت پرداخت فاکتور یا وصول حواله بانکی</span>
+              </button>
+
+              {/* Unusual Cost */}
+              <button
+                type="button"
+                onClick={() => handleTogglePref('unusualCost')}
+                className={`p-4 rounded-2xl border text-right transition-all cursor-pointer flex flex-col justify-between ${
+                  notifPrefs.unusualCost
+                    ? 'bg-rose-50/80 border-rose-300 text-rose-950 shadow-2xs'
+                    : 'bg-slate-50 border-slate-200/80 text-slate-400 opacity-60'
+                }`}
+              >
+                <div className="flex items-center justify-between w-full mb-2">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-100 text-rose-800">فوری</span>
+                  <div
+                    className={`w-5 h-5 rounded-lg flex items-center justify-center transition-colors ${
+                      notifPrefs.unusualCost ? 'bg-rose-600 text-white' : 'border border-slate-300 bg-white'
+                    }`}
+                  >
+                    {notifPrefs.unusualCost && <Check className="w-3.5 h-3.5" />}
+                  </div>
+                </div>
+                <span className="text-xs font-bold block text-slate-800">افزایش هزینه غیرمعمول</span>
+                <span className="text-[11px] text-slate-500 mt-1 block">حق توقف مازاد، عوارض یا انحراف کرایه</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Category 4: Carrier & Driver Events */}
+          <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <h4 className="text-xs font-bold text-slate-900 flex items-center gap-2">
+                <UserCheck className="w-4 h-4 text-blue-600" />
+                <span>رویدادهای حمل‌کننده و راننده مسئول</span>
+              </h4>
+              <span className="text-[11px] text-slate-400">تغییرات راننده و ناوگان</span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {/* Driver Truck Change */}
+              <button
+                type="button"
+                onClick={() => handleTogglePref('driverTruckChange')}
+                className={`p-4 rounded-2xl border text-right transition-all cursor-pointer flex flex-col justify-between ${
+                  notifPrefs.driverTruckChange
+                    ? 'bg-blue-50/80 border-blue-300 text-blue-950 shadow-2xs'
+                    : 'bg-slate-50 border-slate-200/80 text-slate-400 opacity-60'
+                }`}
+              >
+                <div className="flex items-center justify-between w-full mb-2">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-800">عملیاتی</span>
+                  <div
+                    className={`w-5 h-5 rounded-lg flex items-center justify-center transition-colors ${
+                      notifPrefs.driverTruckChange ? 'bg-blue-600 text-white' : 'border border-slate-300 bg-white'
+                    }`}
+                  >
+                    {notifPrefs.driverTruckChange && <Check className="w-3.5 h-3.5" />}
+                  </div>
+                </div>
+                <span className="text-xs font-bold block text-slate-800">تغییر راننده یا وسیله نقلیه</span>
+                <span className="text-[11px] text-slate-500 mt-1 block">تغییر مشخصات راننده بارنامه یا پلاک کشنده</span>
+              </button>
+
+              {/* Carrier Breakdown */}
+              <button
+                type="button"
+                onClick={() => handleTogglePref('carrierBreakdown')}
+                className={`p-4 rounded-2xl border text-right transition-all cursor-pointer flex flex-col justify-between ${
+                  notifPrefs.carrierBreakdown
+                    ? 'bg-amber-50/80 border-amber-300 text-amber-950 shadow-2xs'
+                    : 'bg-slate-50 border-slate-200/80 text-slate-400 opacity-60'
+                }`}
+              >
+                <div className="flex items-center justify-between w-full mb-2">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800">هشدار فنی</span>
+                  <div
+                    className={`w-5 h-5 rounded-lg flex items-center justify-center transition-colors ${
+                      notifPrefs.carrierBreakdown ? 'bg-amber-600 text-white' : 'border border-slate-300 bg-white'
+                    }`}
+                  >
+                    {notifPrefs.carrierBreakdown && <Check className="w-3.5 h-3.5" />}
+                  </div>
+                </div>
+                <span className="text-xs font-bold block text-slate-800">مشکل فنی یا توقف اضطراری ناوگان</span>
+                <span className="text-[11px] text-slate-500 mt-1 block">گزارش خرابی قطعات، پنچری یا توقف امدادی</span>
+              </button>
+            </div>
+          </div>
+
+          {/* General Preferences & Channels */}
+          <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <h4 className="text-xs font-bold text-slate-900 flex items-center gap-2">
+                <Volume2 className="w-4 h-4 text-slate-700" />
+                <span>تنظیمات نشان زنگوله و کانال‌های اطلاع‌رسانی</span>
+              </h4>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-xs">
+              <label className="flex items-center justify-between gap-3 p-3.5 bg-slate-50 hover:bg-sky-50/50 rounded-2xl border border-slate-200/80 cursor-pointer hover:border-sky-300 transition-colors">
+                <span className="text-slate-800 font-bold">فقط موارد فوری در نشان زنگوله شمرده شوند</span>
+                <input
+                  type="checkbox"
+                  checked={notifPrefs.onlyUrgentInHeader}
+                  onChange={() => handleTogglePref('onlyUrgentInHeader')}
+                  className="w-4 h-4 rounded text-sky-600 focus:ring-sky-500 cursor-pointer accent-sky-600"
+                />
+              </label>
+
+              <label className="flex items-center justify-between gap-3 p-3.5 bg-slate-50 hover:bg-sky-50/50 rounded-2xl border border-slate-200/80 cursor-pointer hover:border-sky-300 transition-colors">
+                <span className="text-slate-800 font-bold">پخش صدای هشدار هنگام دریافت اعلان جدید</span>
+                <input
+                  type="checkbox"
+                  checked={notifPrefs.soundAlerts}
+                  onChange={() => handleTogglePref('soundAlerts')}
+                  className="w-4 h-4 rounded text-sky-600 focus:ring-sky-500 cursor-pointer accent-sky-600"
+                />
+              </label>
+
+              <label className="flex items-center justify-between gap-3 p-3.5 bg-slate-50 hover:bg-sky-50/50 rounded-2xl border border-slate-200/80 cursor-pointer hover:border-sky-300 transition-colors">
+                <span className="text-slate-800 font-bold">ارسال پیامک (SMS) برای رویدادهای فوری</span>
+                <input
+                  type="checkbox"
+                  checked={notifPrefs.smsAlerts}
+                  onChange={() => handleTogglePref('smsAlerts')}
+                  className="w-4 h-4 rounded text-sky-600 focus:ring-sky-500 cursor-pointer accent-sky-600"
+                />
+              </label>
+
+              <label className="flex items-center justify-between gap-3 p-3.5 bg-slate-50 hover:bg-sky-50/50 rounded-2xl border border-slate-200/80 cursor-pointer hover:border-sky-300 transition-colors">
+                <span className="text-slate-800 font-bold">ارسال خلاصه وضعیت روزانه به ایمیل</span>
+                <input
+                  type="checkbox"
+                  checked={notifPrefs.emailAlerts}
+                  onChange={() => handleTogglePref('emailAlerts')}
+                  className="w-4 h-4 rounded text-sky-600 focus:ring-sky-500 cursor-pointer accent-sky-600"
+                />
+              </label>
             </div>
           </div>
         </div>

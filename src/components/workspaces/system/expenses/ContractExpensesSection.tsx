@@ -187,17 +187,19 @@ export const ContractExpensesSection: React.FC<ContractExpenseLinkProps> = ({
   const nearCapContracts = contractSummaries.filter((c) => c.isNearCap);
 
   return (
-    <div className="bg-white border border-[#D3D1C7] rounded-3xl p-6 shadow-xs space-y-6">
+    <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#D3D1C7] pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
         <div>
-          <div className="flex items-center gap-2">
-            <FileText className="w-5 h-5 text-[#085041]" />
-            <h2 className="font-bold text-[#2C2C2A] text-sm sm:text-base font-display">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-amber-50 border border-amber-200/70 flex items-center justify-center text-amber-700 shrink-0">
+              <FileText className="w-4 h-4" />
+            </div>
+            <h2 className="font-bold text-slate-900 text-sm sm:text-base font-display">
               ارتباط هزینه‌ها با قراردادهای سازمانی و پایش سقف مبلغ (Contract Linkage & Cap Tracking)
             </h2>
           </div>
-          <p className="text-[#5F5E5A] text-xs mt-0.5">
+          <p className="text-slate-500 text-xs mt-1">
             تطبیق هزینه‌های تحقق‌یافته هر شرکت با سقف مصوب قرارداد، هشدار سرریز بودجه و پیوند مستقیم به پرونده قراردادها
           </p>
         </div>
@@ -205,30 +207,30 @@ export const ContractExpensesSection: React.FC<ContractExpenseLinkProps> = ({
         <button
           type="button"
           onClick={() => onNavigateToContracts()}
-          className="flex items-center gap-2 px-4 py-2 bg-[#FAFAF8] hover:bg-[#F1EFE8] text-[#085041] border border-[#D3D1C7] text-xs font-bold rounded-xl shadow-xs transition-colors cursor-pointer shrink-0"
+          className="flex items-center gap-2 px-4 py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-800 border border-slate-200 text-xs font-bold rounded-xl shadow-2xs hover:border-slate-300 transition-all cursor-pointer shrink-0"
         >
           <span>مشاهده کلیه قراردادها در استودیو</span>
-          <ArrowUpRight className="w-4 h-4" />
+          <ArrowUpRight className="w-4 h-4 text-slate-500" />
         </button>
       </div>
 
       {/* Contract Cap Breach / Warning Alerts */}
       {breachedContracts.length > 0 && (
-        <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-rose-900 space-y-2">
-          <div className="flex items-center gap-2">
+        <div className="p-4 sm:p-5 bg-rose-50/70 border border-rose-200 rounded-2xl text-rose-900 space-y-3">
+          <div className="flex items-center gap-2.5">
             <ShieldAlert className="w-5 h-5 text-rose-600 shrink-0" />
             <span className="font-bold text-sm">
-              هشدار بحرانی: عبور مجموع هزینه‌ها از سقف مبلغ قرارداد (Contract Cap Breach)
+              هشدار سرریز بودجه: عبور مجموع هزینه‌ها از سقف مبلغ قرارداد
             </span>
           </div>
           <p className="text-xs leading-relaxed text-rose-800">
-            مجموع هزینه‌های ثبت‌شده برای {breachedContracts.length} قرارداد از سقف مصوب اولیه عبور کرده است. مطابق با گاردریل‌های مالی، لازم است الحاقیه افزایش مبلغ یا متمم بودجه صادر گردد:
+            مجموع هزینه‌های ثبت‌شده برای {breachedContracts.length} قرارداد از سقف مصوب اولیه عبور کرده است. مطابق با قوانین مالی، لازم است الحاقیه افزایش مبلغ یا متمم بودجه صادر گردد:
           </p>
-          <div className="flex flex-wrap gap-2 pt-1">
+          <div className="flex flex-wrap gap-2 pt-0.5">
             {breachedContracts.map((bc) => (
               <span
                 key={bc.contractId}
-                className="inline-flex items-center gap-1.5 bg-white border border-rose-300 text-rose-800 px-3 py-1 rounded-xl text-xs font-semibold shadow-xs"
+                className="inline-flex items-center gap-2 bg-white border border-rose-300/80 text-rose-900 px-3.5 py-1.5 rounded-xl text-xs font-semibold shadow-2xs"
               >
                 <span>{bc.companyNameFa}</span>
                 <span className="font-mono text-rose-600 font-bold">({bc.utilizationPercent}٪ سقف)</span>
@@ -239,10 +241,10 @@ export const ContractExpensesSection: React.FC<ContractExpenseLinkProps> = ({
       )}
 
       {nearCapContracts.length > 0 && (
-        <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-2xl text-amber-900 flex items-start gap-2 text-xs">
+        <div className="p-4 bg-amber-50/70 border border-amber-200 rounded-2xl text-amber-900 flex items-start gap-2.5 text-xs">
           <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-          <div>
-            <span className="font-bold">هشدار نزدیک به سقف مجاز: </span>
+          <div className="leading-relaxed">
+            <span className="font-bold">هشدار نزدیکی به سقف مجاز: </span>
             <span>
               قراردادهای زیر بیش از ۸۵٪ از سقف مصوب خود را مصرف کرده‌اند:
             </span>
@@ -254,7 +256,7 @@ export const ContractExpensesSection: React.FC<ContractExpenseLinkProps> = ({
       )}
 
       {/* Contract Cards Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
         {contractSummaries.map((c) => {
           const isExpanded = expandedContractId === c.contractId;
           const ceilingInBillion = (c.contractCeilingToman / 1000000000).toFixed(1);
@@ -263,31 +265,31 @@ export const ContractExpensesSection: React.FC<ContractExpenseLinkProps> = ({
           return (
             <div
               key={c.contractId}
-              className={`bg-[#FAFAF8] border rounded-2xl p-4.5 space-y-4 transition-all shadow-xs ${
+              className={`bg-slate-50/50 border rounded-2xl p-5 space-y-4 transition-all shadow-2xs ${
                 c.isBreached
                   ? 'border-rose-300 bg-rose-50/30'
                   : c.isNearCap
                   ? 'border-amber-300 bg-amber-50/20'
-                  : 'border-[#D3D1C7]'
+                  : 'border-slate-200/90 bg-white hover:border-slate-300'
               }`}
             >
               {/* Card Header */}
               <div className="flex items-start justify-between gap-3">
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
-                    <span className="bg-[#E1F5EE] text-[#04342C] px-2.5 py-0.5 rounded-full border border-[#9FE1CB] font-mono font-bold text-[11px]">
+                    <span className="bg-amber-50 text-amber-900 px-2.5 py-0.5 rounded-full border border-amber-200 font-mono font-bold text-xs">
                       {c.contractDisplayId}
                     </span>
-                    <span className="font-mono text-xs text-[#5F5E5A]">{c.contractNumber}</span>
+                    <span className="font-mono text-xs text-slate-500">{c.contractNumber}</span>
                   </div>
-                  <h3 className="font-bold text-[#2C2C2A] text-sm">{c.companyNameFa}</h3>
-                  <p className="text-xs text-[#5F5E5A] line-clamp-1">{c.contractTitle}</p>
+                  <h3 className="font-bold text-slate-900 text-sm">{c.companyNameFa}</h3>
+                  <p className="text-xs text-slate-500 line-clamp-1">{c.contractTitle}</p>
                 </div>
 
                 <button
                   type="button"
                   onClick={() => onNavigateToContracts(c.contractId)}
-                  className="p-2 bg-white hover:bg-[#F1EFE8] text-[#085041] border border-[#D3D1C7] rounded-xl transition-colors cursor-pointer shrink-0"
+                  className="p-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl transition-all cursor-pointer shrink-0 shadow-2xs"
                   title="مشاهده و ویرایش در بخش قراردادها"
                 >
                   <ExternalLink className="w-4 h-4" />
@@ -295,36 +297,36 @@ export const ContractExpensesSection: React.FC<ContractExpenseLinkProps> = ({
               </div>
 
               {/* Progress & Cap Utilization */}
-              <div className="bg-white p-3.5 rounded-xl border border-[#D3D1C7] space-y-2 text-xs">
-                <div className="flex items-center justify-between text-[#5F5E5A]">
+              <div className="bg-white p-4 rounded-xl border border-slate-200/80 space-y-2.5 text-xs shadow-2xs">
+                <div className="flex items-center justify-between text-slate-600">
                   <span>مصرف سقف مبلغ قرارداد:</span>
                   <div className="flex items-center gap-1 font-mono">
-                    <span className="font-bold text-[#2C2C2A]">{totalInBillion}</span>
+                    <span className="font-bold text-slate-900">{totalInBillion}</span>
                     <span>از</span>
-                    <span className="font-bold text-[#085041]">{ceilingInBillion} میلیارد تومان</span>
+                    <span className="font-bold text-amber-700">{ceilingInBillion} میلیارد تومان</span>
                   </div>
                 </div>
 
                 {/* Progress Bar */}
-                <div className="w-full h-2.5 bg-[#EAE8E1] rounded-full overflow-hidden">
+                <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${
                       c.isBreached
                         ? 'bg-rose-500'
                         : c.isNearCap
                         ? 'bg-amber-500'
-                        : 'bg-[#085041]'
+                        : 'bg-emerald-500'
                     }`}
                     style={{ width: `${Math.min(c.utilizationPercent, 100)}%` }}
                   />
                 </div>
 
                 <div className="flex items-center justify-between pt-1">
-                  <span className="text-[11px] text-[#5F5E5A]">
-                    تعداد رکوردهای هزینه: <strong className="text-[#2C2C2A] font-mono">{c.recordCount}</strong> سند
+                  <span className="text-xs text-slate-500">
+                    تعداد اسناد هزینه: <strong className="text-slate-800 font-mono">{c.recordCount}</strong> سند
                   </span>
                   <span
-                    className={`font-mono font-bold text-xs px-2 py-0.5 rounded border ${
+                    className={`font-mono font-bold text-xs px-2.5 py-0.5 rounded-lg border ${
                       c.isBreached
                         ? 'bg-rose-50 border-rose-200 text-rose-700'
                         : c.isNearCap
@@ -342,16 +344,16 @@ export const ContractExpensesSection: React.FC<ContractExpenseLinkProps> = ({
                 <button
                   type="button"
                   onClick={() => setExpandedContractId(isExpanded ? null : c.contractId)}
-                  className="w-full flex items-center justify-between text-xs text-[#5F5E5A] hover:text-[#2C2C2A] py-1 transition-colors cursor-pointer"
+                  className="w-full flex items-center justify-between text-xs text-slate-600 hover:text-slate-900 py-1 transition-colors cursor-pointer"
                 >
                   <span className="font-semibold">
                     {isExpanded ? 'بستن تفکیک سرفصل‌ها' : 'مشاهده سهم سرفصل‌های هزینه این قرارداد'}
                   </span>
-                  {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  {isExpanded ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
                 </button>
 
                 {isExpanded && (
-                  <div className="mt-3 pt-3 border-t border-[#D3D1C7] grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+                  <div className="mt-3 pt-3 border-t border-slate-100 grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
                     {(Object.keys(c.categories) as ExpenseCategory[]).map((cat) => {
                       const amount = c.categories[cat];
                       if (amount === 0) return null;
@@ -359,16 +361,16 @@ export const ContractExpensesSection: React.FC<ContractExpenseLinkProps> = ({
                       return (
                         <div
                           key={cat}
-                          className="bg-white p-2 rounded-xl border border-[#ECEAE3] flex flex-col justify-between space-y-1"
+                          className="bg-white p-2.5 rounded-xl border border-slate-200/80 flex flex-col justify-between space-y-1.5 shadow-2xs"
                         >
-                          <div className="flex items-center gap-1.5 text-[11px] text-[#5F5E5A]">
+                          <div className="flex items-center gap-2 text-xs text-slate-600">
                             <span
                               className="w-2 h-2 rounded-full shrink-0"
                               style={{ backgroundColor: meta.colorHex }}
                             />
                             <span className="truncate">{meta.nameFa}</span>
                           </div>
-                          <span className="font-mono font-bold text-[#2C2C2A] text-xs">
+                          <span className="font-mono font-bold text-slate-900 text-xs">
                             {Math.round(amount / 1000000).toLocaleString('fa-IR')} م تومان
                           </span>
                         </div>

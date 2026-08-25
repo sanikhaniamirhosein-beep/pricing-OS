@@ -168,6 +168,7 @@ const AppContent: React.FC = () => {
         onToggleAiCoPilot={() => setIsAiCoPilotOpen(!isAiCoPilotOpen)}
         activeWorkspaceId={activeWorkspaceId}
         onSelectWorkspace={setActiveWorkspaceId}
+        onNavigateToSubTab={handleSelectSubTab}
         onLogout={() => setIsAuthenticated(false)}
       />
 

@@ -24,181 +24,158 @@ export const ContractPartiesTab: React.FC<Props> = ({ contract }) => {
   const getRoleLabel = (role: string) => {
     switch (role) {
       case 'enterprise_customer':
-        return { label: 'مشتری حقوقی / صاحب کالا و محموله', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
+        return { label: 'مشتری حقوقی / صاحب کالا و محموله', color: 'bg-emerald-50 text-emerald-800 border-emerald-200' };
       case 'contractor':
-        return { label: 'پیمانکار ترابری / ناوگان استیجاری', color: 'bg-blue-50 text-blue-700 border-blue-200' };
+        return { label: 'پیمانکار ترابری / ناوگان استیجاری', color: 'bg-indigo-50 text-indigo-800 border-indigo-200' };
       case 'partner':
-        return { label: 'شریک تجاری / کریدور مشترک', color: 'bg-indigo-50 text-indigo-700 border-indigo-200' };
+        return { label: 'شریک تجاری / کریدور مشترک', color: 'bg-slate-100 text-slate-800 border-slate-300' };
       case 'supplier':
-        return { label: 'تأمین‌کننده تجهیزات و قطعات', color: 'bg-amber-50 text-amber-700 border-amber-200' };
+        return { label: 'تأمین‌کننده تجهیزات و قطعات', color: 'bg-amber-50 text-amber-800 border-amber-200' };
       default:
-        return { label: role, color: 'bg-slate-50 text-slate-700 border-slate-200' };
+        return { label: role, color: 'bg-slate-100 text-slate-800 border-slate-200' };
     }
   };
 
   const roleInfo = getRoleLabel(parties.counterpartyRole);
 
   return (
-    <div className="space-y-6">
-      {/* Role Badge Banner */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200 gap-3">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-lg bg-indigo-100 text-indigo-700">
+    <div className="space-y-5">
+      {/* Top Banner */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 bg-white rounded-2xl border border-slate-200/80 shadow-2xs gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700">
             <Building2 className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-xs text-slate-500">نوع رابطه تجاری طرفین</div>
-            <div className="text-sm font-bold text-slate-900">{counterparty.companyName}</div>
+            <span className="text-xs font-medium text-slate-500">نوع رابطه تجاری طرفین توافق‌نامه</span>
+            <div className="text-sm font-bold text-slate-900 mt-0.5">{counterparty.companyName}</div>
           </div>
         </div>
-        <span className={`px-3 py-1.5 rounded-xl text-xs font-bold border ${roleInfo.color}`}>
+        <span className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold border ${roleInfo.color}`}>
           {roleInfo.label}
         </span>
       </div>
 
       {/* Two Column Grid: Internal Party (طرف اول) vs Counterparty (طرف دوم) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* First Party (Our Organization) */}
-        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div className="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-2xs space-y-5">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3.5">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-indigo-600"></span>
-              <h4 className="text-sm font-bold text-slate-900">طرف اول قرارداد (سازمان ما / متصدی حمل)</h4>
+              <span className="w-2 h-2 rounded-full bg-slate-900"></span>
+              <h4 className="text-xs font-bold text-slate-900">طرف اول قرارداد (سازمان ما / متصدی حمل)</h4>
             </div>
-            <span className="text-[11px] px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 font-medium border border-indigo-100">
+            <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 font-medium border border-slate-200">
               ارائه‌دهنده خدمات
             </span>
           </div>
 
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
-              <Building2 className="w-5 h-5 text-indigo-600 shrink-0" />
-              <div>
-                <div className="text-xs font-bold text-slate-900">شرکت حمل و نقل سراسری خلیج فارس (سهامی عام)</div>
-                <div className="text-[11px] text-slate-500 font-mono">شناسه ملی: ۱۰۱۰۱۲۹۴۸۱۱ | کد اقتصادی: ۴۱۱۴۹۲۸۳۷۴۶۱</div>
+          <div className="space-y-4 text-xs">
+            {/* Company Info Box */}
+            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200/60 space-y-1.5">
+              <div className="font-bold text-slate-900 text-sm">
+                شرکت حمل و نقل سراسری خلیج فارس (سهامی عام)
+              </div>
+              <div className="text-slate-500 font-mono flex items-center gap-3 flex-wrap">
+                <span>شناسه ملی: ۱۰۱۰۱۲۹۴۸۱۱</span>
+                <span>کد اقتصادی: ۴۱۱۴۹۲۸۳۷۴۶۱</span>
               </div>
             </div>
 
-            <div className="p-3 bg-indigo-50/50 rounded-xl border border-indigo-100 space-y-2">
-              <div className="flex items-center gap-2 text-xs font-bold text-indigo-900">
-                <UserCheck className="w-4 h-4 text-indigo-600" />
-                نماینده مجاز و امضاکننده رسمی سازمان:
+            {/* Signatory Box */}
+            <div className="p-4 bg-slate-50/80 rounded-xl border border-slate-200/60 space-y-3">
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-900">
+                <UserCheck className="w-4 h-4 text-slate-700" />
+                <span>نماینده مجاز و امضاکننده رسمی سازمان:</span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 <div>
-                  <span className="text-slate-500">نام و نام خانوادگی: </span>
-                  <span className="font-semibold text-slate-800">{internalSignatory.fullName}</span>
+                  <span className="text-slate-500 block mb-0.5">نام و سمت:</span>
+                  <span className="font-bold text-slate-900">{internalSignatory.fullName} ({internalSignatory.position})</span>
                 </div>
                 <div>
-                  <span className="text-slate-500">سمت: </span>
-                  <span className="font-semibold text-slate-800">{internalSignatory.position}</span>
+                  <span className="text-slate-500 block mb-0.5">کد ملی:</span>
+                  <span className="font-mono font-bold text-slate-900">{internalSignatory.nationalCode}</span>
                 </div>
                 <div>
-                  <span className="text-slate-500">کد ملی: </span>
-                  <span className="font-mono text-slate-800">{internalSignatory.nationalCode}</span>
-                </div>
-                <div>
-                  <span className="text-slate-500">شماره تماس: </span>
+                  <span className="text-slate-500 block mb-0.5">شماره تماس:</span>
                   <span className="font-mono text-slate-800">{internalSignatory.phone}</span>
                 </div>
-              </div>
-
-              {internalSignatory.signatureStatus === 'signed' && (
-                <div className="flex items-center gap-1.5 text-[11px] text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-200 mt-2">
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  امضای دیجیتال احراز هویت شده (تاریخ: {internalSignatory.signedAt})
+                <div>
+                  <span className="text-slate-500 block mb-0.5">پست الکترونیک:</span>
+                  <span className="font-mono text-slate-800">{internalSignatory.email}</span>
                 </div>
-              )}
+              </div>
             </div>
 
-            <div className="text-xs text-slate-600 space-y-1.5 p-2">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                <span>تهران، میدان ونک، خیابان ملاصدرا، پلاک ۹۲، برج حمل‌ونقل</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Briefcase className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                <span>واحد ناظر: {parties.internalDepartment || 'معاونت بازرگانی و هماهنگی شعب'}</span>
+            {/* Address & Legal Headquarters */}
+            <div className="space-y-2 pt-2">
+              <div className="flex items-start gap-2 text-slate-600">
+                <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                <span>نشانی اقامتگاه قانونی: تهران، بزرگراه فتح، کیلومتر ۷، مجتمع مرکزی لجستیک سراسری</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Second Party (Counterparty) */}
-        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div className="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-2xs space-y-5">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3.5">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
-              <h4 className="text-sm font-bold text-slate-900">طرف دوم قرارداد (شرکت طرف قرارداد)</h4>
+              <span className="w-2 h-2 rounded-full bg-slate-900"></span>
+              <h4 className="text-xs font-bold text-slate-900">طرف دوم قرارداد (مشتری حقوقی / کارفرما)</h4>
             </div>
-            <span className="text-[11px] px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-medium border border-emerald-100">
-              طرف متعهد / کارفرما
+            <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 font-medium border border-slate-200">
+              صاحب محموله
             </span>
           </div>
 
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
-              <Building2 className="w-5 h-5 text-emerald-600 shrink-0" />
-              <div>
-                <div className="text-xs font-bold text-slate-900">{counterparty.companyName}</div>
-                <div className="text-[11px] text-slate-500 font-mono">
-                  شناسه ملی: {counterparty.nationalId} | کد اقتصادی: {counterparty.economicCode || '---'}
-                </div>
+          <div className="space-y-4 text-xs">
+            {/* Company Info Box */}
+            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200/60 space-y-1.5">
+              <div className="font-bold text-slate-900 text-sm">
+                {counterparty.companyName}
+              </div>
+              <div className="text-slate-500 font-mono flex items-center gap-3 flex-wrap">
+                <span>شناسه ملی: {counterparty.nationalId}</span>
+                <span>شماره ثبت: {counterparty.registrationNumber}</span>
+                <span>کد اقتصادی: {counterparty.economicCode}</span>
               </div>
             </div>
 
-            <div className="p-3 bg-emerald-50/50 rounded-xl border border-emerald-100 space-y-2">
-              <div className="flex items-center gap-2 text-xs font-bold text-emerald-900">
-                <UserCheck className="w-4 h-4 text-emerald-600" />
-                نماینده امضاکننده مجاز طرف مقابل:
+            {/* Signatory Box */}
+            <div className="p-4 bg-slate-50/80 rounded-xl border border-slate-200/60 space-y-3">
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-900">
+                <UserCheck className="w-4 h-4 text-slate-700" />
+                <span>نماینده تام‌الاختیار و صاحب امضای مجاز:</span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 <div>
-                  <span className="text-slate-500">نام و نام خانوادگی: </span>
-                  <span className="font-semibold text-slate-800">{counterpartySignatory.fullName}</span>
+                  <span className="text-slate-500 block mb-0.5">نام و سمت:</span>
+                  <span className="font-bold text-slate-900">{counterpartySignatory.fullName} ({counterpartySignatory.position})</span>
                 </div>
                 <div>
-                  <span className="text-slate-500">سمت: </span>
-                  <span className="font-semibold text-slate-800">{counterpartySignatory.position}</span>
+                  <span className="text-slate-500 block mb-0.5">کد ملی:</span>
+                  <span className="font-mono font-bold text-slate-900">{counterpartySignatory.nationalCode}</span>
                 </div>
                 <div>
-                  <span className="text-slate-500">کد ملی: </span>
-                  <span className="font-mono text-slate-800">{counterpartySignatory.nationalCode}</span>
-                </div>
-                <div>
-                  <span className="text-slate-500">شماره تماس: </span>
+                  <span className="text-slate-500 block mb-0.5">شماره همراه:</span>
                   <span className="font-mono text-slate-800">{counterpartySignatory.phone}</span>
                 </div>
+                <div>
+                  <span className="text-slate-500 block mb-0.5">پست الکترونیک:</span>
+                  <span className="font-mono text-slate-800">{counterpartySignatory.email}</span>
+                </div>
               </div>
-
-              {counterpartySignatory.signatureStatus === 'signed' ? (
-                <div className="flex items-center gap-1.5 text-[11px] text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-200 mt-2">
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  امضای رسمی با مهر شرکت (تاریخ: {counterpartySignatory.signedAt || '---'})
-                </div>
-              ) : (
-                <div className="flex items-center gap-1.5 text-[11px] text-amber-700 bg-amber-50 px-2 py-1 rounded-lg border border-amber-200 mt-2">
-                  در انتظار دریافت نسخه امضاشده نهایی
-                </div>
-              )}
             </div>
 
-            <div className="text-xs text-slate-600 space-y-1.5 p-2">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                <span>{counterparty.address}</span>
-              </div>
-              <div className="flex items-center gap-4 text-[11px] text-slate-500">
-                <span className="flex items-center gap-1">
-                  <Phone className="w-3 h-3 text-slate-400" />
-                  تلفن: {counterparty.phone}
-                </span>
-                {counterparty.postalCode && (
-                  <span className="flex items-center gap-1">
-                    <Hash className="w-3 h-3 text-slate-400" />
-                    کد پستی: {counterparty.postalCode}
-                  </span>
-                )}
+            {/* Address & Legal Headquarters */}
+            <div className="space-y-2 pt-2">
+              <div className="flex items-start gap-2 text-slate-600">
+                <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                <span>نشانی مرکز اصلی: {counterparty.address}</span>
               </div>
             </div>
           </div>

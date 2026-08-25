@@ -104,6 +104,14 @@ export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
   const [incidentSubject, setIncidentSubject] = useState('');
   const [incidentDescription, setIncidentDescription] = useState('');
 
+  // Toast feedback state
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 4000);
+  };
+
   // Find ticket associated with the currently selected load
   const activeTicketForSelectedLoad = ticketsList.find(
     (t) => t.loadId === selectedLoad?.id && t.status !== 'resolved'
@@ -232,6 +240,23 @@ export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
+      {/* Toast Feedback Banner */}
+      {toastMessage && (
+        <div className="p-3.5 bg-amber-50 border border-amber-300 rounded-2xl text-amber-950 text-xs font-bold flex items-center justify-between animate-in fade-in duration-200">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-amber-600 shrink-0" />
+            <span>{toastMessage}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setToastMessage(null)}
+            className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+          >
+            <Check className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
       {/* Top Primary Control & Active Load Selection Banner (Bright Modern Light Theme) */}
       <div className="bg-gradient-to-r from-amber-50/70 via-white to-slate-50 p-4 sm:p-5 rounded-3xl border border-slate-200 shadow-xs flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
@@ -466,7 +491,8 @@ export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
                         </div>
                       </td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -776,7 +802,7 @@ export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
             </div>
             <button
               type="button"
-              onClick={() => alert('خروجی اکسل کامل گزارش بارنامه‌ها با موفقیت دانلود شد.')}
+              onClick={() => showToast('خروجی اکسل کامل گزارش بارنامه‌ها با موفقیت دانلود شد.')}
               className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
@@ -805,7 +831,7 @@ export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
                   </div>
                   <button
                     type="button"
-                    onClick={() => alert(`دانلود نسخه دیجیتال بارنامه ${load.billOfLadingNo}`)}
+                    onClick={() => showToast(`دانلود نسخه دیجیتال بارنامه ${load.billOfLadingNo}`)}
                     className="p-2 bg-slate-50 hover:bg-amber-50 text-slate-600 hover:text-amber-900 rounded-lg border border-slate-200 cursor-pointer"
                     title="دانلود بارنامه"
                   >
@@ -926,7 +952,7 @@ export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
                       </button>
                       <button
                         type="button"
-                        onClick={() => alert(`دانلود پیش‌فاکتور ${currentPackage.proformaInvoice.documentNumber}`)}
+                        onClick={() => showToast(`دانلود پیش‌فاکتور ${currentPackage.proformaInvoice.documentNumber}`)}
                         className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-colors cursor-pointer"
                         title="دانلود PDF"
                       >
@@ -984,7 +1010,7 @@ export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
                       </button>
                       <button
                         type="button"
-                        onClick={() => alert(`دانلود فاکتور مالیاتی ${currentPackage.officialInvoice.invoiceNumber}`)}
+                        onClick={() => showToast(`دانلود فاکتور مالیاتی ${currentPackage.officialInvoice.invoiceNumber}`)}
                         className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-colors cursor-pointer"
                         title="دانلود PDF"
                       >
@@ -1038,7 +1064,7 @@ export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
                       </button>
                       <button
                         type="button"
-                        onClick={() => alert(`دانلود حواله بارگیری ${currentPackage.loadingOrder.loadingOrderCode}`)}
+                        onClick={() => showToast(`دانلود حواله بارگیری ${currentPackage.loadingOrder.loadingOrderCode}`)}
                         className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-colors cursor-pointer"
                         title="دانلود PDF"
                       >
@@ -1092,7 +1118,7 @@ export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
                       </button>
                       <button
                         type="button"
-                        onClick={() => alert(`دانلود بارنامه الکترونیکی ${currentPackage.billOfLading.billOfLadingNo}`)}
+                        onClick={() => showToast(`دانلود بارنامه الکترونیکی ${currentPackage.billOfLading.billOfLadingNo}`)}
                         className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-colors cursor-pointer"
                         title="دانلود PDF"
                       >
@@ -1116,7 +1142,7 @@ export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => alert('کلیه مدارک و بارنامه‌های منتخب در قالب فایل فشرده ZIP آماده دانلود شد.')}
+                  onClick={() => showToast('کلیه مدارک و بارنامه‌های منتخب در قالب فایل فشرده ZIP آماده دانلود شد.')}
                   className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5" />

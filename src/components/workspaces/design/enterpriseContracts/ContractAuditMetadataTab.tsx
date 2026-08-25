@@ -22,21 +22,21 @@ export const ContractAuditMetadataTab: React.FC<Props> = ({ contract }) => {
     switch (level) {
       case 'top_secret_c_level':
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
-            <Lock className="w-3.5 h-3.5" />
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200">
+            <Lock className="w-3.5 h-3.5 text-rose-600" />
             فوق‌محرمانه - فقط هیئت مدیره و مدیران ارشد (C-Level)
           </span>
         );
       case 'confidential':
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
-            <Lock className="w-3.5 h-3.5" />
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+            <Lock className="w-3.5 h-3.5 text-amber-600" />
             محرمانه سازمانی - معاونت بازرگانی و مالی
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
             عمومی داخلی پرسنل دیسپاچینگ
           </span>
         );
@@ -44,65 +44,60 @@ export const ContractAuditMetadataTab: React.FC<Props> = ({ contract }) => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Confidentiality & Record Ownership Cards */}
+    <div className="space-y-5">
+      {/* Confidentiality & Ownership Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-2">
+        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs space-y-2">
           <div className="flex items-center justify-between text-slate-500 text-xs">
-            <span>ایجادکننده رکورد قرارداد</span>
-            <User className="w-4 h-4 text-indigo-600" />
+            <span className="font-medium">ایجادکننده رکورد قرارداد</span>
+            <User className="w-4 h-4 text-slate-700" />
           </div>
           <div className="text-sm font-bold text-slate-900">{auditFields.createdBy}</div>
           <div className="text-[11px] text-slate-500 font-mono flex items-center gap-1">
             <Calendar className="w-3 h-3" />
-            {auditFields.createdAt}
+            <span>{auditFields.createdAt}</span>
           </div>
         </div>
 
-        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-2">
+        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs space-y-2">
           <div className="flex items-center justify-between text-slate-500 text-xs">
-            <span>آخرین ویرایش‌کننده</span>
-            <User className="w-4 h-4 text-emerald-600" />
+            <span className="font-medium">آخرین ویرایش‌کننده</span>
+            <History className="w-4 h-4 text-slate-700" />
           </div>
           <div className="text-sm font-bold text-slate-900">{auditFields.lastModifiedBy}</div>
           <div className="text-[11px] text-slate-500 font-mono flex items-center gap-1">
             <Calendar className="w-3 h-3" />
-            {auditFields.lastModifiedAt}
+            <span>{auditFields.lastModifiedAt}</span>
           </div>
         </div>
 
-        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-2">
+        <div className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-2xs space-y-2">
           <div className="flex items-center justify-between text-slate-500 text-xs">
-            <span>سطح دسترسی و طبقه‌بندی امنیتی</span>
-            <FileKey className="w-4 h-4 text-amber-600" />
+            <span className="font-medium">کد اصالت و شناسه یکتا</span>
+            <FileKey className="w-4 h-4 text-emerald-600" />
           </div>
-          <div className="pt-1">{getConfidentialityBadge(auditFields.confidentialityLevel)}</div>
-          <p className="text-[11px] text-slate-500">مبتنی بر پالیسی کنترل دسترسی نقشی (RBAC)</p>
+          <div className="text-xs font-mono font-bold text-slate-800 truncate">
+            {contract.contractId}
+          </div>
+          <p className="text-[11px] text-emerald-700 font-medium">سند غیرقابل انکار و معتبر</p>
         </div>
       </div>
 
-      {/* Audit Trail Log */}
-      <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
-        <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-          <History className="w-4 h-4 text-indigo-600" />
-          <h4 className="text-sm font-bold text-slate-900">ردپای حسابرسی و وقایع امنیتی قرارداد (Audit Trail)</h4>
+      {/* Security Level Banner */}
+      <div className="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-2xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+          <div className="space-y-1">
+            <span className="text-xs font-medium text-slate-500">طبقه‌بندی امنیتی سند و کنترل دسترسی</span>
+            <div className="text-sm font-bold text-slate-900">سیاست افشای اطلاعات و محرمانگی تجاری (NDA)</div>
+          </div>
+          <div>{getConfidentialityBadge(auditFields.confidentialityLevel)}</div>
         </div>
 
-        <div className="divide-y divide-slate-100 text-xs">
-          {auditFields.auditTrail.map((log, idx) => (
-            <div key={idx} className="py-3 flex items-start gap-3">
-              <span className="w-2 h-2 rounded-full bg-indigo-600 mt-1.5 shrink-0"></span>
-              <div className="space-y-1 flex-1">
-                <div className="flex items-center justify-between text-[11px] text-slate-500">
-                  <span className="font-semibold text-slate-800">
-                    {log.user} ({log.action})
-                  </span>
-                  <span className="font-mono">{log.timestamp}</span>
-                </div>
-                <p className="text-slate-700 leading-relaxed">{log.detailsFa}</p>
-              </div>
-            </div>
-          ))}
+        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/60 text-xs text-slate-700 space-y-2">
+          <div className="font-bold text-slate-900">الزامات نگهداری و بایگانی اسناد مالی:</div>
+          <p className="text-slate-600 leading-relaxed text-[11px]">
+            بر اساس ماده ۱۸ قانون تجارت و آیین‌نامه امحای اسناد مالیاتی، اصل پرونده فیزیکی و امضاهای الکترونیکی این قرارداد به مدت ۱۰ سال شمسی در بایگانی راکد اسناد رسمی شرکت نگهداری می‌گردد.
+          </p>
         </div>
       </div>
     </div>
