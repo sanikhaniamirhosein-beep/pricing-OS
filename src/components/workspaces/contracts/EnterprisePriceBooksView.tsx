@@ -31,6 +31,7 @@ export const EnterprisePriceBooksView: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isContractModalOpen, setIsContractModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
+  const [modalError, setModalError] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Form State for creating/editing contract
@@ -111,9 +112,10 @@ export const EnterprisePriceBooksView: React.FC = () => {
   const handleSaveContract = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formCustomerNameFa.trim()) {
-      alert('لطفاً نام شرکت یا مشتری را وارد کنید.');
+      setModalError('لطفاً نام شرکت یا مشتری را وارد کنید.');
       return;
     }
+    setModalError(null);
 
     const overridesObj: Record<string, number> = {};
     formOverrides.forEach((o) => {
@@ -522,6 +524,19 @@ export const EnterprisePriceBooksView: React.FC = () => {
 
             {/* Modal Form */}
             <form onSubmit={handleSaveContract} className="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
+              {modalError && (
+                <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs font-bold flex items-center justify-between animate-in fade-in">
+                  <span>{modalError}</span>
+                  <button
+                    type="button"
+                    onClick={() => setModalError(null)}
+                    className="text-rose-500 hover:text-rose-700 px-2"
+                  >
+                    بستن
+                  </button>
+                </div>
+              )}
+
               {/* Section 1: Customer Identity */}
               <div className="space-y-3">
                 <div className="flex items-center gap-2 pb-2 border-b border-slate-100">

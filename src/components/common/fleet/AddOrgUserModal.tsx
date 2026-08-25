@@ -26,6 +26,7 @@ export const AddOrgUserModal: React.FC<AddOrgUserModalProps> = ({
   onSave,
   currentOrgId,
 }) => {
+  const [formError, setFormError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     fullName: '',
     roleTitle: 'کارشناس صدور بارنامه و اسناد حمل',
@@ -38,9 +39,10 @@ export const AddOrgUserModal: React.FC<AddOrgUserModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.fullName.trim() || !formData.email.trim()) {
-      alert('لطفاً نام و ایمیل کاربر را وارد کنید.');
+      setFormError('لطفاً نام و ایمیل کاربر را وارد کنید.');
       return;
     }
+    setFormError(null);
 
     const newUser: CarrierTeamMember = {
       id: `usr-carrier-${Date.now()}`,
@@ -110,6 +112,19 @@ export const AddOrgUserModal: React.FC<AddOrgUserModalProps> = ({
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {formError && (
+            <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs font-bold flex items-center justify-between">
+              <span>{formError}</span>
+              <button
+                type="button"
+                onClick={() => setFormError(null)}
+                className="text-rose-500 hover:text-rose-700 px-1"
+              >
+                ×
+              </button>
+            </div>
+          )}
+
           <div className="space-y-1.5">
             <label className="font-bold text-slate-700">نام و نام خانوادگی کاربر: <span className="text-red-500">*</span></label>
             <div className="relative">

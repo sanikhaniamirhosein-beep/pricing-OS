@@ -43,6 +43,7 @@ import { usePricing } from '../../store/PricingContext';
 import { getShipperRoleDetail } from '../../data/shipperRolesConfig';
 import { ModernSelect } from '../common/menus/ModernSelect';
 import { ShipmentPickerDropdown } from '../common/menus/ShipmentPickerDropdown';
+import { IranLicensePlate } from '../common/IranLicensePlate';
 import { Warehouse, CheckSquare, Upload, FileBadge, ShieldAlert, Stamp } from 'lucide-react';
 import { generateFullShipmentDocumentPackage } from '../../utils/shipmentDocumentGenerator';
 import { ShipmentDocumentModal } from './ShipmentDocumentModal';
@@ -413,9 +414,11 @@ export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
                         <div className="font-medium text-slate-800">{load.cargoType}</div>
                         <div className="text-[11px] text-slate-400 font-mono">{load.weightTons} تن • {load.truckType}</div>
                       </td>
-                      <td className="p-3.5">
+                      <td className="p-3.5 space-y-1">
                         <div className="font-bold text-slate-800">{load.driverName}</div>
-                        <div className="text-[11px] text-slate-500 font-mono">{load.truckPlate}</div>
+                        <div>
+                          <IranLicensePlate plateString={load.truckPlate} size="xs" />
+                        </div>
                       </td>
                       <td className="p-3.5">
                         {getStatusBadge(load.status)}
@@ -613,8 +616,8 @@ export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
                   <strong className="font-bold font-mono text-emerald-700 text-xs">{selectedLoad.progressPercent}٪ تکمیل شده</strong>
                 </div>
                 <div className="bg-white p-2.5 rounded-xl border border-slate-200/80">
-                  <span className="text-slate-500 text-[10px] block">پلاک کامیون:</span>
-                  <strong className="font-bold font-mono text-slate-900 text-xs">{selectedLoad.truckPlate}</strong>
+                  <span className="text-slate-500 text-[10px] block mb-1">پلاک کامیون:</span>
+                  <IranLicensePlate plateString={selectedLoad.truckPlate} size="sm" />
                 </div>
                 <div className="bg-white p-2.5 rounded-xl border border-slate-200/80">
                   <span className="text-slate-500 text-[10px] block">زمان تخمینی تحویل (ETA):</span>
@@ -640,8 +643,8 @@ export const ShipperShipmentsView: React.FC<ShipperShipmentsViewProps> = ({
                   {selectedLoad?.driverName ? selectedLoad.driverName.substring(0, 1) : 'ر'}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-bold text-slate-900 text-sm">{selectedLoad?.driverName || '-'}</div>
-                  <div className="text-slate-500 text-xs font-mono">{selectedLoad?.truckPlate || '-'}</div>
+                  <div className="font-bold text-slate-900 text-sm mb-1">{selectedLoad?.driverName || '-'}</div>
+                  <IranLicensePlate plateString={selectedLoad?.truckPlate || ''} size="xs" />
                 </div>
               </div>
 

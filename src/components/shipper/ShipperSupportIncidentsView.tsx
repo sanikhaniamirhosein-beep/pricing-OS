@@ -35,6 +35,7 @@ import {
   ShipperTicketMessage,
 } from '../../data/mockShipperData';
 import { ModernSelect } from '../common/menus/ModernSelect';
+import { IranLicensePlate } from '../common/IranLicensePlate';
 
 interface ShipperSupportIncidentsViewProps {
   initialSelectedTicketId?: string | null;
@@ -597,8 +598,8 @@ export const ShipperSupportIncidentsView: React.FC<ShipperSupportIncidentsViewPr
                       <span className="font-bold text-slate-800">{selectedTicket.driverName}</span>
                     </div>
                     <div>
-                      <span className="text-slate-400 block text-[10px]">پلاک کامیون:</span>
-                      <span className="font-mono font-bold text-slate-800">{selectedTicket.truckPlate}</span>
+                      <span className="text-slate-400 block text-[10px] mb-1">پلاک کامیون:</span>
+                      <IranLicensePlate plateString={selectedTicket.truckPlate} size="xs" />
                     </div>
                     <div>
                       <span className="text-slate-400 block text-[10px]">کارشناس پاسخگو:</span>
@@ -712,9 +713,20 @@ export const ShipperSupportIncidentsView: React.FC<ShipperSupportIncidentsViewPr
 
               {/* Chat Input Box */}
               <form onSubmit={handleSendMessage} className="p-3 bg-white border-t border-slate-200 flex items-center gap-2">
+                <input
+                  type="file"
+                  id="incident-file-upload"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setReplyText((prev) => prev ? `${prev} [ضمیمه: ${file.name}]` : `[پیوست سند: ${file.name}]`);
+                    }
+                  }}
+                />
                 <button
                   type="button"
-                  onClick={() => alert('امکان بارگذاری عکس مدارک بارنامه، صورتجلسه و باسکول مبدأ/مقصد فعال است.')}
+                  onClick={() => document.getElementById('incident-file-upload')?.click()}
                   className="p-2.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
                   title="پیوست تصویر یا سند خسارت/بارنامه"
                 >

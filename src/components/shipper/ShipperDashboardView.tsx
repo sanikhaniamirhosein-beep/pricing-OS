@@ -107,25 +107,25 @@ export const ShipperDashboardView: React.FC<ShipperDashboardViewProps> = ({
           </div>
         </button>
 
-        {/* Quick Action 3: ثبت بار تک - Deep Navy / Indigo Card with High-Contrast Text */}
+        {/* Quick Action 3: ثبت بار تک / درخواست ناوگان حمل - High-Contrast Bright Amber/Indigo Theme with Crystal-Clear Legibility */}
         <button
           type="button"
           onClick={() => onNavigateTab('quote')}
-          className="p-5 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 hover:from-slate-950 hover:to-indigo-950 text-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 text-right group cursor-pointer flex items-center justify-between border border-indigo-700/60"
+          className="p-5 bg-gradient-to-br from-amber-500 via-amber-600 to-amber-700 hover:from-amber-600 hover:to-amber-800 text-white rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 text-right group cursor-pointer flex items-center justify-between border border-amber-400/40"
         >
           <div className="space-y-1">
-            <span className="text-[11px] font-bold text-amber-300 uppercase tracking-wider block">
+            <span className="text-[11px] font-bold text-amber-100 uppercase tracking-wider block drop-shadow-xs">
               درخواست ناوگان حمل
             </span>
-            <h3 className="text-base font-extrabold text-white flex items-center gap-2">
-              <PlusCircle className="w-5 h-5 text-emerald-400 group-hover:scale-110 transition-transform" />
+            <h3 className="text-base font-extrabold text-white flex items-center gap-2 drop-shadow-xs">
+              <PlusCircle className="w-5 h-5 text-amber-100 group-hover:scale-110 transition-transform" />
               ثبت سفارش تکی
             </h3>
-            <p className="text-xs text-slate-200 font-medium line-clamp-1">
+            <p className="text-xs text-amber-50 font-bold line-clamp-1 drop-shadow-2xs">
               تخصیص فوری کامیون و صدور حواله
             </p>
           </div>
-          <div className="w-9 h-9 rounded-xl bg-white/20 group-hover:bg-white/30 flex items-center justify-center shrink-0 transition-colors">
+          <div className="w-9 h-9 rounded-xl bg-white/25 group-hover:bg-white/35 flex items-center justify-center shrink-0 transition-colors shadow-2xs">
             <ArrowLeft className="w-4 h-4 text-white" />
           </div>
         </button>

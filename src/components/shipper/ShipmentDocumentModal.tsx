@@ -29,6 +29,7 @@ import {
   GeneratedLoadingOrder,
   GeneratedBillOfLading,
 } from '../../types/shipmentDocuments';
+import { IranLicensePlate } from '../common/IranLicensePlate';
 
 interface ShipmentDocumentModalProps {
   isOpen: boolean;
@@ -586,8 +587,8 @@ const LoadingOrderDocumentView: React.FC<{ doc: GeneratedLoadingOrder }> = ({ do
           </div>
 
           <div className="pt-2 border-t border-slate-200">
-            <span className="text-slate-500 text-[10px] block font-sans">شماره پلاک ناوگان:</span>
-            <strong className="text-slate-900 text-sm font-mono">{doc.driverFleet.truckPlate}</strong>
+            <span className="text-slate-500 text-[10px] block font-sans mb-1">شماره پلاک ناوگان:</span>
+            <IranLicensePlate plateString={doc.driverFleet.truckPlate} size="xs" />
           </div>
           <div className="pt-2 border-t border-slate-200">
             <span className="text-slate-500 text-[10px] block font-sans">نوع وسیله نقلیه:</span>
@@ -734,7 +735,10 @@ const BillOfLadingDocumentView: React.FC<{ doc: GeneratedBillOfLading }> = ({ do
           <div>شماره کارت هوشمند: <strong className="text-amber-800">{doc.driverFleet.driverSmartCardNo}</strong></div>
           <div>شماره گواهینامه: <span>{doc.driverFleet.driverLicenseNo}</span></div>
 
-          <div className="pt-1">پلاک ناوگان: <strong className="text-amber-900">{doc.driverFleet.truckPlate}</strong></div>
+          <div className="pt-1 flex items-center gap-1.5">
+            <span className="text-[10px] text-slate-500">پلاک:</span>
+            <IranLicensePlate plateString={doc.driverFleet.truckPlate} size="xs" />
+          </div>
           <div className="pt-1">نوع کامیون: <span className="font-sans">{doc.driverFleet.truckType}</span></div>
           <div className="pt-1">کارت هوشمند ناوگان: <span>{doc.driverFleet.fleetSmartCardNo}</span></div>
           <div className="pt-1">بیمه شخص ثالث: <span>{doc.driverFleet.thirdPartyInsuranceNo}</span></div>

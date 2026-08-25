@@ -23,6 +23,7 @@ import {
 import { CarrierDriver } from '../../../types/pricing';
 import { AddDriverFleetModal } from './AddDriverFleetModal';
 import { DriverDossierModal } from './DriverDossierModal';
+import { IranLicensePlate } from '../IranLicensePlate';
 
 interface FleetDriversTabProps {
   carrierDrivers: CarrierDriver[];
@@ -250,15 +251,7 @@ export const FleetDriversTab: React.FC<FleetDriversTabProps> = ({
 
                   <div className="flex items-center gap-3 self-start md:self-center">
                     {/* Iranian Commercial License Plate Display */}
-                    <div className="bg-amber-400 border-2 border-slate-950 rounded-xl px-3 py-1 flex items-center gap-2 shadow-xs" dir="ltr">
-                      <div className="bg-blue-800 text-white rounded px-1.5 py-0.5 flex flex-col items-center justify-center text-[7px] font-black shrink-0">
-                        <span>I.R.</span>
-                        <span>IRAN</span>
-                      </div>
-                      <span className="text-slate-950 font-black text-sm font-mono tracking-wider">
-                        {vehicleDocs.plateNumber}
-                      </span>
-                    </div>
+                    <IranLicensePlate plateString={vehicleDocs.plateNumber} size="md" interactive />
 
                     {/* Action buttons */}
                     <button

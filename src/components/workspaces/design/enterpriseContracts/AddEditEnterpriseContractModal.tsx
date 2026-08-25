@@ -18,6 +18,7 @@ import {
   Sparkles,
   Trash2,
   Hash,
+  AlertCircle,
 } from 'lucide-react';
 import {
   EnterpriseCorporateContract,
@@ -44,6 +45,7 @@ export const AddEditEnterpriseContractModal: React.FC<Props> = ({
   existingContract,
 }) => {
   const [activeStep, setActiveStep] = useState<number>(1);
+  const [formError, setFormError] = useState<string | null>(null);
 
   // 1. General Info
   const [title, setTitle] = useState(existingContract?.generalInfo.title || '');
@@ -221,9 +223,11 @@ export const AddEditEnterpriseContractModal: React.FC<Props> = ({
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !companyName.trim()) {
-      alert('لطفاً عنوان قرارداد و نام شرکت طرف قرارداد را تکمیل فرمایید.');
+      setFormError('لطفاً عنوان قرارداد و نام شرکت طرف قرارداد را تکمیل فرمایید.');
+      setActiveStep(1);
       return;
     }
+    setFormError(null);
 
     const contractId = existingContract?.contractId || handleGenerateContractId();
     const displayId = existingContract?.displayId || `CT-${Math.floor(300 + Math.random() * 600)}`;
@@ -551,6 +555,22 @@ export const AddEditEnterpriseContractModal: React.FC<Props> = ({
 
         {/* Modal Form Body */}
         <form onSubmit={handleFormSubmit} className="flex-1 overflow-y-auto p-6 space-y-6 text-xs">
+          {formError && (
+            <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-800 rounded-2xl flex items-center justify-between font-bold animate-in fade-in">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                <span>{formError}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setFormError(null)}
+                className="text-xs text-rose-500 hover:text-rose-700 px-2"
+              >
+                بستن
+              </button>
+            </div>
+          )}
+
           {/* STEP 1: General Info */}
           {activeStep === 1 && (
             <div className="space-y-4 animate-in fade-in">

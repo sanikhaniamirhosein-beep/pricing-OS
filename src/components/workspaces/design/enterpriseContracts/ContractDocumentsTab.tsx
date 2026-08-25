@@ -28,6 +28,7 @@ interface Props {
 
 export const ContractDocumentsTab: React.FC<Props> = ({ contract, onAddAmendment }) => {
   const { documents } = contract;
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isAddAmendmentModalOpen, setIsAddAmendmentModalOpen] = useState(false);
   const [newAmdNumber, setNewAmdNumber] = useState(`الحاقیه شماره ${(documents.amendments.length + 1).toLocaleString('fa-IR')}/۱۴۰۵`);
   const [newAmdTitle, setNewAmdTitle] = useState('');
@@ -79,6 +80,19 @@ export const ContractDocumentsTab: React.FC<Props> = ({ contract, onAddAmendment
 
   return (
     <div className="space-y-5">
+      {toastMessage && (
+        <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-xl text-xs font-bold flex items-center justify-between animate-in fade-in">
+          <span>{toastMessage}</span>
+          <button
+            type="button"
+            onClick={() => setToastMessage(null)}
+            className="text-emerald-600 hover:text-emerald-800 text-xs px-2"
+          >
+            بستن
+          </button>
+        </div>
+      )}
+
       {/* Official Attachments List */}
       <div className="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-2xs space-y-4">
         <div className="flex items-center justify-between border-b border-slate-100 pb-4">
@@ -114,7 +128,10 @@ export const ContractDocumentsTab: React.FC<Props> = ({ contract, onAddAmendment
               <div className="flex items-center gap-1.5 shrink-0">
                 <button
                   type="button"
-                  onClick={() => alert(`دانلود فایل ${att.title || att.fileName} در محیط پیش‌نمایش شبیه‌سازی شد.`)}
+                  onClick={() => {
+                    setToastMessage(`دانلود فایل ${att.title || att.fileName} در محیط پیش‌نمایش آغاز شد.`);
+                    setTimeout(() => setToastMessage(null), 4000);
+                  }}
                   className="p-2 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
                   title="دانلود فایل پیوست"
                 >

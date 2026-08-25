@@ -43,6 +43,7 @@ import {
 import { exportShipmentsToExcel } from '../../utils/exportShipmentsExcel';
 import { usePricing } from '../../store/PricingContext';
 import { ShipmentDocumentModal } from './ShipmentDocumentModal';
+import { IranLicensePlate } from '../common/IranLicensePlate';
 import { generateDocumentPackageForMonthlyShipment } from '../../utils/monthlyShipmentDocAdapter';
 import { FullShipmentDocumentPackage } from '../../types/shipmentDocuments';
 import { ModernSelect, ModernSelectOption } from '../common/menus/ModernSelect';
@@ -822,8 +823,8 @@ export const MonthlyShipmentsSection: React.FC<MonthlyShipmentsSectionProps> = (
                           <User className="w-3 h-3 text-slate-400" />
                           <span>{item.driverName}</span>
                         </div>
-                        <div className="text-[10px] text-slate-500 font-mono bg-slate-100 px-2 py-0.5 rounded-md inline-block">
-                          {item.truckPlate}
+                        <div>
+                          <IranLicensePlate plateString={item.truckPlate} size="xs" />
                         </div>
                       </td>
 
@@ -1098,10 +1099,8 @@ export const MonthlyShipmentsSection: React.FC<MonthlyShipmentsSectionProps> = (
                       <span className="font-medium text-slate-700">{selectedShipment.truckType}</span>
                     </div>
                     <div>
-                      <span className="text-slate-400 text-[10px] block">پلاک خودرو:</span>
-                      <span className="font-mono font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded">
-                        {selectedShipment.truckPlate}
-                      </span>
+                      <span className="text-slate-400 text-[10px] block mb-1">پلاک خودرو:</span>
+                      <IranLicensePlate plateString={selectedShipment.truckPlate} size="sm" />
                     </div>
                   </div>
                 </div>

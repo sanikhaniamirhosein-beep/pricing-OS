@@ -635,7 +635,6 @@ export const ShipperQuoteBookingView: React.FC<ShipperQuoteBookingViewProps> = (
   // Handle Book Now Finalization
   const handleFinalizeBooking = () => {
     if (!completeness.isComplete) {
-      alert(`ثبت بار امکان‌پذیر نیست!\nاطلاعات حقوقی و مشخصات رسمی شرکت هنوز تکمیل نشده است (${completeness.completionPercentage}٪ تکمیل شده).\nموارد ناقص:\n• ${completeness.missingFields.join('\n• ')}\n\nجهت تکمیل اطلاعات، مدیر ارشد باید از طریق منوی بالای صفحه (نام شرکت) اقدام نماید.`);
       openShipperOrgModal('basic');
       return;
     }

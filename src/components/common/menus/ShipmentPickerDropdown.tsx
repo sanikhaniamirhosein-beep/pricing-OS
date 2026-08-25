@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShipperActiveLoad } from '../../../data/mockShipperData';
+import { IranLicensePlate } from '../IranLicensePlate';
 
 interface ShipmentPickerDropdownProps {
   id?: string;
@@ -262,7 +263,7 @@ export const ShipmentPickerDropdown: React.FC<ShipmentPickerDropdownProps> = ({
                             <span className="text-slate-300">•</span>
                             <span>راننده: <strong className="text-slate-700">{load.driverName}</strong></span>
                             <span className="text-slate-300">•</span>
-                            <span className="font-mono text-slate-600">{load.truckPlate}</span>
+                            <IranLicensePlate plateString={load.truckPlate} size="xs" />
                           </div>
                         </div>
                       </div>

@@ -46,25 +46,25 @@ export const ExpenseManagementView: React.FC<ExpenseManagementViewProps> = ({
 }) => {
   // 1. Core State
   const [expenses, setExpenses] = useState<ExpenseRecord[]>(() => {
-    const saved = localStorage.getItem('logistic_system_expenses_v1');
-    if (saved) {
-      try {
+    try {
+      const saved = localStorage.getItem('logistic_system_expenses_v1');
+      if (saved) {
         return JSON.parse(saved);
-      } catch (e) {
-        console.error('Failed to parse saved expenses', e);
       }
+    } catch (e) {
+      console.error('Failed to parse saved expenses', e);
     }
     return INITIAL_EXPENSE_RECORDS;
   });
 
   const [budgets, setBudgets] = useState<Record<number, MonthlyBudgetConfig>>(() => {
-    const saved = localStorage.getItem('logistic_system_budgets_v1');
-    if (saved) {
-      try {
+    try {
+      const saved = localStorage.getItem('logistic_system_budgets_v1');
+      if (saved) {
         return JSON.parse(saved);
-      } catch (e) {
-        console.error('Failed to parse saved budgets', e);
       }
+    } catch (e) {
+      console.error('Failed to parse saved budgets', e);
     }
     return INITIAL_MONTHLY_BUDGETS_1405;
   });

@@ -27,12 +27,14 @@ import {
   Layers,
   ChevronDown,
   Check,
+  AlertTriangle,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CarrierDriver, DriverIdentityDocuments, VehicleFleetDocuments } from '../../../types/pricing';
 import { InsuranceCompanyPickerDropdown } from '../menus/InsuranceCompanyPickerDropdown';
 import { VehiclePickerDropdown } from '../menus/VehiclePickerDropdown';
 import { ModernSelect, ModernSelectOption } from '../menus/ModernSelect';
+import { IranLicensePlate } from '../IranLicensePlate';
 
 interface AddDriverFleetModalProps {
   isOpen: boolean;
@@ -51,6 +53,7 @@ export const AddDriverFleetModal: React.FC<AddDriverFleetModalProps> = ({
   const [driverFullName, setDriverFullName] = useState('');
   const [isSimulatingInquiry, setIsSimulatingInquiry] = useState(false);
   const [inquirySuccess, setInquirySuccess] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const initialDriverIdentity: DriverIdentityDocuments = {
     nationalIdNumber: '',
@@ -121,9 +124,11 @@ export const AddDriverFleetModal: React.FC<AddDriverFleetModalProps> = ({
 
   const handleSimulateRMTOInquiry = () => {
     if (!driverIdentity.nationalIdNumber && !driverIdentity.smartCardNumber) {
-      alert('لطفاً ابتدا کد ملی یا شماره کارت هوشمند راننده را وارد فرمایید.');
+      setFormError('لطفاً ابتدا کد ملی یا شماره کارت هوشمند راننده را وارد فرمایید.');
+      setTimeout(() => setFormError(null), 4000);
       return;
     }
+    setFormError(null);
     setIsSimulatingInquiry(true);
     setTimeout(() => {
       setIsSimulatingInquiry(false);
@@ -144,9 +149,11 @@ export const AddDriverFleetModal: React.FC<AddDriverFleetModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!driverFullName.trim()) {
-      alert('لطفاً نام و نام خانوادگی راننده را وارد کنید.');
+      setFormError('لطفاً نام و نام خانوادگی راننده را وارد کنید.');
+      setTimeout(() => setFormError(null), 4000);
       return;
     }
+    setFormError(null);
 
     const newDriver: CarrierDriver = {
       id: `drv-pg-${Date.now()}`,
@@ -366,6 +373,22 @@ export const AddDriverFleetModal: React.FC<AddDriverFleetModalProps> = ({
         </div>
 
         {/* Inquiry feedback notification */}
+        {formError && (
+          <div className="mx-6 mt-4 p-3 bg-rose-50 border border-rose-300 rounded-2xl flex items-center justify-between text-xs text-rose-950 shadow-2xs">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+              <span>{formError}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setFormError(null)}
+              className="text-rose-700 hover:text-rose-900 text-[11px] font-bold"
+            >
+              بستن
+            </button>
+          </div>
+        )}
+
         {inquirySuccess && (
           <div className="mx-6 mt-4 p-3 bg-emerald-50 border border-emerald-300 rounded-2xl flex items-center justify-between text-xs text-emerald-950 shadow-2xs">
             <div className="flex items-center gap-2">
@@ -752,25 +775,15 @@ export const AddDriverFleetModal: React.FC<AddDriverFleetModalProps> = ({
                     </div>
                     
                     {/* Visual Plate Display */}
-                    <div className="bg-amber-400 border-2 border-slate-950 rounded-xl p-2 flex items-center justify-between shadow-md max-w-sm mx-auto w-full transition-transform hover:scale-[1.01]" dir="ltr">
-                      {/* Left: Iran Flag & Blue Strip */}
-                      <div className="bg-blue-800 text-white rounded px-2 py-1 flex flex-col items-center justify-center text-[9px] font-black shrink-0">
-                        <span className="text-[8px]">I.R.</span>
-                        <span>IRAN</span>
-                      </div>
-
-                      {/* Middle: 2 Digits + Letter 'ع' + 3 Digits */}
-                      <div className="flex items-center gap-2 text-slate-950 font-black text-lg sm:text-xl font-mono tracking-wider">
-                        <span>{platePart1}</span>
-                        <span className="font-sans text-xl px-1.5 py-0.5 bg-amber-500 rounded text-slate-950 font-bold">{plateLetter}</span>
-                        <span>{platePart2}</span>
-                      </div>
-
-                      {/* Right: Iran Code Box */}
-                      <div className="border-l-2 border-slate-950 pl-2 text-center text-slate-950">
-                        <span className="text-[9px] block font-bold font-sans">ایران</span>
-                        <span className="font-mono font-black text-base">{plateIranCode}</span>
-                      </div>
+                    <div className="flex justify-center py-1">
+                      <IranLicensePlate
+                        part1={platePart1}
+                        letter={plateLetter}
+                        part2={platePart2}
+                        iranCode={plateIranCode}
+                        size="lg"
+                        interactive
+                      />
                     </div>
 
                     {/* Quick Input Fields for Plate */}

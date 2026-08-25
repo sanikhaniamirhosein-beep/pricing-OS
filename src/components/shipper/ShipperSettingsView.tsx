@@ -47,6 +47,7 @@ import {
   ShipperNotificationPreferences,
   DEFAULT_SHIPPER_NOTIFICATION_PREFERENCES,
 } from '../../types/shipperNotifications';
+import { RoleManagementView } from '../workspaces/system/roles/RoleManagementView';
 
 export const ShipperSettingsView: React.FC = () => {
   const {
@@ -85,15 +86,6 @@ export const ShipperSettingsView: React.FC = () => {
       setTeamMembers(currentShipperOrg.teamMembers || []);
     }
   }, [currentShipperOrg]);
-
-  // New Team Member Form
-  const [isAddingMember, setIsAddingMember] = useState(false);
-  const [newMemberName, setNewMemberName] = useState('');
-  const [newMemberEmail, setNewMemberEmail] = useState('');
-  const [newMemberPhone, setNewMemberPhone] = useState('');
-  const [newMemberRole, setNewMemberRole] = useState<ShipperUserRole>('Logistics Specialist / Coordinator');
-  const [newMemberLocation, setNewMemberLocation] = useState<string>('انبار مرکزی - اصفهان');
-  const [newMemberApprovalLimitMillion, setNewMemberApprovalLimitMillion] = useState<number>(100);
 
   // API Token State
   const [apiKey, setApiKey] = useState('shp_live_9941a0b3c882194f7e2d');
@@ -151,31 +143,6 @@ export const ShipperSettingsView: React.FC = () => {
     }
     setIsSavedNotif(true);
     setTimeout(() => setIsSavedNotif(false), 2000);
-  };
-
-  const handleAddMember = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newMemberName || !newMemberPhone) return;
-
-    const roleConfig = getShipperRoleDetail(newMemberRole);
-    const newMember: ShipperTeamMember = {
-      id: `USR-${Date.now()}`,
-      fullName: newMemberName,
-      email: newMemberEmail || `${newMemberName.toLowerCase().replace(/\s+/g, '.')}@msc.ir`,
-      phone: newMemberPhone,
-      role: roleConfig.titleFa as any,
-      accessLevel: roleConfig.levelBadge as any,
-      lastActive: 'دعوت‌نامه پیامکی ارسال شد',
-      status: 'active',
-      locationScope: roleConfig.locationScoped ? newMemberLocation : undefined,
-      approvalLimitToman: roleConfig.hasApprovalLimit ? newMemberApprovalLimitMillion * 1000000 : undefined,
-    };
-
-    setTeamMembers([...teamMembers, newMember]);
-    setIsAddingMember(false);
-    setNewMemberName('');
-    setNewMemberPhone('');
-    setNewMemberEmail('');
   };
 
   const handleSwitchActiveRole = (role: ShipperUserRole, location?: string, limit?: number) => {
@@ -273,17 +240,6 @@ export const ShipperSettingsView: React.FC = () => {
             );
           })}
         </div>
-
-        {activeTab === 'team' && (
-          <button
-            type="button"
-            onClick={() => setIsAddingMember(!isAddingMember)}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs"
-          >
-            <Plus className="w-4 h-4" />
-            <span>تعریف کاربر جدید با نقش و محدوده</span>
-          </button>
-        )}
       </div>
 
       {/* 1. TEAM MANAGEMENT */}
@@ -320,151 +276,6 @@ export const ShipperSettingsView: React.FC = () => {
               </div>
             )}
           </div>
-
-          {/* Add Team Member Modal/Inline */}
-          {isAddingMember && (
-            <form
-              onSubmit={handleAddMember}
-              className="bg-white p-5 rounded-3xl border border-sky-300 shadow-sm space-y-4 animate-in slide-in-from-top-2"
-            >
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h3 className="font-bold text-slate-900 text-xs flex items-center gap-2">
-                  <Users className="w-4 h-4 text-sky-600" />
-                  تعریف و انتصاب نقش پرسنل سازمان در پرتال صاحب بار
-                </h3>
-                <span className="text-[11px] text-slate-400">انطباق ۱۰۰٪ با ساختار دسترسی لجستیک شرکتی</span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-slate-700 text-xs font-bold mb-1">نام و نام خانوادگی:</label>
-                  <input
-                    type="text"
-                    required
-                    value={newMemberName}
-                    onChange={(e) => setNewMemberName(e.target.value)}
-                    placeholder="مثلاً: علی رضایی"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs focus:bg-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-slate-700 text-xs font-bold mb-1">شماره تماس همراه:</label>
-                  <input
-                    type="text"
-                    required
-                    value={newMemberPhone}
-                    onChange={(e) => setNewMemberPhone(e.target.value)}
-                    placeholder="۰۹۱۲۰۰۰۰۰۰۰"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-mono focus:bg-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-slate-700 text-xs font-bold mb-1">ایمیل سازمانی:</label>
-                  <input
-                    type="email"
-                    value={newMemberEmail}
-                    onChange={(e) => setNewMemberEmail(e.target.value)}
-                    placeholder="a.rezaei@msc.ir"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-mono focus:bg-white"
-                  />
-                </div>
-              </div>
-
-              {/* Role Picker */}
-              <div className="space-y-2 pt-2">
-                <label className="block text-slate-800 text-xs font-bold">انتخاب نقش و حدود اختیارات:</label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-                  {SHIPPER_ROLE_DETAILS.map((r) => {
-                    const isSelected = newMemberRole === r.role;
-                    return (
-                      <button
-                        key={r.id}
-                        type="button"
-                        onClick={() => setNewMemberRole(r.role)}
-                        className={`p-3 rounded-2xl border text-right transition-all cursor-pointer ${
-                          isSelected
-                            ? 'bg-sky-50 border-sky-500 text-sky-950 ring-1 ring-sky-400'
-                            : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'
-                        }`}
-                      >
-                        <div className="font-bold text-xs">{r.titleFa}</div>
-                        <div className="text-[10px] text-slate-400 font-mono mt-0.5">{r.titleEn}</div>
-                        <div className="text-[10px] text-slate-500 mt-1 line-clamp-2 leading-relaxed">
-                          {r.accessScopeFa}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Location Scope for Warehouse Operator */}
-              {newMemberRole === 'Warehouse / Dispatch Operator' && (
-                <div className="p-3.5 bg-amber-50 rounded-2xl border border-amber-200 space-y-2">
-                  <label className="block text-amber-950 text-xs font-bold flex items-center gap-1.5">
-                    <Warehouse className="w-4 h-4 text-amber-600" />
-                    محدوده مکانی و انبار تحت نظارت (Location Scope):
-                  </label>
-                  <ModernSelect
-                    id="new-member-location-scope"
-                    value={newMemberLocation}
-                    onChange={(val) => setNewMemberLocation(val)}
-                    label="انبار یا کارخانه مجاز:"
-                    options={SHIPPER_AVAILABLE_LOCATIONS.map((loc) => ({
-                      value: loc,
-                      label: loc,
-                    }))}
-                  />
-                  <p className="text-[10px] text-amber-800">
-                    این کاربر تنها بارهای ورودی/خروجی این انبار را مشاهده و امکان تایید بارگیری و آپلود رسید (POD) خواهد داشت.
-                  </p>
-                </div>
-              )}
-
-              {/* Approval Limit for Logistics Coordinator */}
-              {newMemberRole === 'Logistics Specialist / Coordinator' && (
-                <div className="p-3.5 bg-emerald-50 rounded-2xl border border-emerald-200 space-y-2">
-                  <label className="block text-emerald-950 text-xs font-bold flex items-center gap-1.5">
-                    <DollarSign className="w-4 h-4 text-emerald-600" />
-                    سقف تایید مالی مستقیم سفارش (Approval Threshold):
-                  </label>
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="number"
-                      min={10}
-                      max={500}
-                      step={10}
-                      value={newMemberApprovalLimitMillion}
-                      onChange={(e) => setNewMemberApprovalLimitMillion(Number(e.target.value))}
-                      className="w-32 bg-white border border-emerald-300 rounded-xl p-2 text-xs font-mono font-bold text-center"
-                    />
-                    <span className="text-xs font-bold text-emerald-900">میلیون تومان</span>
-                  </div>
-                  <p className="text-[10px] text-emerald-800">
-                    سفارش‌های با ارزش بیش از این مبلغ پس از ثبت، در وضعیت «نیازمند تایید مدیر ارشد» قرار خواهند گرفت.
-                  </p>
-                </div>
-              )}
-
-              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => setIsAddingMember(false)}
-                  className="px-4 py-2 bg-slate-200 text-slate-700 rounded-xl text-xs font-bold cursor-pointer"
-                >
-                  انصراف
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold cursor-pointer"
-                >
-                  تأیید و صدور دسترسی
-                </button>
-              </div>
-            </form>
-          )}
 
           {/* Members Table */}
           <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
@@ -569,74 +380,7 @@ export const ShipperSettingsView: React.FC = () => {
 
       {/* 2. ROLES & PERMISSIONS MATRIX (RBAC) */}
       {activeTab === 'roles_matrix' && (
-        <div className="space-y-4">
-          <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs space-y-3">
-            <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-              <Shield className="w-5 h-5 text-sky-600" />
-              ماتریس جامع وظایف و سطوح دسترسی پرسنل صاحب بار (Shipper RBAC Matrix)
-            </h3>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              این ماتریس تفکیک وظایف (Segregation of Duties)، سقف‌های اعتباری و محدوده‌های نظارت مکانی هر عنوان شغلی در پورتال شرکتی را مشخص می‌نماید.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {SHIPPER_ROLE_DETAILS.map((r) => (
-              <div key={r.id} className="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs space-y-4">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                  <div>
-                    <h4 className="font-bold text-slate-900 text-sm">{r.titleFa}</h4>
-                    <p className="text-xs text-slate-400 font-mono">{r.titleEn}</p>
-                  </div>
-                  <span className="px-2.5 py-1 bg-sky-50 text-sky-800 border border-sky-200 rounded-xl text-xs font-bold">
-                    {r.levelBadge}
-                  </span>
-                </div>
-
-                <div className="space-y-2">
-                  <span className="text-xs font-bold text-slate-800 block">شرح دسترسی‌ها و اختیارات:</span>
-                  <p className="text-xs text-slate-600 bg-slate-50 p-3 rounded-2xl border border-slate-100 leading-relaxed">
-                    {r.accessScopeFa}
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <span className="text-xs font-bold text-slate-800 block">وظایف و کارکردهای کلیدی:</span>
-                  <ul className="space-y-1.5 text-xs text-slate-600">
-                    {r.dutiesFa.map((duty, idx) => (
-                      <li key={idx} className="flex items-start gap-2">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                        <span>{duty}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2">
-                    {r.locationScoped && (
-                      <span className="px-2 py-0.5 bg-amber-50 text-amber-900 border border-amber-200 rounded-md text-[10px] font-bold">
-                        فیلتر مکانی انبار
-                      </span>
-                    )}
-                    {r.hasApprovalLimit && (
-                      <span className="px-2 py-0.5 bg-emerald-50 text-emerald-900 border border-emerald-200 rounded-md text-[10px] font-bold">
-                        سقف تایید ۱۰۰ م تومان
-                      </span>
-                    )}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => handleSwitchActiveRole(r.role)}
-                    className="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-900 font-bold rounded-xl border border-sky-200 text-xs cursor-pointer"
-                  >
-                    شبیه‌سازی دسترسی
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <RoleManagementView portalType="shipper" />
       )}
 
       {/* 3. NOTIFICATIONS */}

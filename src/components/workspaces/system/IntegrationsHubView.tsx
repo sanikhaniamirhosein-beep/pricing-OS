@@ -286,9 +286,9 @@ export const IntegrationsHubView: React.FC = () => {
     }, 600);
   };
 
-  const avgLatency = Math.round(
-    connectors.reduce((acc, c) => acc + c.latencyMs, 0) / connectors.length
-  );
+  const avgLatency = connectors.length
+    ? Math.round(connectors.reduce((acc, c) => acc + c.latencyMs, 0) / connectors.length)
+    : 0;
 
   return (
     <div className="space-y-6">

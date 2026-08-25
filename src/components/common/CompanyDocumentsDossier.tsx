@@ -229,6 +229,7 @@ export const PdfUploadCard: React.FC<PdfUploadCardProps> = ({
   icon,
 }) => {
   const [isDragging, setIsDragging] = useState(false);
+  const [formatError, setFormatError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -250,9 +251,11 @@ export const PdfUploadCard: React.FC<PdfUploadCardProps> = ({
 
   const processFile = (file: File) => {
     if (file.type !== 'application/pdf' && !file.name.endsWith('.pdf')) {
-      alert('لطفاً تنها فایل با فرمت PDF بارگذاری فرمایید.');
+      setFormatError('لطفاً تنها فایل با فرمت PDF بارگذاری فرمایید.');
+      setTimeout(() => setFormatError(null), 3500);
       return;
     }
+    setFormatError(null);
 
     const fileSizeStr =
       file.size > 1024 * 1024
@@ -304,6 +307,19 @@ export const PdfUploadCard: React.FC<PdfUploadCardProps> = ({
         className="hidden"
         onChange={handleFileChange}
       />
+
+      {formatError && (
+        <div className="p-2 bg-rose-50 border border-rose-200 text-rose-800 rounded-lg text-xs font-bold flex items-center justify-between">
+          <span>{formatError}</span>
+          <button
+            type="button"
+            onClick={() => setFormatError(null)}
+            className="text-rose-500 hover:text-rose-700 px-1"
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       {/* Header Info */}
       <div className="flex items-start justify-between gap-3">

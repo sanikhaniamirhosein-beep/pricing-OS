@@ -89,6 +89,7 @@ export const ShipperOrgProfileModal: React.FC<ShipperOrgProfileModalProps> = ({
   const [activeTab, setActiveTab] = useState<'basic' | 'financial' | 'operations'>(initialTab);
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [saveSuccessMessage, setSaveSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isCopiedShaba, setIsCopiedShaba] = useState<boolean>(false);
 
   // States for Real-time Verification Simulations
@@ -386,9 +387,11 @@ export const ShipperOrgProfileModal: React.FC<ShipperOrgProfileModalProps> = ({
   // Simulate Shahkar Mobile matching
   const handleVerifyShahkar = () => {
     if (!indivFormData.mobileNumber || !indivFormData.nationalCode) {
-      alert('لطفاً ابتدا کد ملی و شماره موبایل را وارد نمایید.');
+      setErrorMessage('لطفاً ابتدا کد ملی و شماره موبایل را وارد نمایید.');
+      setTimeout(() => setErrorMessage(null), 4000);
       return;
     }
+    setErrorMessage(null);
     setIsVerifyingShahkar(true);
     setTimeout(() => {
       setIsVerifyingShahkar(false);
@@ -402,9 +405,11 @@ export const ShipperOrgProfileModal: React.FC<ShipperOrgProfileModalProps> = ({
   // Simulate Sabt Ahval verification
   const handleVerifySabtAhval = () => {
     if (!indivFormData.nationalCode || !indivFormData.birthDate) {
-      alert('لطفاً کد ملی و تاریخ تولد را وارد فرمایید.');
+      setErrorMessage('لطفاً کد ملی و تاریخ تولد را وارد فرمایید.');
+      setTimeout(() => setErrorMessage(null), 4000);
       return;
     }
+    setErrorMessage(null);
     setIsVerifyingSabtAhval(true);
     setTimeout(() => {
       setIsVerifyingSabtAhval(false);
@@ -419,7 +424,8 @@ export const ShipperOrgProfileModal: React.FC<ShipperOrgProfileModalProps> = ({
   const handleSaveAll = () => {
     if (entityType === 'corporate') {
       if (!isSeniorAdmin) {
-        alert('خطای دسترسی: ویرایش اطلاعات و پرونده ثبتی شرکت فقط در اختیار مدیر ارشد سازمان می‌باشد.');
+        setErrorMessage('خطای دسترسی: ویرایش اطلاعات و پرونده ثبتی شرکت فقط در اختیار مدیر ارشد سازمان می‌باشد.');
+        setTimeout(() => setErrorMessage(null), 4000);
         setIsEditing(false);
         return;
       }
@@ -606,6 +612,26 @@ export const ShipperOrgProfileModal: React.FC<ShipperOrgProfileModalProps> = ({
             >
               <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>{saveSuccessMessage}</span>
+            </motion.div>
+          )}
+          {errorMessage && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="bg-rose-600 text-white px-6 py-2.5 text-xs font-bold flex items-center justify-between gap-2 shadow-inner"
+            >
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 shrink-0" />
+                <span>{errorMessage}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setErrorMessage(null)}
+                className="text-white/80 hover:text-white text-xs px-2"
+              >
+                بستن
+              </button>
             </motion.div>
           )}
         </AnimatePresence>

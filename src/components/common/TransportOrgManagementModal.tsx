@@ -205,6 +205,7 @@ export const TransportOrgManagementModal: React.FC = () => {
 
   // Company Profile Edit State
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileError, setProfileError] = useState<string | null>(null);
 
   // Automatically revoke edit mode if active user is not Senior Admin
   useEffect(() => {
@@ -260,10 +261,12 @@ export const TransportOrgManagementModal: React.FC = () => {
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isSeniorAdmin) {
-      alert('خطای دسترسی: ویرایش اطلاعات شرکت منحصراً در اختیار مدیر ارشد می‌باشد.');
+      setProfileError('خطای دسترسی: ویرایش اطلاعات شرکت منحصراً در اختیار مدیر ارشد می‌باشد.');
+      setTimeout(() => setProfileError(null), 4000);
       setIsEditingProfile(false);
       return;
     }
+    setProfileError(null);
     updateCarrierOrgProfile({
       nameFa: profileForm.nameFa,
       nameEn: profileForm.nameEn,
@@ -424,6 +427,19 @@ export const TransportOrgManagementModal: React.FC = () => {
 
         {/* Modal Scrollable Body */}
         <div className="p-6 overflow-y-auto flex-1 space-y-6 bg-slate-50/40">
+          {profileError && (
+            <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs font-bold flex items-center justify-between animate-in fade-in">
+              <span>{profileError}</span>
+              <button
+                type="button"
+                onClick={() => setProfileError(null)}
+                className="text-rose-500 hover:text-rose-700 px-2"
+              >
+                بستن
+              </button>
+            </div>
+          )}
+
           {/* ======================================================== */}
           {/* TAB 1: COMPANY PROFILE                                   */}
           {/* ======================================================== */}

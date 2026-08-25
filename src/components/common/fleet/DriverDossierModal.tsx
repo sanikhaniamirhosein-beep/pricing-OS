@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { CarrierDriver } from '../../../types/pricing';
+import { IranLicensePlate } from '../IranLicensePlate';
 
 interface DriverDossierModalProps {
   driver: CarrierDriver | null;
@@ -155,14 +156,9 @@ export const DriverDossierModal: React.FC<DriverDossierModalProps> = ({ driver, 
               </div>
 
               {/* Iranian Plate Display */}
-              <div className="bg-amber-400 border-2 border-slate-950 rounded-xl px-3 py-1.5 flex items-center gap-2.5 shadow-sm self-start sm:self-center" dir="ltr">
-                <div className="bg-blue-800 text-white rounded px-1.5 py-0.5 flex flex-col items-center justify-center text-[7px] font-black">
-                  <span>I.R.</span>
-                  <span>IRAN</span>
-                </div>
-                <span className="text-slate-950 font-black text-base sm:text-lg font-mono tracking-wider">
-                  {vehicleDocs.plateNumber}
-                </span>
+              <div className="flex flex-col items-start sm:items-end gap-1 self-start sm:self-center">
+                <span className="text-[10px] text-slate-500 font-bold">پلاک انتظامی ناوگان:</span>
+                <IranLicensePlate plateString={vehicleDocs.plateNumber} size="lg" interactive />
               </div>
             </div>
           </div>
@@ -341,7 +337,11 @@ export const DriverDossierModal: React.FC<DriverDossierModalProps> = ({ driver, 
                       {vehicleDocs.ownershipType === 'self' ? 'خودمالک' : vehicleDocs.ownershipType === 'company' ? 'ملکی شرکت' : 'استیجاری'}
                     </span>
                   </div>
-                  <div className="space-y-1 text-slate-600">
+                  <div className="space-y-2 text-slate-600">
+                    <div className="flex items-center justify-between">
+                      <span>پلاک انتظامی:</span>
+                      <IranLicensePlate plateString={vehicleDocs.plateNumber} size="xs" />
+                    </div>
                     <div className="flex justify-between">
                       <span>نوع خودرو:</span>
                       <span className="font-bold text-slate-900">{vehicleDocs.vehicleType}</span>
