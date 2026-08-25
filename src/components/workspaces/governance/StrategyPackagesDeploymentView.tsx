@@ -24,6 +24,12 @@ export const StrategyPackagesDeploymentView: React.FC = () => {
   );
   const [isRollbacking, setIsRollbacking] = useState(false);
   const [canaryPercentage, setCanaryPercentage] = useState<number>(20);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 4000);
+  };
 
   const handleRollback = (pkgId: string) => {
     triggerStepUpMFA('عملیات بازگشت اضطراری به نسخه پایدار قبلی (Emergency Rollback)', () => {
@@ -31,25 +37,42 @@ export const StrategyPackagesDeploymentView: React.FC = () => {
       setTimeout(() => {
         rollbackPackage(pkgId, 'Emergency rollback triggered by operator');
         setIsRollbacking(false);
-        alert('نسخه فعال با موفقیت به نسخه پایدار بازگردانده شد.');
+        showToast('نسخه فعال با موفقیت به نسخه پایدار بازگردانده شد.');
       }, 1000);
     });
   };
 
   const handleDeployCanary = (pkgId: string) => {
     publishPackage(pkgId, canaryPercentage);
-    alert(`بسته ${pkgId} با موفقیت به صورت آزمایشی روی ${canaryPercentage}٪ درخواست‌ها منتشر شد.`);
+    showToast(`بسته ${pkgId} با موفقیت به صورت آزمایشی روی ${canaryPercentage}٪ درخواست‌ها منتشر شد.`);
   };
 
   const handleDeployProduction = (pkgId: string) => {
     triggerStepUpMFA('انتشار نهایی سراسری در محیط عملیاتی (Production Deployment)', () => {
       deployPackage(pkgId);
-      alert(`بسته ${pkgId} با موفقیت به عنوان نسخه اصلی و ۱۰۰٪ فعال در پروداکشن قرار گرفت.`);
+      showToast(`بسته ${pkgId} با موفقیت به عنوان نسخه اصلی و ۱۰۰٪ فعال در پروداکشن قرار گرفت.`);
     });
   };
 
   return (
     <div className="space-y-6">
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="bg-emerald-50 border border-emerald-300 text-emerald-900 p-4 rounded-2xl flex items-center justify-between text-xs font-bold animate-in fade-in slide-in-from-top-2 shadow-xs">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>{toastMessage}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setToastMessage(null)}
+            className="text-emerald-700 hover:text-emerald-950 text-xs underline cursor-pointer"
+          >
+            بستن
+          </button>
+        </div>
+      )}
+
       {/* Header Banner */}
       <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
