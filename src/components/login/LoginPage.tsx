@@ -29,7 +29,6 @@ import {
 } from 'lucide-react';
 import { UserRole, ShipperUserRole } from '../../types/pricing';
 import { CarrierAuthModal } from './CarrierAuthModal';
-import { PricingHero } from './PricingHero';
 import { ShipperAuthModal } from './ShipperAuthModal';
 
 interface LoginPageProps {
@@ -258,10 +257,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onOpenQuickQuote 
         </div>
       </header>
 
-      {/* 2. SHADER HERO */}
-      <PricingHero />
-
-      {/* 3. PORTAL LOGIN SECTION (TWO DISTINCT PORTAL CARDS) */}
+      {/* 2. HERO LOGIN SECTION (TWO DISTINCT PORTAL CARDS) */}
       <section className="relative overflow-hidden py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-white via-[#FAF8F5] to-[#F5EFEB]">
         {/* Subtle background decorative shapes */}
         <div className="absolute top-1/4 right-5 w-96 h-96 bg-amber-200/30 rounded-full blur-3xl pointer-events-none" />
@@ -416,7 +412,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onOpenQuickQuote 
         </div>
       </section>
 
-      {/* 4. PLATFORM CORE PILLARS & FEATURES SECTION */}
+      {/* 3. PLATFORM CORE PILLARS & FEATURES SECTION */}
       <section className="py-20 bg-white border-y border-amber-200/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Section Header */}
@@ -467,7 +463,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onOpenQuickQuote 
         </div>
       </section>
 
-      {/* 5. SUMMARY OF SERVICES & VALUE FLOW SECTION */}
+      {/* 4. SUMMARY OF SERVICES & VALUE FLOW SECTION */}
       <section className="py-20 bg-[#F5EFEB] border-b border-amber-200/70">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto space-y-3 mb-16">
@@ -528,7 +524,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onOpenQuickQuote 
         </div>
       </section>
 
-      {/* 6. FOOTER */}
+      {/* 5. FOOTER */}
       <footer className="bg-white border-t border-amber-200/80 py-10 text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
